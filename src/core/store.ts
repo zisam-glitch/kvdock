@@ -1,5 +1,6 @@
 import { TTLValidationError } from "./errors.js";
 import { defaultSerializer } from "./serializer.js";
+
 import type {
   Serializer,
   SetOptions,
@@ -7,6 +8,13 @@ import type {
   StoreMetrics,
   StoreOptions,
 } from "./types.js";
+
+function validateTTL(ttl: unknown): asserts ttl is number | undefined {
+  if (ttl === undefined) return;
+  if (typeof ttl !== "number" || !Number.isFinite(ttl) || !Number.isInteger(ttl) || ttl <= 0) {
+    throw new TTLValidationError(ttl);
+  }
+}
 
 export class KVDock {
   private readonly adapter: StorageAdapter;
@@ -58,9 +66,7 @@ export class KVDock {
 
   public async set<T = unknown>(key: string, value: T, options?: SetOptions): Promise<void> {
     const ttl = options?.ttl ?? this.defaultTTL;
-    if (ttl !== undefined && (typeof ttl !== "number" || ttl <= 0 || Number.isNaN(ttl))) {
-      throw new TTLValidationError(ttl);
-    }
+    validateTTL(ttl);
 
     const payload = this.serializer.serialize(value);
     await this.adapter.set(this.resolveKey(key), payload, { ...options, ttl });
@@ -122,14 +128,18 @@ export class KVDock {
     if (entries.length === 0) return;
 
     if (this.adapter.capabilities.batch && this.adapter.setMany) {
-      const mapped = entries.map((e) => ({
-        key: this.resolveKey(e.key),
-        value: this.serializer.serialize(e.value),
-        options: {
-          ...e.options,
-          ttl: e.options?.ttl ?? this.defaultTTL,
-        },
-      }));
+      const mapped = entries.map((e) => {
+        const ttl = e.options?.ttl ?? this.defaultTTL;
+        validateTTL(ttl);
+        return {
+          key: this.resolveKey(e.key),
+          value: this.serializer.serialize(e.value),
+          options: {
+            ...e.options,
+            ttl,
+          },
+        };
+      });
       await this.adapter.setMany(mapped);
       this.metrics.sets += entries.length;
       return;
