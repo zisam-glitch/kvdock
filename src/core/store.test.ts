@@ -84,12 +84,26 @@ describe("KVDock core", () => {
     expect(dock.stats.sets).toBe(1);
   });
 
-  it("throws on invalid ttl", async () => {
+  it("rejects invalid ttl boundary values in set and setMany", async () => {
+    const adapter = new MockAdapter();
+    const dock = new KVDock({ adapter });
+    const invalidTTLs = [0, -1, 0.5, Number.POSITIVE_INFINITY, Number.NaN, "100"];
+
+    for (const ttl of invalidTTLs) {
+      await expect(dock.set("k", "v", { ttl: ttl as number })).rejects.toThrow(TTLValidationError);
+      await expect(
+        dock.setMany([{ key: "k", value: "v", options: { ttl: ttl as number } }]),
+      ).rejects.toThrow(TTLValidationError);
+    }
+
+    expect(adapter.data.size).toBe(0);
+  });
+
+  it("accepts a positive integer ttl", async () => {
     const adapter = new MockAdapter();
     const dock = new KVDock({ adapter });
 
-    await expect(dock.set("k", "v", { ttl: -10 })).rejects.toThrow(TTLValidationError);
-    await expect(dock.set("k", "v", { ttl: Number.NaN })).rejects.toThrow(TTLValidationError);
+    await expect(dock.set("k", "v", { ttl: 1 })).resolves.toBeUndefined();
   });
 
   it("evaluates getOrSet fetcher on miss", async () => {
