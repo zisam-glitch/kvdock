@@ -96,6 +96,13 @@ await dock.set("artifact_hash", "9f83ac");
 
 Check the [Milestone Board](https://github.com/zisam-glitch/kvdock/milestones) to claim an adapter.
 
+## Multi-Language Implementations
+
+- **Rust**: [`zisam-glitch/kvdock-rs`](https://github.com/zisam-glitch/kvdock-rs) — Thread-safe, zero-dependency caching layer with monotonic `Instant` TTL.
+- **Go**: [`zisam-glitch/kvdock-go`](https://github.com/zisam-glitch/kvdock-go) — Generic key-value cache engine with atomic telemetry.
+- **Swift**: [`zisam-glitch/kvdock-swift`](https://github.com/zisam-glitch/kvdock-swift) — Actor-isolated concurrent cache with `ContinuousClock`.
+- **Kotlin**: [`zisam-glitch/kvdock-kt`](https://github.com/zisam-glitch/kvdock-kt) — Thread-safe $O(1)$ LRU key-value cache for JVM.
+
 ## License
 
 [MIT](LICENSE) © [zisam shaikh](https://github.com/zisam-glitch)
