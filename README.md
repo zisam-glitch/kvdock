@@ -103,6 +103,27 @@ Check the [Milestone Board](https://github.com/zisam-glitch/kvdock/milestones) t
 - **Swift**: [`zisam-glitch/kvdock-swift`](https://github.com/zisam-glitch/kvdock-swift) — Actor-isolated concurrent cache with `ContinuousClock`.
 - **Kotlin**: [`zisam-glitch/kvdock-kt`](https://github.com/zisam-glitch/kvdock-kt) — Thread-safe $O(1)$ LRU key-value cache for JVM.
 
+## Contributors
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/zisam-glitch"><img src="https://avatars.githubusercontent.com/u/190885141?v=4" width="100px;" alt="zisam shaikh"/><br /><sub><b>zisam shaikh</b></sub></a><br /><a href="#infra-zisam-glitch" title="Infrastructure">🚇</a> <a href="#maintenance-zisam-glitch" title="Maintenance">🚧</a> <a href="#code-zisam-glitch" title="Code">💻</a> <a href="#doc-zisam-glitch" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Vamsi-2581"><img src="https://avatars.githubusercontent.com/u/101239848?v=4" width="100px;" alt="Vamsi"/><br /><sub><b>Vamsi</b></sub></a><br /><a href="#code-Vamsi-2581" title="Code">💻</a> <a href="#test-Vamsi-2581" title="Tests">⚠️</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+
 ## License
 
 [MIT](LICENSE) © [zisam shaikh](https://github.com/zisam-glitch)

@@ -1,0 +1,36 @@
+{
+  "projectName": "kvdock",
+  "projectOwner": "zisam-glitch",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "contributors": [
+    {
+      "login": "zisam-glitch",
+      "name": "zisam shaikh",
+      "avatar_url": "https://avatars.githubusercontent.com/u/190885141?v=4",
+      "profile": "https://github.com/zisam-glitch",
+      "contributions": [
+        "code",
+        "doc",
+        "maintenance",
+        "infra"
+      ]
+    },
+    {
+      "login": "Vamsi-2581",
+      "name": "Vamsi",
+      "avatar_url": "https://avatars.githubusercontent.com/u/101239848?v=4",
+      "profile": "https://github.com/Vamsi-2581",
+      "contributions": [
+        "code",
+        "test"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7
+}
