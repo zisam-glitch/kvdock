@@ -90,6 +90,11 @@
       "import": "./dist/adapters/libsql/index.js",
       "require": "./dist/adapters/libsql/index.cjs"
     },
+    "./adapters/d1": {
+      "types": "./dist/adapters/d1/index.d.ts",
+      "import": "./dist/adapters/d1/index.js",
+      "require": "./dist/adapters/d1/index.cjs"
+    },
     "./adapters/indexeddb": {
       "types": "./dist/adapters/indexeddb/index.d.ts",
       "import": "./dist/adapters/indexeddb/index.js",

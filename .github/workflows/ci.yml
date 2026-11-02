@@ -53,6 +53,7 @@ jobs:
           test -f dist/adapters/sqlite/index.js
           test -f dist/adapters/bun-sqlite/index.js
           test -f dist/adapters/libsql/index.js
+          test -f dist/adapters/d1/index.js
           test -f dist/adapters/cloudflare-kv/index.js
           test -f dist/adapters/indexeddb/index.js
           test -f dist/adapters/localstorage/index.js
