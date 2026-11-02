@@ -37,9 +37,11 @@ npm install kvdock
 | Adapter | Status | Capabilities | Environment | Import |
 | :--- | :---: | :--- | :--- | :--- |
 | **Memory** | :white_check_mark: Built-in | TTL, Batch, Scan, LRU, CAS | All runtimes | `kvdock/adapters/memory` |
+| **Memory (Byte-Sized)** | :white_check_mark: Built-in | TTL, Batch, Scan, CAS, Byte limit | All runtimes | `kvdock/adapters/memory-sized` |
 | **SQLite** | :white_check_mark: Built-in | TTL, Batch, Scan, CAS, ACID Tx | Node.js (>=22), Bun | `kvdock/adapters/sqlite` |
 | **Filesystem** | :white_check_mark: Built-in | TTL, Scan, Atomic writes | Node.js, Bun | `kvdock/adapters/fs` |
 | **Redis / Valkey** | :white_check_mark: Built-in | TTL, Batch, Scan, Streaming | Node, Bun, Deno | `kvdock/adapters/redis` |
+| **Valkey Cluster** | :white_check_mark: Built-in | TTL, Batch, Slot routing, MOVED | Node, Bun, Deno | `kvdock/adapters/valkey-cluster` |
 | **Upstash (REST)** | :white_check_mark: Built-in | TTL, Batch, Scan, Pipeline | Serverless, Edge | `kvdock/adapters/upstash` |
 | **Cloudflare KV** | :white_check_mark: Built-in | TTL (60s+ clamp), Scan, Cursors | Cloudflare Workers | `kvdock/adapters/cloudflare-kv` |
 | **IndexedDB** | :white_check_mark: Built-in | TTL, Batch, Scan, CAS | Browsers, PWAs | `kvdock/adapters/indexeddb` |

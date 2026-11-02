@@ -251,4 +251,80 @@ describe("KVDock core", () => {
       expect(await dock.has(randKey)).toBe(true);
     }
   });
+
+  it("supports custom ValueCodec interfaces", async () => {
+    const adapter = new MockAdapter();
+
+    interface UserPayload {
+      id: number;
+      username: string;
+    }
+
+    // Custom binary/hex string codec
+    const hexCodec = {
+      encode(user: UserPayload): string {
+        return Buffer.from(JSON.stringify(user)).toString("hex");
+      },
+      decode(raw: string): UserPayload {
+        return JSON.parse(Buffer.from(raw, "hex").toString("utf-8"));
+      },
+    };
+
+    const dock = new KVDock({
+      adapter,
+      codec: hexCodec,
+    });
+
+    await dock.set("user:42", { id: 42, username: "dev" });
+
+    // Raw stored value should be hex encoded
+    const rawVal = adapter.data.get("user:42");
+    expect(rawVal).not.toContain("username");
+
+    // Retrieved should be typed decoded object
+    const decoded = await dock.get<UserPayload>("user:42");
+    expect(decoded).toEqual({ id: 42, username: "dev" });
+  });
+
+  it("enforces operation timeout and aborts lagging adapters", async () => {
+    class LaggyAdapter extends MockAdapter {
+      override async get<T = unknown>(_key: string): Promise<T | null> {
+        await new Promise((r) => setTimeout(r, 80));
+        return "slow" as unknown as T;
+      }
+    }
+
+    const dock = new KVDock({
+      adapter: new LaggyAdapter(),
+      timeoutMs: 25,
+    });
+
+    await expect(dock.get("slow_key")).rejects.toThrow(/timed out after 25ms/);
+  });
+
+  it("handles partial failure during batch iteration without crashing", async () => {
+    class FlakyBatchAdapter extends MockAdapter {
+      override capabilities = {
+        ...super.capabilities,
+        batch: false,
+      };
+
+      override async set<T = unknown>(key: string, value: T): Promise<void> {
+        if (key === "fail_me") {
+          throw new Error("simulated driver write failure");
+        }
+        await super.set(key, value);
+      }
+    }
+
+    const dock = new KVDock({ adapter: new FlakyBatchAdapter() });
+
+    await expect(
+      dock.setMany([
+        { key: "ok1", value: "1" },
+        { key: "fail_me", value: "2" },
+        { key: "ok2", value: "3" },
+      ]),
+    ).rejects.toThrow("simulated driver write failure");
+  });
 });

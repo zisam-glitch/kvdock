@@ -18,7 +18,8 @@ export class KVDockError extends Error {
 
 export class AdapterConnectionError extends KVDockError {
   constructor(adapterName: string, cause?: unknown) {
-    super(`failed to connect to ${adapterName}`, "ERR_CONNECTION", { cause });
+    const detail = cause instanceof Error ? `: ${cause.message}` : "";
+    super(`failed to connect to ${adapterName}${detail}`, "ERR_CONNECTION", { cause });
     this.name = "AdapterConnectionError";
   }
 }

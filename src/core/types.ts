@@ -1,29 +1,35 @@
 export interface SetOptions {
-  ttl?: number;
-  nx?: boolean;
-  xx?: boolean;
-  tags?: string[];
+  readonly ttl?: number;
+  readonly nx?: boolean;
+  readonly xx?: boolean;
+  readonly tags?: readonly string[];
+  readonly timeoutMs?: number;
 }
 
 export interface ScanOptions {
-  batchSize?: number;
+  readonly batchSize?: number;
 }
 
 export interface AdapterCapabilities {
-  ttl: boolean;
-  batch: boolean;
-  scan: boolean;
-  cas: boolean;
-  binary: boolean;
-  stream?: boolean;
+  readonly ttl: boolean;
+  readonly batch: boolean;
+  readonly scan: boolean;
+  readonly cas: boolean;
+  readonly binary: boolean;
+  readonly stream?: boolean;
 }
 
 export interface KVEntry<T = unknown> {
-  key: string;
-  value: T;
-  expiresAt?: number | null;
-  updatedAt: number;
-  tags?: string[];
+  readonly key: string;
+  readonly value: T;
+  readonly expiresAt?: number | null;
+  readonly updatedAt: number;
+  readonly tags?: readonly string[];
+}
+
+export interface ValueCodec<TDecoded = unknown, TEncoded = string> {
+  encode(value: TDecoded): TEncoded;
+  decode(raw: TEncoded): TDecoded;
 }
 
 export interface Serializer {
@@ -77,19 +83,21 @@ export type KVDockEventType =
   | "stampede_coalesced";
 
 export interface KVDockEvent {
-  type: KVDockEventType;
-  key?: string;
-  timestamp: number;
-  meta?: Record<string, unknown>;
+  readonly type: KVDockEventType;
+  readonly key?: string;
+  readonly timestamp: number;
+  readonly meta?: Record<string, unknown>;
 }
 
 export interface StoreOptions {
-  adapter: StorageAdapter;
-  prefix?: string;
-  defaultTTL?: number;
-  serializer?: Serializer;
-  logger?: KVDockLogger;
-  onEvent?: (event: KVDockEvent) => void;
+  readonly adapter: StorageAdapter;
+  readonly prefix?: string;
+  readonly defaultTTL?: number;
+  readonly serializer?: Serializer;
+  readonly codec?: ValueCodec<unknown, string>;
+  readonly logger?: KVDockLogger;
+  readonly onEvent?: (event: KVDockEvent) => void;
+  readonly timeoutMs?: number;
 }
 
 export interface StoreMetrics {
