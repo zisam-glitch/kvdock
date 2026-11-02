@@ -19,6 +19,7 @@ export default defineConfig({
     "src/adapters/bun-sqlite/index.ts",
     "src/adapters/libsql/index.ts",
     "src/adapters/d1/index.ts",
+    "src/adapters/deno-kv/index.ts",
     "src/adapters/indexeddb/index.ts",
     "src/adapters/localstorage/index.ts",
     "src/adapters/async-storage/index.ts",

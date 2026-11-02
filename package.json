@@ -95,6 +95,11 @@
       "import": "./dist/adapters/d1/index.js",
       "require": "./dist/adapters/d1/index.cjs"
     },
+    "./adapters/deno-kv": {
+      "types": "./dist/adapters/deno-kv/index.d.ts",
+      "import": "./dist/adapters/deno-kv/index.js",
+      "require": "./dist/adapters/deno-kv/index.cjs"
+    },
     "./adapters/indexeddb": {
       "types": "./dist/adapters/indexeddb/index.d.ts",
       "import": "./dist/adapters/indexeddb/index.js",
