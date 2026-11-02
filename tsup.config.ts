@@ -19,6 +19,7 @@ export default defineConfig({
     "src/adapters/indexeddb/index.ts",
     "src/codecs/compression.ts",
     "src/codecs/encryption.ts",
+    "src/plugins/rate-limiter/index.ts",
     "src/cli/index.ts",
   ],
   format: ["cjs", "esm"],
