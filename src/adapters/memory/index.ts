@@ -132,14 +132,23 @@ export class MemoryAdapter implements StorageAdapter {
     update: T,
     options?: SetOptions,
   ): Promise<boolean> {
-    const current = await this.get<string>(key);
+    const entry = this.store.get(key);
+    let current: string | null = null;
+    if (entry) {
+      if (this.isExpired(entry)) {
+        this.store.delete(key);
+      } else {
+        current = entry.value;
+      }
+    }
     const expStr = expected !== null ? String(expected) : null;
 
     if (current !== expStr) {
       return false;
     }
 
-    await this.set(key, update, options);
+    const expiresAt = options?.ttl ? Date.now() + options.ttl : null;
+    this.store.set(key, { value: String(update), expiresAt });
     return true;
   }
 
