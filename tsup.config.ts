@@ -30,6 +30,7 @@ export default defineConfig({
     "src/integrations/hono/index.ts",
     "src/integrations/nextjs/index.ts",
     "src/integrations/nuxt/index.ts",
+    "src/integrations/fastify/index.ts",
     "src/tooling/index.ts",
     "src/cli/index.ts",
   ],

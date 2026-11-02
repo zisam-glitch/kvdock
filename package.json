@@ -150,6 +150,11 @@
       "import": "./dist/integrations/nuxt/index.js",
       "require": "./dist/integrations/nuxt/index.cjs"
     },
+    "./integrations/fastify": {
+      "types": "./dist/integrations/fastify/index.d.ts",
+      "import": "./dist/integrations/fastify/index.js",
+      "require": "./dist/integrations/fastify/index.cjs"
+    },
     "./tooling": {
       "types": "./dist/tooling/index.d.ts",
       "import": "./dist/tooling/index.js",
