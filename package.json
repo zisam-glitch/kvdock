@@ -50,6 +50,11 @@
       "import": "./dist/adapters/s3/index.js",
       "require": "./dist/adapters/s3/index.cjs"
     },
+    "./adapters/dynamodb": {
+      "types": "./dist/adapters/dynamodb/index.d.ts",
+      "import": "./dist/adapters/dynamodb/index.js",
+      "require": "./dist/adapters/dynamodb/index.cjs"
+    },
     "./adapters/upstash": {
       "types": "./dist/adapters/upstash/index.d.ts",
       "import": "./dist/adapters/upstash/index.js",
