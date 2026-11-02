@@ -151,6 +151,35 @@ const encryptedDock = new KVDock({
 });
 ```
 
+### 6. Production Rate Limiting (Token Bucket & Sliding Window)
+
+Protect APIs and workers against traffic spikes using rate limiters built directly on KVDock storage:
+
+```typescript
+import { KVDock, TokenBucketLimiter, SlidingWindowLimiter } from "kvdock";
+import { MemoryAdapter } from "kvdock/adapters/memory";
+
+const dock = new KVDock({ adapter: new MemoryAdapter() });
+
+// Token Bucket: smooth refills with burst capacity
+const tokenBucket = new TokenBucketLimiter({
+  dock,
+  capacity: 10,       // Burst allowance of 10 requests
+  refillRate: 2,      // Replenish 2 tokens per second
+});
+
+const { allowed, remaining, resetMs } = await tokenBucket.consume("ip:192.168.1.1");
+
+// Sliding Window Counter: O(1) memory with smooth boundary estimation
+const slidingWindow = new SlidingWindowLimiter({
+  dock,
+  limit: 100,         // 100 requests
+  windowMs: 60_000,   // Per minute
+});
+
+const result = await slidingWindow.consume("api_key:secret_key");
+```
+
 ---
 
 ## CLI Tool
