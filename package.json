@@ -85,6 +85,11 @@
       "import": "./dist/adapters/bun-sqlite/index.js",
       "require": "./dist/adapters/bun-sqlite/index.cjs"
     },
+    "./adapters/libsql": {
+      "types": "./dist/adapters/libsql/index.d.ts",
+      "import": "./dist/adapters/libsql/index.js",
+      "require": "./dist/adapters/libsql/index.cjs"
+    },
     "./adapters/indexeddb": {
       "types": "./dist/adapters/indexeddb/index.d.ts",
       "import": "./dist/adapters/indexeddb/index.js",
