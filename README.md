@@ -1,6 +1,7 @@
 # kvdock
 
 [![CI](https://github.com/zisam-glitch/kvdock/actions/workflows/ci.yml/badge.svg)](https://github.com/zisam-glitch/kvdock/actions/workflows/ci.yml)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/zisam-glitch/kvdock/badge)](https://securityscorecards.dev/viewer/?uri=github.com/zisam-glitch/kvdock)
 [![npm version](https://img.shields.io/npm/v/kvdock.svg)](https://www.npmjs.com/package/kvdock)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Bundle Size](https://img.shields.io/bundlephobia/minzip/kvdock)](https://bundlephobia.com/package/kvdock)
