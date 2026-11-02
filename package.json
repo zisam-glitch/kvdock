@@ -145,6 +145,11 @@
       "import": "./dist/integrations/nextjs/index.js",
       "require": "./dist/integrations/nextjs/index.cjs"
     },
+    "./integrations/nuxt": {
+      "types": "./dist/integrations/nuxt/index.d.ts",
+      "import": "./dist/integrations/nuxt/index.js",
+      "require": "./dist/integrations/nuxt/index.cjs"
+    },
     "./tooling": {
       "types": "./dist/tooling/index.d.ts",
       "import": "./dist/tooling/index.js",
