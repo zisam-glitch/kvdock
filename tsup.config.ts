@@ -10,6 +10,7 @@ export default defineConfig({
     "src/adapters/redis/index.ts",
     "src/adapters/valkey-cluster/index.ts",
     "src/adapters/s3/index.ts",
+    "src/adapters/dynamodb/index.ts",
     "src/adapters/upstash/index.ts",
     "src/adapters/cloudflare-kv/index.ts",
     "src/adapters/sqlite/index.ts",
