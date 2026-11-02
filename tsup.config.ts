@@ -5,6 +5,7 @@ export default defineConfig({
     "src/index.ts",
     "src/testing/index.ts",
     "src/adapters/memory/index.ts",
+    "src/adapters/memory-sized/index.ts",
     "src/adapters/fs/index.ts",
     "src/adapters/redis/index.ts",
     "src/adapters/upstash/index.ts",
