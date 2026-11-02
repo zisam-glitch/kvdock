@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { defineAdapterTestSuite } from "../../testing/index.js";
 import { RedisAdapter, type RedisClientInterface } from "./index.js";
 
 class MockRedisClient implements RedisClientInterface {
@@ -65,6 +66,11 @@ class MockRedisClient implements RedisClientInterface {
     return "OK";
   }
 }
+
+defineAdapterTestSuite({
+  name: "RedisAdapter",
+  createAdapter: () => new RedisAdapter({ client: new MockRedisClient() }),
+});
 
 describe("RedisAdapter", () => {
   it("stores and retrieves basic values with prefix", async () => {

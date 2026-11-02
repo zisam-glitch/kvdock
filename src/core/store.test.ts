@@ -139,4 +139,116 @@ describe("KVDock core", () => {
     expect(res.get("b")).toBe(2);
     expect(res.get("c")).toBeNull();
   });
+
+  it("coalesces concurrent requests during cache stampede", async () => {
+    const adapter = new MockAdapter();
+    const dock = new KVDock({ adapter });
+
+    let fetchCalls = 0;
+    const slowFetcher = async () => {
+      fetchCalls++;
+      await new Promise((r) => setTimeout(r, 20));
+      return "expensive_result";
+    };
+
+    const results = await Promise.all([
+      dock.getOrSet("stampede_key", slowFetcher),
+      dock.getOrSet("stampede_key", slowFetcher),
+      dock.getOrSet("stampede_key", slowFetcher),
+      dock.getOrSet("stampede_key", slowFetcher),
+    ]);
+
+    expect(fetchCalls).toBe(1);
+    expect(results).toEqual([
+      "expensive_result",
+      "expensive_result",
+      "expensive_result",
+      "expensive_result",
+    ]);
+    expect(dock.stats.stampedeCoalesced).toBe(3);
+  });
+
+  it("performs atomic Compare-And-Swap (CAS)", async () => {
+    const adapter = new MockAdapter();
+    const dock = new KVDock({ adapter });
+
+    // CAS on non-existent key expecting null -> sets initial
+    const initOk = await dock.compareAndSwap("cas_item", null, { counter: 1 });
+    expect(initOk).toBe(true);
+    expect(await dock.get("cas_item")).toEqual({ counter: 1 });
+
+    // CAS with matching expected value -> succeeds
+    const updateOk = await dock.compareAndSwap("cas_item", { counter: 1 }, { counter: 2 });
+    expect(updateOk).toBe(true);
+    expect(await dock.get("cas_item")).toEqual({ counter: 2 });
+
+    // CAS with mismatched expected value -> fails
+    const failOk = await dock.compareAndSwap("cas_item", { counter: 999 }, { counter: 3 });
+    expect(failOk).toBe(false);
+    expect(await dock.get("cas_item")).toEqual({ counter: 2 });
+    expect(dock.stats.casSuccess).toBe(2);
+    expect(dock.stats.casFailure).toBe(1);
+  });
+
+  it("invalidates all keys associated with a tag", async () => {
+    const adapter = new MockAdapter();
+    const dock = new KVDock({ adapter, prefix: "store" });
+
+    await dock.set("user:1:profile", { name: "Alice" }, { tags: ["user:1"] });
+    await dock.set("user:1:settings", { theme: "dark" }, { tags: ["user:1"] });
+    await dock.set("user:2:profile", { name: "Bob" }, { tags: ["user:2"] });
+
+    expect(await dock.has("user:1:profile")).toBe(true);
+    expect(await dock.has("user:1:settings")).toBe(true);
+    expect(await dock.has("user:2:profile")).toBe(true);
+
+    const invalidatedCount = await dock.invalidateTag("user:1");
+    expect(invalidatedCount).toBe(2);
+
+    expect(await dock.has("user:1:profile")).toBe(false);
+    expect(await dock.has("user:1:settings")).toBe(false);
+    expect(await dock.has("user:2:profile")).toBe(true);
+  });
+
+  it("invokes logger and lifecycle event listeners", async () => {
+    const adapter = new MockAdapter();
+    const logs: Array<{ level: string; msg: string }> = [];
+    const events: string[] = [];
+
+    const dock = new KVDock({
+      adapter,
+      logger: (level, msg) => logs.push({ level, msg }),
+      onEvent: (evt) => events.push(evt.type),
+    });
+
+    await dock.set("log_test", "123");
+    await dock.get("log_test");
+    await dock.get("missing_log");
+    await dock.delete("log_test");
+
+    expect(events).toContain("set");
+    expect(events).toContain("hit");
+    expect(events).toContain("miss");
+    expect(events).toContain("delete");
+    expect(logs.length).toBeGreaterThan(0);
+  });
+
+  it("verifies prefix resolution invariance across 1000 randomized property checks", async () => {
+    const adapter = new MockAdapter();
+    const dock = new KVDock({ adapter, prefix: "namespace_test" });
+
+    const characters = "abcdefghijklmnopqrstuvwxyz0123456789-_/.:🚀✨";
+    for (let i = 0; i < 1000; i++) {
+      const len = 1 + Math.floor(Math.random() * 20);
+      let randKey = "";
+      for (let j = 0; j < len; j++) {
+        randKey += characters[Math.floor(Math.random() * characters.length)];
+      }
+
+      await dock.set(randKey, i);
+      const retrieved = await dock.get<number>(randKey);
+      expect(retrieved).toBe(i);
+      expect(await dock.has(randKey)).toBe(true);
+    }
+  });
 });

@@ -1,7 +1,12 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, readFile, readdir, rm, stat, unlink, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, rename, rm, stat, unlink, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import type { AdapterCapabilities, SetOptions, StorageAdapter } from "../../core/types.js";
+import type {
+  AdapterCapabilities,
+  ScanOptions,
+  SetOptions,
+  StorageAdapter,
+} from "../../core/types.js";
 
 export interface FsAdapterOptions {
   dir?: string;
@@ -20,6 +25,7 @@ export class FsAdapter implements StorageAdapter {
     scan: true,
     cas: false,
     binary: false,
+    stream: true,
   };
 
   private readonly baseDir: string;
@@ -89,9 +95,7 @@ export class FsAdapter implements StorageAdapter {
     // atomic write to temp file then rename
     const tmpPath = `${filepath}.${randomUUID()}.tmp`;
     await writeFile(tmpPath, JSON.stringify(payload), "utf-8");
-    await rm(filepath, { force: true });
-    await writeFile(filepath, JSON.stringify(payload), "utf-8");
-    await unlink(tmpPath).catch(() => {});
+    await rename(tmpPath, filepath);
   }
 
   public async delete(key: string): Promise<boolean> {
@@ -141,5 +145,12 @@ export class FsAdapter implements StorageAdapter {
     if (!pattern || pattern === "*") return matchedKeys;
     const regex = new RegExp(`^${pattern.replace(/\*/g, ".*")}$`);
     return matchedKeys.filter((k) => regex.test(k));
+  }
+
+  public async *scan(pattern?: string, _options?: ScanOptions): AsyncIterable<string> {
+    const all = await this.keys(pattern);
+    for (const key of all) {
+      yield key;
+    }
   }
 }

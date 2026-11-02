@@ -6,11 +6,19 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "bin": {
+    "kvdock": "./dist/cli/index.js"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./testing": {
+      "types": "./dist/testing/index.d.ts",
+      "import": "./dist/testing/index.js",
+      "require": "./dist/testing/index.cjs"
     },
     "./adapters/memory": {
       "types": "./dist/adapters/memory/index.d.ts",
@@ -31,6 +39,21 @@
       "types": "./dist/adapters/upstash/index.d.ts",
       "import": "./dist/adapters/upstash/index.js",
       "require": "./dist/adapters/upstash/index.cjs"
+    },
+    "./adapters/cloudflare-kv": {
+      "types": "./dist/adapters/cloudflare-kv/index.d.ts",
+      "import": "./dist/adapters/cloudflare-kv/index.js",
+      "require": "./dist/adapters/cloudflare-kv/index.cjs"
+    },
+    "./adapters/sqlite": {
+      "types": "./dist/adapters/sqlite/index.d.ts",
+      "import": "./dist/adapters/sqlite/index.js",
+      "require": "./dist/adapters/sqlite/index.cjs"
+    },
+    "./adapters/indexeddb": {
+      "types": "./dist/adapters/indexeddb/index.d.ts",
+      "import": "./dist/adapters/indexeddb/index.js",
+      "require": "./dist/adapters/indexeddb/index.cjs"
     }
   },
   "files": [
@@ -44,6 +67,7 @@
     "lint:fix": "biome check --write src",
     "typecheck": "tsc --noEmit",
     "check": "npm run typecheck && npm run lint && npm run test",
+    "create:adapter": "node scripts/create-adapter.mjs",
     "changeset": "changeset",
     "changeset:publish": "node -e 'if (process.env.NPM_TOKEN) { require(\"child_process\").execSync(\"npm publish --access public\", { stdio: \"inherit\" }); } else { console.log(\"NPM_TOKEN secret not present, skipping registry publish\"); }'"
   },

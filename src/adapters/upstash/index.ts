@@ -1,4 +1,9 @@
-import type { AdapterCapabilities, SetOptions, StorageAdapter } from "../../core/types.js";
+import type {
+  AdapterCapabilities,
+  ScanOptions,
+  SetOptions,
+  StorageAdapter,
+} from "../../core/types.js";
 
 export interface UpstashAdapterOptions {
   url: string;
@@ -20,6 +25,7 @@ export class UpstashAdapter implements StorageAdapter {
     scan: true,
     cas: false,
     binary: false,
+    stream: true,
   };
 
   private readonly url: string;
@@ -146,6 +152,13 @@ export class UpstashAdapter implements StorageAdapter {
     const rawKeys = await this.execute<string[]>(["KEYS", searchPattern]);
     if (!Array.isArray(rawKeys)) return [];
     return rawKeys.map((k) => this.unpkey(k));
+  }
+
+  public async *scan(pattern = "*", _options?: ScanOptions): AsyncIterable<string> {
+    const all = await this.keys(pattern);
+    for (const key of all) {
+      yield key;
+    }
   }
 
   public async getMany<T = unknown>(keys: string[]): Promise<Map<string, T | null>> {

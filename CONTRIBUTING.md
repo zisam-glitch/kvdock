@@ -9,23 +9,26 @@ npm install
 npm run check
 ```
 
-## Creating a Storage Adapter
+## Creating a Storage Adapter (15-Minute Guide)
 
-All storage backends live in isolated directories under `src/adapters/<driver>/`:
+You can scaffold a compliant adapter in one command:
 
-```text
-src/adapters/<driver>/
-├── index.ts        # Implements StorageAdapter interface
-├── index.test.ts   # Unit & edge-case test suite
-└── index.bench.ts  # Micro-benchmark suite
+```bash
+npm run create:adapter <name>
+# Example: npm run create:adapter memcached
 ```
+
+This generates `src/adapters/<name>/` with boilerplate code, pre-configured test suite using `defineAdapterTestSuite`, benchmark suite, and updates exports in `package.json` and `tsup.config.ts`.
+
+Read the complete guide: [Building a Custom Adapter in 15 Minutes](docs/guides/building-an-adapter.md).
 
 ### Requirements:
 
 1. **Strict Interface Compliance**: Implement `StorageAdapter` from `src/core/types.ts`.
-2. **Zero Core Bloat**: Never add driver-specific packages to the root `dependencies`. Driver SDKs must be `peerDependencies` or dynamically imported.
-3. **Co-location**: Code, tests, and benchmarks must live in the same adapter folder.
-4. **Coverage**: 95%+ branch coverage for all adapter code.
+2. **Compliance Test Suite**: Use `defineAdapterTestSuite` from `kvdock/testing` to automatically test 25+ CRUD, TTL, and edge-case contracts.
+3. **Zero Core Bloat**: Never add driver-specific packages to the root `dependencies`. Driver SDKs must be `peerDependencies` or dynamically imported.
+4. **Co-location**: Code, tests, and benchmarks must live in the same adapter folder.
+5. **Coverage**: 95%+ branch coverage for all adapter code.
 
 ## Commits & Style
 

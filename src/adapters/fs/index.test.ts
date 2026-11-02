@@ -2,7 +2,16 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { defineAdapterTestSuite } from "../../testing/index.js";
 import { FsAdapter } from "./index.js";
+
+defineAdapterTestSuite({
+  name: "FsAdapter",
+  createAdapter: async () => {
+    const dir = await mkdtemp(join(tmpdir(), "kvdock-fs-suite-"));
+    return new FsAdapter({ dir });
+  },
+});
 
 describe("FsAdapter", () => {
   let tempDir: string;
@@ -26,10 +35,10 @@ describe("FsAdapter", () => {
   });
 
   it("deletes file on key expiry", async () => {
-    await adapter.set("ephemeral", "bye", { ttl: 20 });
+    await adapter.set("ephemeral", "bye", { ttl: 60 });
     expect(await adapter.get("ephemeral")).toBe("bye");
 
-    await new Promise((r) => setTimeout(r, 35));
+    await new Promise((r) => setTimeout(r, 80));
     expect(await adapter.get("ephemeral")).toBeNull();
   });
 
