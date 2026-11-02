@@ -8,6 +8,7 @@ export default defineConfig({
     "src/adapters/memory-sized/index.ts",
     "src/adapters/fs/index.ts",
     "src/adapters/redis/index.ts",
+    "src/adapters/valkey-cluster/index.ts",
     "src/adapters/upstash/index.ts",
     "src/adapters/cloudflare-kv/index.ts",
     "src/adapters/sqlite/index.ts",

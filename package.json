@@ -40,6 +40,11 @@
       "import": "./dist/adapters/redis/index.js",
       "require": "./dist/adapters/redis/index.cjs"
     },
+    "./adapters/valkey-cluster": {
+      "types": "./dist/adapters/valkey-cluster/index.d.ts",
+      "import": "./dist/adapters/valkey-cluster/index.js",
+      "require": "./dist/adapters/valkey-cluster/index.cjs"
+    },
     "./adapters/upstash": {
       "types": "./dist/adapters/upstash/index.d.ts",
       "import": "./dist/adapters/upstash/index.js",
@@ -72,6 +77,7 @@
     "lint:fix": "biome check --write src",
     "typecheck": "tsc --noEmit",
     "check": "npm run typecheck && npm run lint && npm run test",
+    "bench": "vitest bench --run",
     "create:adapter": "node scripts/create-adapter.mjs",
     "changeset": "changeset",
     "changeset:publish": "node -e 'if (process.env.NPM_TOKEN) { require(\"child_process\").execSync(\"npm publish --access public\", { stdio: \"inherit\" }); } else { console.log(\"NPM_TOKEN secret not present, skipping registry publish\"); }'"

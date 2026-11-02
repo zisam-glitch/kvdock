@@ -26,3 +26,25 @@ export const rawSerializer: Serializer = {
     return raw as unknown as T;
   },
 };
+
+export function createCodecSerializer<T = unknown>(codec: {
+  encode(value: T): string;
+  decode(raw: string): T;
+}): Serializer {
+  return {
+    serialize(value: unknown): string {
+      try {
+        return codec.encode(value as T);
+      } catch (err) {
+        throw new SerializationError("codec failed to encode payload", err);
+      }
+    },
+    deserialize<R = unknown>(raw: string): R {
+      try {
+        return codec.decode(raw) as unknown as R;
+      } catch (err) {
+        throw new SerializationError("codec failed to decode payload", err);
+      }
+    },
+  };
+}

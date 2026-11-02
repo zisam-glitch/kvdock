@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { mkdir, readFile, readdir, rename, rm, stat, unlink, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import type {
@@ -13,6 +13,7 @@ export interface FsAdapterOptions {
 }
 
 interface StoredPayload {
+  key?: string;
   value: string;
   expiresAt: number | null;
 }
@@ -44,8 +45,10 @@ export class FsAdapter implements StorageAdapter {
   // hash or encode key to safe filename
   private keyToPath(key: string): string {
     const encoded = Buffer.from(key).toString("base64url");
-    const shard = encoded.slice(0, 2);
-    return join(this.baseDir, shard, `${encoded}.json`);
+    const safeName =
+      encoded.length > 64 ? `h_${createHash("sha256").update(key).digest("hex")}` : encoded;
+    const shard = safeName.slice(0, 2);
+    return join(this.baseDir, shard, `${safeName}.json`);
   }
 
   private pathToKey(filepath: string): string {
@@ -88,6 +91,7 @@ export class FsAdapter implements StorageAdapter {
     await mkdir(dirname(filepath), { recursive: true });
 
     const payload: StoredPayload = {
+      key,
       value: String(value),
       expiresAt: options?.ttl ? Date.now() + options.ttl : null,
     };
@@ -130,12 +134,16 @@ export class FsAdapter implements StorageAdapter {
         if (entry.isDirectory()) {
           await readDirRecursive(full);
         } else if (entry.name.endsWith(".json")) {
-          const key = this.pathToKey(full);
-          // verify expiry before yielding key
-          const val = await this.get(key);
-          if (val !== null) {
+          try {
+            const raw = await readFile(full, "utf-8");
+            const parsed: StoredPayload = JSON.parse(raw);
+            if (parsed.expiresAt !== null && parsed.expiresAt <= Date.now()) {
+              await unlink(full).catch(() => {});
+              continue;
+            }
+            const key = parsed.key ?? this.pathToKey(full);
             matchedKeys.push(key);
-          }
+          } catch {}
         }
       }
     };

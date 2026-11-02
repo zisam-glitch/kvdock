@@ -1,5 +1,5 @@
-import { TTLValidationError } from "./errors.js";
-import { defaultSerializer } from "./serializer.js";
+import { AdapterConnectionError, TTLValidationError } from "./errors.js";
+import { createCodecSerializer, defaultSerializer } from "./serializer.js";
 
 import type {
   KVDockEvent,
@@ -25,6 +25,7 @@ export class KVDock {
   private readonly adapter: StorageAdapter;
   private readonly prefix: string;
   private readonly defaultTTL?: number;
+  private readonly defaultTimeoutMs?: number;
   private readonly serializer: Serializer;
   private readonly logger?: KVDockLogger;
   private readonly onEvent?: (event: KVDockEvent) => void;
@@ -44,9 +45,40 @@ export class KVDock {
     this.adapter = options.adapter;
     this.prefix = options.prefix ? `${options.prefix}:` : "";
     this.defaultTTL = options.defaultTTL;
-    this.serializer = options.serializer ?? defaultSerializer;
+    this.defaultTimeoutMs = options.timeoutMs;
+    this.serializer = options.codec
+      ? createCodecSerializer(options.codec)
+      : (options.serializer ?? defaultSerializer);
     this.logger = options.logger;
     this.onEvent = options.onEvent;
+  }
+
+  private async withTimeout<T>(
+    promise: Promise<T>,
+    timeoutMs?: number,
+    operation = "operation",
+  ): Promise<T> {
+    const limit = timeoutMs ?? this.defaultTimeoutMs;
+    if (!limit || limit <= 0) return promise;
+
+    let timer: NodeJS.Timeout | undefined;
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timer = setTimeout(() => {
+        reject(
+          new AdapterConnectionError(
+            this.adapter.name,
+            new Error(`adapter ${operation} timed out after ${limit}ms`),
+          ),
+        );
+      }, limit);
+      if (timer.unref) timer.unref();
+    });
+
+    try {
+      return await Promise.race([promise, timeoutPromise]);
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
   }
 
   private resolveKey(key: string): string {
@@ -91,7 +123,11 @@ export class KVDock {
 
   public async get<T = unknown>(key: string): Promise<T | null> {
     this.log("debug", "get key", { key });
-    const raw = await this.adapter.get<string>(this.resolveKey(key));
+    const raw = await this.withTimeout(
+      this.adapter.get<string>(this.resolveKey(key)),
+      undefined,
+      "get",
+    );
     if (raw === null || raw === undefined) {
       this.metrics.misses++;
       this.emit("miss", key);
@@ -108,7 +144,11 @@ export class KVDock {
 
     const payload = this.serializer.serialize(value);
     const resolved = this.resolveKey(key);
-    await this.adapter.set(resolved, payload, { ...options, ttl });
+    await this.withTimeout(
+      this.adapter.set(resolved, payload, { ...options, ttl }),
+      options?.timeoutMs,
+      "set",
+    );
     this.metrics.sets++;
     this.emit("set", key, { ttl });
     this.log("debug", "set key", { key, ttl });
@@ -134,7 +174,11 @@ export class KVDock {
   }
 
   public async delete(key: string): Promise<boolean> {
-    const ok = await this.adapter.delete(this.resolveKey(key));
+    const ok = await this.withTimeout(
+      this.adapter.delete(this.resolveKey(key)),
+      undefined,
+      "delete",
+    );
     if (ok) {
       this.metrics.deletes++;
       this.emit("delete", key);
@@ -144,17 +188,21 @@ export class KVDock {
   }
 
   public async has(key: string): Promise<boolean> {
-    return this.adapter.has(this.resolveKey(key));
+    return this.withTimeout(this.adapter.has(this.resolveKey(key)), undefined, "has");
   }
 
   public async clear(): Promise<void> {
-    await this.adapter.clear();
+    await this.withTimeout(this.adapter.clear(), undefined, "clear");
     this.emit("clear");
     this.log("info", "cache cleared");
   }
 
   public async keys(pattern?: string): Promise<string[]> {
-    const rawKeys = await this.adapter.keys(pattern ? `${this.prefix}${pattern}` : undefined);
+    const rawKeys = await this.withTimeout(
+      this.adapter.keys(pattern ? `${this.prefix}${pattern}` : undefined),
+      undefined,
+      "keys",
+    );
     return rawKeys.filter((k) => !k.includes("__tag__:")).map((k) => this.stripPrefix(k));
   }
 

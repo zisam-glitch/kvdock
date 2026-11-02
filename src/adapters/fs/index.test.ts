@@ -50,4 +50,24 @@ describe("FsAdapter", () => {
     const cfgKeys = await adapter.keys("cfg:*");
     expect(cfgKeys.sort()).toEqual(["cfg:app", "cfg:db"]);
   });
+
+  it("handles long keys and special URI characters with shard indexing", async () => {
+    const longKey = `${"a/b/c/".repeat(30)}final-deeply-nested-key`;
+    await adapter.set(longKey, "deep_data");
+    expect(await adapter.get(longKey)).toBe("deep_data");
+    expect(await adapter.has(longKey)).toBe(true);
+
+    const keys = await adapter.keys();
+    expect(keys).toContain(longKey);
+  });
+
+  it("handles atomic file replacement under concurrent writers without corruption", async () => {
+    const writers = Array.from({ length: 20 }, (_, i) =>
+      adapter.set("hot_concurrent_key", `writer_${i}`),
+    );
+    await Promise.all(writers);
+
+    const finalVal = await adapter.get<string>("hot_concurrent_key");
+    expect(finalVal).toMatch(/^writer_\d+$/);
+  });
 });
