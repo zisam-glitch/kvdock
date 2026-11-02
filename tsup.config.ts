@@ -12,6 +12,7 @@ export default defineConfig({
     "src/adapters/s3/index.ts",
     "src/adapters/dynamodb/index.ts",
     "src/adapters/memcached/index.ts",
+    "src/adapters/leveldb/index.ts",
     "src/adapters/upstash/index.ts",
     "src/adapters/cloudflare-kv/index.ts",
     "src/adapters/sqlite/index.ts",
