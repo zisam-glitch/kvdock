@@ -16,6 +16,7 @@ export default defineConfig({
     "src/adapters/upstash/index.ts",
     "src/adapters/cloudflare-kv/index.ts",
     "src/adapters/sqlite/index.ts",
+    "src/adapters/bun-sqlite/index.ts",
     "src/adapters/indexeddb/index.ts",
     "src/adapters/localstorage/index.ts",
     "src/codecs/compression.ts",
