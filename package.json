@@ -21,6 +21,11 @@
       "types": "./dist/adapters/fs/index.d.ts",
       "import": "./dist/adapters/fs/index.js",
       "require": "./dist/adapters/fs/index.cjs"
+    },
+    "./adapters/redis": {
+      "types": "./dist/adapters/redis/index.d.ts",
+      "import": "./dist/adapters/redis/index.js",
+      "require": "./dist/adapters/redis/index.cjs"
     }
   },
   "files": [
