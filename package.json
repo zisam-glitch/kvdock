@@ -25,6 +25,11 @@
       "import": "./dist/adapters/memory/index.js",
       "require": "./dist/adapters/memory/index.cjs"
     },
+    "./adapters/memory-sized": {
+      "types": "./dist/adapters/memory-sized/index.d.ts",
+      "import": "./dist/adapters/memory-sized/index.js",
+      "require": "./dist/adapters/memory-sized/index.cjs"
+    },
     "./adapters/fs": {
       "types": "./dist/adapters/fs/index.d.ts",
       "import": "./dist/adapters/fs/index.js",
