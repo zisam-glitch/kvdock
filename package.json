@@ -55,6 +55,11 @@
       "import": "./dist/adapters/dynamodb/index.js",
       "require": "./dist/adapters/dynamodb/index.cjs"
     },
+    "./adapters/memcached": {
+      "types": "./dist/adapters/memcached/index.d.ts",
+      "import": "./dist/adapters/memcached/index.js",
+      "require": "./dist/adapters/memcached/index.cjs"
+    },
     "./adapters/upstash": {
       "types": "./dist/adapters/upstash/index.d.ts",
       "import": "./dist/adapters/upstash/index.js",
