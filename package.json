@@ -114,6 +114,11 @@
       "types": "./dist/integrations/express/index.d.ts",
       "import": "./dist/integrations/express/index.js",
       "require": "./dist/integrations/express/index.cjs"
+    },
+    "./integrations/hono": {
+      "types": "./dist/integrations/hono/index.d.ts",
+      "import": "./dist/integrations/hono/index.js",
+      "require": "./dist/integrations/hono/index.cjs"
     }
   },
   "files": [
