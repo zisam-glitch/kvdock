@@ -63,10 +63,12 @@ jobs:
           test -f dist/codecs/encryption.js
           test -f dist/plugins/rate-limiter/index.js
           test -f dist/plugins/opentelemetry/index.js
+          test -f dist/plugins/prometheus/index.js
           test -f dist/middleware/lock.js
           test -f dist/integrations/express/index.js
           test -f dist/integrations/hono/index.js
           test -f dist/integrations/nextjs/index.js
+          test -f dist/tooling/index.js
           test -f dist/testing/index.js
           test -f dist/cli/index.js
 
