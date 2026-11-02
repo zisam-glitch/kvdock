@@ -7,6 +7,7 @@ import { MemoryAdapter } from "../adapters/memory/index.js";
 import { SQLiteAdapter } from "../adapters/sqlite/index.js";
 import { KVDock } from "../core/store.js";
 import type { StorageAdapter } from "../core/types.js";
+import { migrate } from "../tooling/migrate.js";
 
 function isNodeSqliteAvailable(): boolean {
   try {
@@ -32,6 +33,7 @@ Commands:
   keys [pattern]             List stored keys
   bench                      Run benchmark on specified adapter
   doctor                     Inspect runtime environment and adapter capabilities
+  migrate                    Migrate keys between adapters (--from=<adapter> --to=<adapter>)
 
 Options:
   --adapter=<type>           Storage adapter: memory (default), fs, sqlite
@@ -74,11 +76,23 @@ function parseArgs(args: string[]): {
 
 function resolveAdapter(flags: Record<string, string | boolean>): StorageAdapter {
   const type = String(flags.adapter || "memory").toLowerCase();
-  switch (type) {
+  return resolveNamedAdapter(type, flags);
+}
+
+function resolveNamedAdapter(
+  type: string,
+  flags: Record<string, string | boolean>,
+  prefix?: "from" | "to",
+): StorageAdapter {
+  const dirKey = prefix ? `${prefix}-dir` : "dir";
+  const dirVal = flags[dirKey] ?? flags.dir;
+  const path = typeof dirVal === "string" ? dirVal : undefined;
+
+  switch (type.toLowerCase()) {
     case "fs":
-      return new FsAdapter({ dir: typeof flags.dir === "string" ? flags.dir : undefined });
+      return new FsAdapter({ dir: path });
     case "sqlite":
-      return new SQLiteAdapter({ path: typeof flags.dir === "string" ? flags.dir : ":memory:" });
+      return new SQLiteAdapter({ path: path || ":memory:" });
     default:
       return new MemoryAdapter();
   }
@@ -234,6 +248,43 @@ async function main(): Promise<void> {
           );
         }
         await dock.clear();
+        break;
+      }
+
+      case "migrate": {
+        const fromType = String(flags.from || "memory").toLowerCase();
+        const toType = String(flags.to || "memory").toLowerCase();
+        const fromAdapter = resolveNamedAdapter(fromType, flags, "from");
+        const toAdapter = resolveNamedAdapter(toType, flags, "to");
+        const batchSize = flags["batch-size"] ? Number(flags["batch-size"]) : 100;
+        const concurrency = flags.concurrency ? Number(flags.concurrency) : 5;
+
+        if (!isJson) {
+          console.log(`Migrating keys from ${fromType} to ${toType}...`);
+        }
+
+        const stats = await migrate({
+          source: fromAdapter,
+          target: toAdapter,
+          batchSize,
+          concurrency,
+          onProgress: (p) => {
+            if (!isJson && p.total > 0 && p.copied % 50 === 0) {
+              console.log(`Progress: ${p.copied} / ${p.total} keys copied (${p.failed} failed)`);
+            }
+          },
+        });
+
+        if (isJson) {
+          console.log(JSON.stringify(stats));
+        } else {
+          console.log(`Migration complete in ${stats.durationMs}ms:`);
+          console.log(`  Total:   ${stats.total}`);
+          console.log(`  Copied:  ${stats.copied}`);
+          console.log(`  Skipped: ${stats.skipped}`);
+          console.log(`  Failed:  ${stats.failed}`);
+        }
+        if (stats.failed > 0) process.exit(1);
         break;
       }
 
