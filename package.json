@@ -109,6 +109,11 @@
       "types": "./dist/middleware/lock.d.ts",
       "import": "./dist/middleware/lock.js",
       "require": "./dist/middleware/lock.cjs"
+    },
+    "./integrations/express": {
+      "types": "./dist/integrations/express/index.d.ts",
+      "import": "./dist/integrations/express/index.js",
+      "require": "./dist/integrations/express/index.cjs"
     }
   },
   "files": [
