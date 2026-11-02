@@ -70,6 +70,7 @@ jobs:
           test -f dist/integrations/nextjs/index.js
           test -f dist/integrations/nuxt/index.js
           test -f dist/integrations/fastify/index.js
+          test -f dist/tooling/migrate.js
           test -f dist/tooling/index.js
           test -f dist/testing/index.js
           test -f dist/cli/index.js
