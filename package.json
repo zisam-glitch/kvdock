@@ -155,6 +155,11 @@
       "import": "./dist/integrations/fastify/index.js",
       "require": "./dist/integrations/fastify/index.cjs"
     },
+    "./tooling/migrate": {
+      "types": "./dist/tooling/migrate.d.ts",
+      "import": "./dist/tooling/migrate.js",
+      "require": "./dist/tooling/migrate.cjs"
+    },
     "./tooling": {
       "types": "./dist/tooling/index.d.ts",
       "import": "./dist/tooling/index.js",
@@ -165,7 +170,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup",
+    "build": "NODE_OPTIONS='--max-old-space-size=4096' tsup",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "lint": "biome check src",
