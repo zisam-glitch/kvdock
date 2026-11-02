@@ -19,6 +19,7 @@ export default defineConfig({
     "src/adapters/bun-sqlite/index.ts",
     "src/adapters/indexeddb/index.ts",
     "src/adapters/localstorage/index.ts",
+    "src/adapters/async-storage/index.ts",
     "src/codecs/compression.ts",
     "src/codecs/encryption.ts",
     "src/plugins/rate-limiter/index.ts",

@@ -95,6 +95,11 @@
       "import": "./dist/adapters/localstorage/index.js",
       "require": "./dist/adapters/localstorage/index.cjs"
     },
+    "./adapters/async-storage": {
+      "types": "./dist/adapters/async-storage/index.d.ts",
+      "import": "./dist/adapters/async-storage/index.js",
+      "require": "./dist/adapters/async-storage/index.cjs"
+    },
     "./codecs/compression": {
       "types": "./dist/codecs/compression.d.ts",
       "import": "./dist/codecs/compression.js",
