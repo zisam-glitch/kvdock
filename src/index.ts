@@ -9,3 +9,4 @@ export * from "./plugins/rate-limiter/index.js";
 export * from "./middleware/lock.js";
 export * from "./integrations/express/index.js";
 export * from "./integrations/hono/index.js";
+export * from "./integrations/nextjs/index.js";
