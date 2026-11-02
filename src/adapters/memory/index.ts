@@ -1,4 +1,9 @@
-import type { AdapterCapabilities, SetOptions, StorageAdapter } from "../../core/types.js";
+import type {
+  AdapterCapabilities,
+  ScanOptions,
+  SetOptions,
+  StorageAdapter,
+} from "../../core/types.js";
 
 export interface MemoryAdapterOptions {
   maxSize?: number;
@@ -16,8 +21,9 @@ export class MemoryAdapter implements StorageAdapter {
     ttl: true,
     batch: true,
     scan: true,
-    cas: false,
+    cas: true,
     binary: false,
+    stream: true,
   };
 
   private readonly store = new Map<string, InternalEntry>();
@@ -107,6 +113,34 @@ export class MemoryAdapter implements StorageAdapter {
 
     const regex = new RegExp(`^${pattern.replace(/\*/g, ".*")}$`);
     return all.filter((k) => regex.test(k));
+  }
+
+  public async *scan(pattern?: string, _options?: ScanOptions): AsyncIterable<string> {
+    this.sweep();
+    const regex =
+      pattern && pattern !== "*" ? new RegExp(`^${pattern.replace(/\*/g, ".*")}$`) : null;
+    for (const key of this.store.keys()) {
+      if (!regex || regex.test(key)) {
+        yield key;
+      }
+    }
+  }
+
+  public async compareAndSwap<T = unknown>(
+    key: string,
+    expected: T | null,
+    update: T,
+    options?: SetOptions,
+  ): Promise<boolean> {
+    const current = await this.get<string>(key);
+    const expStr = expected !== null ? String(expected) : null;
+
+    if (current !== expStr) {
+      return false;
+    }
+
+    await this.set(key, update, options);
+    return true;
   }
 
   public async getMany<T = unknown>(keys: string[]): Promise<Map<string, T | null>> {

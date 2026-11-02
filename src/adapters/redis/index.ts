@@ -1,4 +1,9 @@
-import type { AdapterCapabilities, SetOptions, StorageAdapter } from "../../core/types.js";
+import type {
+  AdapterCapabilities,
+  ScanOptions,
+  SetOptions,
+  StorageAdapter,
+} from "../../core/types.js";
 
 export interface RedisClientInterface {
   get(key: string): Promise<string | null>;
@@ -24,6 +29,7 @@ export class RedisAdapter implements StorageAdapter {
     scan: true,
     cas: false,
     binary: false,
+    stream: true,
   };
 
   private readonly client: RedisClientInterface;
@@ -105,6 +111,13 @@ export class RedisAdapter implements StorageAdapter {
     const query = this.prefix ? `${this.prefix}${pattern}` : pattern;
     const matched = await this.client.keys(query);
     return matched.map((k) => this.unpkey(k));
+  }
+
+  public async *scan(pattern = "*", _options?: ScanOptions): AsyncIterable<string> {
+    const all = await this.keys(pattern);
+    for (const key of all) {
+      yield key;
+    }
   }
 
   public async getMany<T = unknown>(keys: string[]): Promise<Map<string, T | null>> {

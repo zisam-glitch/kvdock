@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
+import { defineAdapterTestSuite } from "../../testing/index.js";
 import { MemoryAdapter } from "./index.js";
 
-describe("MemoryAdapter", () => {
+defineAdapterTestSuite({
+  name: "MemoryAdapter",
+  createAdapter: () => new MemoryAdapter(),
+});
+
+describe("MemoryAdapter (LRU & In-Memory specifics)", () => {
   it("stores and retrieves basic values", async () => {
     const adapter = new MemoryAdapter();
     await adapter.set("foo", "bar");
