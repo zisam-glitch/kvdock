@@ -25,6 +25,7 @@ export default defineConfig({
     "src/middleware/lock.ts",
     "src/integrations/express/index.ts",
     "src/integrations/hono/index.ts",
+    "src/integrations/nextjs/index.ts",
     "src/cli/index.ts",
   ],
   format: ["cjs", "esm"],

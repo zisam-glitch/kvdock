@@ -64,6 +64,7 @@ jobs:
           test -f dist/middleware/lock.js
           test -f dist/integrations/express/index.js
           test -f dist/integrations/hono/index.js
+          test -f dist/integrations/nextjs/index.js
           test -f dist/testing/index.js
           test -f dist/cli/index.js
 
