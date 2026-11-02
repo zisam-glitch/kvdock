@@ -94,6 +94,11 @@
       "types": "./dist/codecs/encryption.d.ts",
       "import": "./dist/codecs/encryption.js",
       "require": "./dist/codecs/encryption.cjs"
+    },
+    "./plugins/rate-limiter": {
+      "types": "./dist/plugins/rate-limiter/index.d.ts",
+      "import": "./dist/plugins/rate-limiter/index.js",
+      "require": "./dist/plugins/rate-limiter/index.cjs"
     }
   },
   "files": [
