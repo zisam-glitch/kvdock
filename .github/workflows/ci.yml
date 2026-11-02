@@ -62,6 +62,7 @@ jobs:
           test -f dist/plugins/rate-limiter/index.js
           test -f dist/middleware/lock.js
           test -f dist/integrations/express/index.js
+          test -f dist/integrations/hono/index.js
           test -f dist/testing/index.js
           test -f dist/cli/index.js
 

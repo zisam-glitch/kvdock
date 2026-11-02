@@ -23,6 +23,7 @@ export default defineConfig({
     "src/plugins/rate-limiter/index.ts",
     "src/middleware/lock.ts",
     "src/integrations/express/index.ts",
+    "src/integrations/hono/index.ts",
     "src/cli/index.ts",
   ],
   format: ["cjs", "esm"],
