@@ -23,6 +23,7 @@ export default defineConfig({
     "src/codecs/compression.ts",
     "src/codecs/encryption.ts",
     "src/plugins/rate-limiter/index.ts",
+    "src/plugins/opentelemetry/index.ts",
     "src/middleware/lock.ts",
     "src/integrations/express/index.ts",
     "src/integrations/hono/index.ts",

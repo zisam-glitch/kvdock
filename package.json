@@ -115,6 +115,11 @@
       "import": "./dist/plugins/rate-limiter/index.js",
       "require": "./dist/plugins/rate-limiter/index.cjs"
     },
+    "./plugins/opentelemetry": {
+      "types": "./dist/plugins/opentelemetry/index.d.ts",
+      "import": "./dist/plugins/opentelemetry/index.js",
+      "require": "./dist/plugins/opentelemetry/index.cjs"
+    },
     "./middleware/lock": {
       "types": "./dist/middleware/lock.d.ts",
       "import": "./dist/middleware/lock.js",
