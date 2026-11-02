@@ -84,6 +84,16 @@
       "types": "./dist/adapters/indexeddb/index.d.ts",
       "import": "./dist/adapters/indexeddb/index.js",
       "require": "./dist/adapters/indexeddb/index.cjs"
+    },
+    "./codecs/compression": {
+      "types": "./dist/codecs/compression.d.ts",
+      "import": "./dist/codecs/compression.js",
+      "require": "./dist/codecs/compression.cjs"
+    },
+    "./codecs/encryption": {
+      "types": "./dist/codecs/encryption.d.ts",
+      "import": "./dist/codecs/encryption.js",
+      "require": "./dist/codecs/encryption.cjs"
     }
   },
   "files": [
