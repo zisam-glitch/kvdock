@@ -124,6 +124,11 @@
       "types": "./dist/integrations/hono/index.d.ts",
       "import": "./dist/integrations/hono/index.js",
       "require": "./dist/integrations/hono/index.cjs"
+    },
+    "./integrations/nextjs": {
+      "types": "./dist/integrations/nextjs/index.d.ts",
+      "import": "./dist/integrations/nextjs/index.js",
+      "require": "./dist/integrations/nextjs/index.cjs"
     }
   },
   "files": [
