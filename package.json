@@ -45,6 +45,11 @@
       "import": "./dist/adapters/valkey-cluster/index.js",
       "require": "./dist/adapters/valkey-cluster/index.cjs"
     },
+    "./adapters/s3": {
+      "types": "./dist/adapters/s3/index.d.ts",
+      "import": "./dist/adapters/s3/index.js",
+      "require": "./dist/adapters/s3/index.cjs"
+    },
     "./adapters/upstash": {
       "types": "./dist/adapters/upstash/index.d.ts",
       "import": "./dist/adapters/upstash/index.js",
