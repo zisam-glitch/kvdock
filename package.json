@@ -26,6 +26,11 @@
       "types": "./dist/adapters/redis/index.d.ts",
       "import": "./dist/adapters/redis/index.js",
       "require": "./dist/adapters/redis/index.cjs"
+    },
+    "./adapters/upstash": {
+      "types": "./dist/adapters/upstash/index.d.ts",
+      "import": "./dist/adapters/upstash/index.js",
+      "require": "./dist/adapters/upstash/index.cjs"
     }
   },
   "files": [

@@ -5,7 +5,8 @@ export default defineConfig({
     "src/index.ts",
     "src/adapters/memory/index.ts",
     "src/adapters/fs/index.ts",
-    "src/adapters/redis/index.ts"
+    "src/adapters/redis/index.ts",
+    "src/adapters/upstash/index.ts"
   ],
   format: ["cjs", "esm"],
   dts: true,
