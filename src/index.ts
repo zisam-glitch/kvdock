@@ -6,3 +6,4 @@ export * from "./core/tiered.js";
 export * from "./codecs/compression.js";
 export * from "./codecs/encryption.js";
 export * from "./plugins/rate-limiter/index.js";
+export * from "./middleware/lock.js";

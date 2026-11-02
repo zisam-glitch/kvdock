@@ -21,6 +21,7 @@ export default defineConfig({
     "src/codecs/compression.ts",
     "src/codecs/encryption.ts",
     "src/plugins/rate-limiter/index.ts",
+    "src/middleware/lock.ts",
     "src/cli/index.ts",
   ],
   format: ["cjs", "esm"],

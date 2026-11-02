@@ -104,6 +104,11 @@
       "types": "./dist/plugins/rate-limiter/index.d.ts",
       "import": "./dist/plugins/rate-limiter/index.js",
       "require": "./dist/plugins/rate-limiter/index.cjs"
+    },
+    "./middleware/lock": {
+      "types": "./dist/middleware/lock.d.ts",
+      "import": "./dist/middleware/lock.js",
+      "require": "./dist/middleware/lock.cjs"
     }
   },
   "files": [
