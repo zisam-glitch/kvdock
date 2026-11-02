@@ -4,6 +4,16 @@ All notable changes to `kvdock` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-11-03
+
+### Added
+- **TokenBucketLimiter & SlidingWindowLimiter (`kvdock/plugins/rate-limiter`)**: Production-grade rate limiters running directly on any KVDock storage adapter with atomic CAS support and smooth boundary estimation (#71, #47).
+- **Transparent Compression Codec (`kvdock/codecs/compression`)**: Zero-dependency compression supporting Brotli, Gzip, and Deflate with configurable size threshold and magic byte prefixing (#63, #44).
+- **Authenticated Encryption Codec (`kvdock/codecs/encryption`)**: AES-256-GCM authenticated encryption at rest with randomized IVs and tamper-detection auth tags (#64, #45).
+- **DynamoDB Adapter (`kvdock/adapters/dynamodb`)**: Serverless document storage driver for AWS Lambda, ECS, and Fargate (#53).
+- **Memcached Adapter (`kvdock/adapters/memcached`)**: High-performance binary protocol caching adapter with native CAS token support (#58).
+- **LevelDB Adapter (`kvdock/adapters/leveldb`)**: Embedded fast key-value storage driver for Node.js runtimes.
+
 ## [0.2.0] - 2026-11-03
 
 ### Added

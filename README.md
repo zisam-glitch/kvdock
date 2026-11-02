@@ -5,8 +5,30 @@
 [![npm version](https://img.shields.io/npm/v/kvdock.svg)](https://www.npmjs.com/package/kvdock)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Bundle Size](https://img.shields.io/bundlephobia/minzip/kvdock)](https://bundlephobia.com/package/kvdock)
+[![Interactive Playground](https://img.shields.io/badge/Playground-Live_Stampede_Simulator-38BDF8?style=flat-square&logo=googlechrome&logoColor=white)](docs/playground/index.html)
+[![Follow @zisam-glitch](https://img.shields.io/github/followers/zisam-glitch?label=Follow%20%40zisam-glitch&style=social)](https://github.com/zisam-glitch)
 
 Universal key-value and caching engine with zero-dependency core, pluggable storage adapters, multi-tier caching, and built-in cache stampede protection.
+
+> 🎮 **[Launch the Interactive Web Playground & Stampede Simulator](docs/playground/index.html)** — Test multi-tier caching and simulate 5,000 concurrent stampede requests directly in your browser!
+
+---
+
+## ⚡ Real-World Benchmark: Single-Flight Stampede Coalescing
+
+What happens when a hot cache key expires while **1,000 concurrent users** request it simultaneously?
+
+| Metric | Traditional Uncoalesced Caching | `kvdock.getOrSet()` | Net Impact |
+| :--- | :---: | :---: | :---: |
+| **Incoming Concurrent Requests** | 1,000 | 1,000 | Identical load |
+| **Primary Database Hits** | **1,000 queries** *(Thundering Herd)* | **1 query** *(Single-Flight)* | **99.9% DB load reduction** |
+| **Coalesced Waiting Callers** | 0 | 999 | Zero lock contention |
+| **DB Connection Pool Exhaustion** | 💥 Critical Spike | 🟢 Baseline Stable | Zero connection exhaustion |
+
+Run this benchmark locally at any time:
+```bash
+npm run build && node scripts/benchmark-stampede.mjs
+```
 
 ---
 
@@ -243,6 +265,15 @@ Read the [Contributor Guide: Building a Custom Adapter in 15 Minutes](docs/guide
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
+
+---
+
+## Maintainer & Architecture
+
+Designed and maintained with care by **[zisam shaikh (@zisam-glitch)](https://github.com/zisam-glitch)**.  
+Follow along on GitHub for low-latency systems engineering deep dives, lock-free data structures, and zero-dependency runtime tooling.
+
+[![Follow @zisam-glitch on GitHub](https://img.shields.io/badge/GitHub-Follow_@zisam--glitch-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/zisam-glitch)
 
 ---
 
