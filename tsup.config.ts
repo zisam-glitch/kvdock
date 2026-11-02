@@ -17,6 +17,7 @@ export default defineConfig({
     "src/adapters/cloudflare-kv/index.ts",
     "src/adapters/sqlite/index.ts",
     "src/adapters/indexeddb/index.ts",
+    "src/adapters/localstorage/index.ts",
     "src/codecs/compression.ts",
     "src/codecs/encryption.ts",
     "src/plugins/rate-limiter/index.ts",
