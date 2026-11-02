@@ -130,6 +130,27 @@ export default {
 };
 ```
 
+### 5. Transparent Compression & Encryption Codecs
+
+Save up to 80% RAM/disk space on large payloads and secure sensitive data at rest using zero-dependency codecs:
+
+```typescript
+import { KVDock, createCompressionCodec, createEncryptionCodec } from "kvdock";
+import { MemoryAdapter } from "kvdock/adapters/memory";
+
+// Automatically compress JSON payloads exceeding 1KB using Brotli
+const compressedDock = new KVDock({
+  adapter: new MemoryAdapter(),
+  serializer: createCompressionCodec({ algorithm: "brotli", thresholdBytes: 1024 }),
+});
+
+// Authenticated AES-256-GCM encryption with tamper detection
+const encryptedDock = new KVDock({
+  adapter: new MemoryAdapter(),
+  serializer: createEncryptionCodec({ secretKey: process.env.CACHE_SECRET_KEY! }),
+});
+```
+
 ---
 
 ## CLI Tool
