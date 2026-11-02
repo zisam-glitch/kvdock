@@ -1,6 +1,6 @@
 {
   "name": "kvdock",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Universal key-value adapter engine with zero-dependency core",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -84,6 +84,11 @@
       "types": "./dist/adapters/indexeddb/index.d.ts",
       "import": "./dist/adapters/indexeddb/index.js",
       "require": "./dist/adapters/indexeddb/index.cjs"
+    },
+    "./adapters/localstorage": {
+      "types": "./dist/adapters/localstorage/index.d.ts",
+      "import": "./dist/adapters/localstorage/index.js",
+      "require": "./dist/adapters/localstorage/index.cjs"
     },
     "./codecs/compression": {
       "types": "./dist/codecs/compression.d.ts",
