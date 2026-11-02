@@ -46,6 +46,7 @@ npm install kvdock
 | **Cloudflare KV** | :white_check_mark: Built-in | TTL (60s+ clamp), Scan, Cursors | Cloudflare Workers | `kvdock/adapters/cloudflare-kv` |
 | **IndexedDB** | :white_check_mark: Built-in | TTL, Batch, Scan, CAS | Browsers, PWAs | `kvdock/adapters/indexeddb` |
 | **S3 / MinIO** | :white_check_mark: Built-in | TTL, Batch, Scan, Binary, Blob | All cloud runtimes | `kvdock/adapters/s3` |
+| **LevelDB** | :white_check_mark: Built-in | TTL, Batch, Scan, Sublevels, LSM | Node.js, Bun, Embedded | `kvdock/adapters/leveldb` |
 
 > See the complete [Adapters Guide & Architectural Comparison](docs/adapters-guide.md) for latency, persistence, and concurrency ratings.
 
