@@ -50,3 +50,21 @@ jobs:
           test -f dist/index.d.ts
           test -f dist/adapters/memory/index.js
           test -f dist/adapters/fs/index.js
+          test -f dist/adapters/sqlite/index.js
+          test -f dist/adapters/cloudflare-kv/index.js
+          test -f dist/adapters/indexeddb/index.js
+          test -f dist/adapters/valkey-cluster/index.js
+          test -f dist/testing/index.js
+          test -f dist/cli/index.js
+
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: run core throughput benchmarks
+        run: npx vitest bench --run

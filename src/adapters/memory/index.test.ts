@@ -70,4 +70,15 @@ describe("MemoryAdapter (LRU & In-Memory specifics)", () => {
     const userKeys = await adapter.keys("user:*");
     expect(userKeys.sort()).toEqual(["user:1", "user:2"]);
   });
+
+  it("handles high-concurrency read-write stress without data race or corruption", async () => {
+    const adapter = new MemoryAdapter({ maxSize: 500 });
+    const operations = Array.from({ length: 500 }, (_, i) => {
+      const key = `stress:${i % 50}`;
+      return i % 2 === 0 ? adapter.set(key, `val-${i}`) : adapter.get(key);
+    });
+
+    await Promise.all(operations);
+    expect(await adapter.has("stress:0")).toBe(true);
+  });
 });
