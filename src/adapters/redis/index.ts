@@ -97,6 +97,13 @@ export class RedisAdapter implements StorageAdapter {
   }
 
   public async clear(): Promise<void> {
+    if (this.prefix) {
+      const keys = await this.keys();
+      if (keys.length > 0) {
+        await this.deleteMany(keys);
+      }
+      return;
+    }
     if (typeof this.client.flushdb === "function") {
       await this.client.flushdb();
     } else {
