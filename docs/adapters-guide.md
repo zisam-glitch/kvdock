@@ -138,6 +138,7 @@ export default {
 ### `IndexedDBAdapter`
 - **Ideal For:** Progressive Web Apps (PWAs), offline-first web applications, client-side browser caches.
 - **Guarantees:** Zero external bundle dependencies, asynchronous Promises wrapping native `IDBRequest`, isolation by database and object store names.
+- **Scanning:** `scan(pattern, { batchSize: 100 })` reads records incrementally with a cursor, filtering expired records and stripping the configured prefix. `batchSize` must be a positive safe integer and defaults to 100 records per transaction. Each transaction finishes before keys are yielded, so consumers can pause or stop without keeping a transaction open.
 
 ```typescript
 import { KVDock } from "kvdock";

@@ -211,11 +211,76 @@ export class IndexedDBAdapter implements StorageAdapter {
     return allKeys.filter((k) => regex.test(k));
   }
 
-  public async *scan(pattern?: string, _options?: ScanOptions): AsyncIterable<string> {
-    const all = await this.keys(pattern);
-    for (const key of all) {
-      yield key;
+  /** Traverses at most batchSize records per transaction (100 by default). */
+  public async *scan(pattern?: string, options?: ScanOptions): AsyncIterable<string> {
+    const batchSize = options?.batchSize ?? 100;
+    if (!Number.isSafeInteger(batchSize) || batchSize < 1) {
+      throw new RangeError("batchSize must be a positive safe integer");
     }
+
+    const regex =
+      pattern && pattern !== "*" ? new RegExp(`^${pattern.replace(/\*/g, ".*")}$`) : undefined;
+    const db = await this.getDB();
+    let after: IDBValidKey | undefined;
+
+    while (true) {
+      const batch = await this.scanBatch(db, batchSize, after, regex);
+      // Finish the transaction before yielding: a consumer may pause long enough
+      // for IndexedDB to close it automatically between iterator.next() calls.
+      for (const key of batch.keys) {
+        yield key;
+      }
+      if (batch.done) return;
+      after = batch.lastKey;
+    }
+  }
+
+  private scanBatch(
+    db: IDBDatabase,
+    batchSize: number,
+    after: IDBValidKey | undefined,
+    regex: RegExp | undefined,
+  ): Promise<{ keys: string[]; lastKey: IDBValidKey | undefined; done: boolean }> {
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(this.storeName, "readonly");
+      const request = tx.objectStore(this.storeName).openCursor();
+      const keys: string[] = [];
+      const now = Date.now();
+      let lastKey: IDBValidKey | undefined;
+      let visited = 0;
+      let done = false;
+
+      request.onsuccess = () => {
+        const cursor = request.result;
+        if (!cursor) {
+          done = true;
+          return;
+        }
+        if (after !== undefined && this.factory.cmp(cursor.key, after) <= 0) {
+          // Seek past the previous batch without relying on a global IDBKeyRange
+          // when the adapter was given an explicit factory.
+          if (this.factory.cmp(cursor.key, after) < 0) cursor.continue(after);
+          else cursor.continue();
+          return;
+        }
+
+        lastKey = cursor.key;
+        visited++;
+        const record = cursor.value as IDBRecord;
+        const key = this.unpkey(record.key);
+        if (
+          (record.expiresAt === null || record.expiresAt > now) &&
+          record.key.startsWith(this.prefix) &&
+          (!regex || regex.test(key))
+        ) {
+          keys.push(key);
+        }
+        if (visited < batchSize) cursor.continue();
+      };
+      request.onerror = () => reject(request.error);
+      tx.onabort = () => reject(tx.error ?? new Error("IndexedDB scan transaction aborted"));
+      tx.oncomplete = () => resolve({ keys, lastKey, done });
+    });
   }
 
   public async getMany<T = unknown>(keys: string[]): Promise<Map<string, T | null>> {
