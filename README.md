@@ -5,12 +5,12 @@
 [![npm version](https://img.shields.io/npm/v/kvdock.svg)](https://www.npmjs.com/package/kvdock)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Bundle Size](https://img.shields.io/bundlephobia/minzip/kvdock)](https://bundlephobia.com/package/kvdock)
-[![Interactive Playground](https://img.shields.io/badge/Playground-Live_Stampede_Simulator-38BDF8?style=flat-square&logo=googlechrome&logoColor=white)](docs/playground/index.html)
+[![Interactive Playground](https://img.shields.io/badge/Playground-Live_Stampede_Simulator-38BDF8?style=flat-square&logo=googlechrome&logoColor=white)](https://zisam-glitch.github.io/kvdock/playground/index.html)
 [![Follow @zisam-glitch](https://img.shields.io/github/followers/zisam-glitch?label=Follow%20%40zisam-glitch&style=social)](https://github.com/zisam-glitch)
 
 Universal key-value and caching engine with zero-dependency core, pluggable storage adapters, multi-tier caching, and built-in cache stampede protection.
 
-> 🎮 **[Launch the Interactive Web Playground & Stampede Simulator](docs/playground/index.html)** — Test multi-tier caching and simulate 5,000 concurrent stampede requests directly in your browser!
+> 🎮 **[Launch the Interactive Web Playground & Stampede Simulator](https://zisam-glitch.github.io/kvdock/playground/index.html)** — Test multi-tier caching and simulate 5,000 concurrent stampede requests directly in your browser!
 
 ---
 
