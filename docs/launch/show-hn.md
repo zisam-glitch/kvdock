@@ -47,4 +47,4 @@ We’d love feedback from the HN community on our adapter architecture, concurre
 > **Answer**: `dock.getOrSet()` stores the in-flight promise in a scoped map with strict `finally` cleanup. If the fetcher rejects or times out, the error propagates to all waiting promises, the in-flight key is cleared immediately, and subsequent requests can retry cleanly without getting stuck in a deadlocked state.
 
 ### Q: "Is this production ready?"
-> **Answer**: Yes. KVDock is covered by 198 automated unit and integration tests across 11 storage backends, adheres to semantic versioning, includes full TypeScript type exports, and has an automated compliance test suite (`kvdock/testing`).
+> **Answer**: Yes. KVDock is covered by 320+ automated unit and integration tests across 21 storage backends and 6 web frameworks, adheres to semantic versioning, includes full TypeScript type exports, and provides an automated compliance test suite (`kvdock/testing`).
