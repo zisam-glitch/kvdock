@@ -237,6 +237,7 @@
     "@changesets/cli": "^2.27.12",
     "@types/node": "^26.6.6",
     "@types/pg": "^8.23.1",
+    "fake-indexeddb": "^6.2.7",
     "ioredis": "^6.0.0",
     "mongodb": "^7.8.0",
     "pg": "^8.23.1",
