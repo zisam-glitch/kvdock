@@ -16,5 +16,7 @@
 - [x] Add `Bun.serve` and `ElysiaJS` route caching recipe to `examples/elysia-caching` (#107)
 - [x] Add cursor-based async iterator scan support for browser stores (`IndexedDBAdapter`) (#106)
 - [x] Add automated Miniflare integration test for `CloudflareKVAdapter` and `D1Adapter`
-- [ ] Add Prometheus metrics scraping endpoint and export latency histograms in `kvdock/plugins/prometheus`
+- [x] Add Prometheus metrics scraping endpoint and export latency histograms in `kvdock/plugins/prometheus`
 - [ ] Add OpenTelemetry distributed trace context propagation in `kvdock/plugins/opentelemetry`
+- [ ] Add resilient exponential backoff retry middleware with jitter in `kvdock/middleware/retry`
+- [ ] Add client-side payload decompression benchmark in `docs/BENCHMARKS.md`
