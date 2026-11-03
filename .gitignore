@@ -5,3 +5,7 @@ coverage/
 .DS_Store
 .turbo
 .cache
+.env
+.env.local
+.env.*.local
+.bench_*
