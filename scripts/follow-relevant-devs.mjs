@@ -8,38 +8,50 @@ const __dirname = path.dirname(__filename);
 
 const HISTORY_FILE = path.resolve(__dirname, "../docs/FOLLOWED_USERS.json");
 
-// Load already followed users to avoid duplicates
-let followedHistory = new Set();
-if (fs.existsSync(HISTORY_FILE)) {
+// Fetch real-time live following list directly from GitHub API
+function getLiveFollowingSet() {
+  const set = new Set();
   try {
-    const list = JSON.parse(fs.readFileSync(HISTORY_FILE, "utf-8"));
-    followedHistory = new Set(list);
-  } catch (e) {
-    followedHistory = new Set();
+    const out = execSync(`gh api "user/following?per_page=100" --jq '.[].login'`, { encoding: "utf-8" });
+    for (const login of out.split("\n")) {
+      const clean = login.trim();
+      if (clean) set.add(clean);
+    }
+  } catch (err) {
+    console.error("[Follower Engine] Error querying live following list:", err.message);
   }
+
+  // Also include local cache
+  if (fs.existsSync(HISTORY_FILE)) {
+    try {
+      const cached = JSON.parse(fs.readFileSync(HISTORY_FILE, "utf-8"));
+      for (const u of cached) set.add(u);
+    } catch (e) {}
+  }
+  return set;
 }
+
+const followedHistory = getLiveFollowingSet();
 
 function saveHistory() {
   fs.writeFileSync(HISTORY_FILE, JSON.stringify([...followedHistory], null, 2));
 }
 
-// Target repositories with active caching, runtime, and systems developers
+// Diverse ecosystems: Rust, Go, TypeScript, Node, Edge runtimes
 const TARGET_REPOS = [
-  "unjs/unstorage",
-  "node-cache/node-cache",
-  "redis/ioredis",
-  "jaredwray/keyv",
-  "honojs/hono",
-  "fastify/fastify",
-  "oven-sh/bun",
-  "valkey-io/valkey",
   "tokio-rs/tokio",
   "BurntSushi/aho-corasick",
   "gofiber/fiber",
   "gin-gonic/gin",
+  "biomejs/biome",
   "trpc/trpc",
   "vitejs/vite",
-  "supabase/supabase"
+  "shadcn-ui/ui",
+  "unjs/unstorage",
+  "fastify/fastify",
+  "honojs/hono",
+  "oven-sh/bun",
+  "redis/ioredis"
 ];
 
 async function sleep(ms) {
@@ -55,10 +67,6 @@ async function followUser(username) {
     return true;
   } catch (err) {
     const msg = err.message || "";
-    if (msg.includes("user") || msg.includes("404")) {
-      console.log(`[Follower Engine] Requires 'user' scope. Run: gh auth refresh -h github.com -s user`);
-      return false;
-    }
     console.log(`[Follower Engine] Skipped @${username}: ${msg.slice(0, 100)}`);
     return false;
   }
@@ -70,8 +78,7 @@ async function findActiveDevelopers(limit = 20) {
   for (const repo of TARGET_REPOS) {
     if (candidates.size >= limit) break;
     try {
-      // Find active contributors
-      const out = execSync(`gh api "repos/${repo}/contributors?per_page=15" --jq '.[].login'`, { encoding: "utf-8" });
+      const out = execSync(`gh api "repos/${repo}/contributors?per_page=20" --jq '.[].login'`, { encoding: "utf-8" });
       const logins = out.split("\n").map((s) => s.trim()).filter(Boolean);
       for (const login of logins) {
         if (!followedHistory.has(login) && login !== "zisam-glitch" && !login.includes("[bot]")) {
@@ -80,7 +87,7 @@ async function findActiveDevelopers(limit = 20) {
         }
       }
     } catch (err) {
-      // Continue to next repo
+      // Ignore and continue
     }
   }
 
@@ -92,25 +99,22 @@ async function main() {
   console.log("           KVDock High-Signal Follower Engagement             ");
   console.log("===============================================================\n");
 
-  const BATCH_SIZE = 15;
-  console.log(`[1] Discovering active systems & caching developers...`);
+  console.log(`Currently following ${followedHistory.size} unique developers on GitHub.`);
+  const BATCH_SIZE = 20;
+  console.log(`[1] Scanning Rust, Go, TypeScript, and Runtime repositories...`);
   const devs = await findActiveDevelopers(BATCH_SIZE);
-  console.log(`Found ${devs.length} high-signal developer targets.\n`);
+  console.log(`Found ${devs.length} new fresh high-signal developer targets.\n`);
 
   let followedCount = 0;
   for (const dev of devs) {
     const ok = await followUser(dev);
-    if (!ok && followedCount === 0) {
-      console.log("\n⚠️ GitHub API 'user' scope is needed to follow users.");
-      console.log("👉 Please run: gh auth refresh -h github.com -s user\n");
-      break;
-    }
     if (ok) followedCount++;
     // Safe pacing: 2.5 second delay between follows to comply with GitHub rate limits
     await sleep(2500);
   }
 
   console.log(`\nFollow session completed: ${followedCount} new developers followed.`);
+  console.log(`Total followed developer network: ${followedHistory.size}`);
 }
 
 main().catch(console.error);
