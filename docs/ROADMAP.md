@@ -1,5 +1,6 @@
 # kvdock Roadmap (one item shipped per day)
 
+## Shipped Foundation
 - [x] Replace mock-based tests for Redis with an opt-in integration test against a real Redis (docker compose / REDIS_URL)
 - [x] Same for Postgres and MongoDB adapters (opt-in integration tests against real POSTGRES_URL and MONGODB_URI)
 - [x] Wire MongoDB/Postgres adapters to real client libraries as optional peer deps and document it
@@ -9,3 +10,11 @@
 - [x] Publish benchmark results in docs/PERFORMANCE_MATRIX.md from a real run
 - [x] Add OpenSSF Scorecard GitHub Action and fix findings
 - [x] Write a launch post (Show HN / dev.to) and respond to real feedback
+
+## Upcoming Milestones
+- [ ] Add malformed JSON error recovery test coverage for `LocalStorageAdapter` and `AsyncStorageAdapter` (#108)
+- [ ] Add `Bun.serve` and `ElysiaJS` route caching recipe to `examples/elysia-caching` (#107)
+- [ ] Add cursor-based async iterator scan support for browser stores (`IndexedDBAdapter`) (#106)
+- [ ] Add automated Miniflare integration test for `CloudflareKVAdapter` and `D1Adapter`
+- [ ] Add Prometheus metrics scraping endpoint and export latency histograms in `kvdock/plugins/prometheus`
+- [ ] Add OpenTelemetry distributed trace context propagation in `kvdock/plugins/opentelemetry`
