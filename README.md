@@ -232,6 +232,19 @@ const result = await slidingWindow.consume("api_key:secret_key");
 
 ---
 
+## Runnable Examples & Framework Starters
+
+Check out the standalone, runnable applications in the **[`examples/`](examples/)** directory:
+
+| Starter Example | Key Capabilities Demonstrated | Run Command |
+|---|---|---|
+| **[`examples/tiered-cache`](examples/tiered-cache/index.ts)** | L1 (Memory) + L2 (SQLite) tiered caching, single-flight stampede coalescing (100 -> 1 query), automatic promotions | `npx tsx examples/tiered-cache/index.ts` |
+| **[`examples/distributed-lock`](examples/distributed-lock/index.ts)** | Distributed Mutex with monotonic fencing tokens, lease renewal, and Distributed Semaphore concurrency pooling | `npx tsx examples/distributed-lock/index.ts` |
+| **[`examples/hono-caching`](examples/hono-caching/index.ts)** | Edge HTTP route caching, automatic ETag generation, conditional `304 Not Modified` revalidation, encrypted sessions | `npx tsx examples/hono-caching/index.ts` |
+| **[`examples/nextjs-isr`](examples/nextjs-isr/index.ts)** | Next.js 14/15 App Router IncrementalCache handler (`cacheHandler`), tag-based invalidation (`revalidateTag`) | `npx tsx examples/nextjs-isr/index.ts` |
+
+---
+
 ## CLI Tool
 
 `kvdock` includes an interactive CLI binary for inspecting keys, diagnosing adapters, and running micro-benchmarks:
