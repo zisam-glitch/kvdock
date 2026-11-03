@@ -1,6 +1,6 @@
 # kvdock Roadmap (one item shipped per day)
 
-- [ ] Replace mock-based tests for Redis with an opt-in integration test against a real Redis (docker compose)
+- [x] Replace mock-based tests for Redis with an opt-in integration test against a real Redis (docker compose / REDIS_URL)
 - [ ] Same for Postgres and MongoDB adapters (mocks currently stand in for real drivers)
 - [ ] Wire MongoDB/Postgres adapters to real client libraries as optional peer deps and document it
 - [ ] README: quickstart, adapter matrix with honest maturity levels (stable / experimental)

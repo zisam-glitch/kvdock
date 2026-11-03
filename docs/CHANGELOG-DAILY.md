@@ -1,3 +1,5 @@
 # Daily changelog
 
 One honest line per shipped item.
+
+- **2026-11-03**: Added opt-in real Redis server integration test suite (`src/adapters/redis/integration.test.ts`), fixed prefix handling in `RedisAdapter.clear()`, and added `@types/node` and `ioredis` to devDependencies.
