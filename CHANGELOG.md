@@ -7,12 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.0] - 2026-11-03
 
 ### Added
-- **TokenBucketLimiter & SlidingWindowLimiter (`kvdock/plugins/rate-limiter`)**: Production-grade rate limiters running directly on any KVDock storage adapter with atomic CAS support and smooth boundary estimation (#71, #47).
-- **Transparent Compression Codec (`kvdock/codecs/compression`)**: Zero-dependency compression supporting Brotli, Gzip, and Deflate with configurable size threshold and magic byte prefixing (#63, #44).
-- **Authenticated Encryption Codec (`kvdock/codecs/encryption`)**: AES-256-GCM authenticated encryption at rest with randomized IVs and tamper-detection auth tags (#64, #45).
-- **DynamoDB Adapter (`kvdock/adapters/dynamodb`)**: Serverless document storage driver for AWS Lambda, ECS, and Fargate (#53).
-- **Memcached Adapter (`kvdock/adapters/memcached`)**: High-performance binary protocol caching adapter with native CAS token support (#58).
-- **LevelDB Adapter (`kvdock/adapters/leveldb`)**: Embedded fast key-value storage driver for Node.js runtimes.
+- **Official Framework Integrations**:
+  - **Next.js 14/15 CacheHandler (`kvdock/integrations/nextjs`)**: Drop-in App Router ISR and fetch cache handler with tag invalidation (#68).
+  - **Hono Edge Middlewares (`kvdock/integrations/hono`)**: Route caching with automatic ETag generation, conditional 304 revalidation, and encrypted session management for Cloudflare Workers, Bun, Node, and Deno (#67).
+  - **Express Session Store (`kvdock/integrations/express`)**: Production session store conforming to Express session store contract with TTL pruning (#69).
+  - **Fastify Cache Plugin (`kvdock/integrations/fastify`)**: Route caching plugin decorating Fastify instances with `fastify.dock` (#70).
+  - **Nuxt 3 / Nitro Driver (`kvdock/integrations/nuxt`)**: Native unstorage driver integrating KVDock directly into Nitro's storage layer.
+- **Enterprise Storage Adapters**:
+  - **Bun Native SQLite (`kvdock/adapters/bun-sqlite`)**: Ultra-fast native SQLite driver leveraging `bun:sqlite` with WAL mode and prepared statements (#60).
+  - **LibSQL / Turso Edge (`kvdock/adapters/libsql`)**: Distributed SQLite driver supporting Turso embedded replicas and HTTP edge connections (#56).
+  - **Cloudflare D1 (`kvdock/adapters/d1`)**: Serverless SQL storage adapter for Cloudflare Workers D1 databases (#57).
+  - **Deno KV Native Runtime (`kvdock/adapters/deno-kv`)**: Native Deno KV adapter using tuple key mapping and atomic transactions (#59).
+  - **MongoDB Collection Adapter (`kvdock/adapters/mongodb`)**: Document storage driver utilizing MongoDB native Background TTL Indexes (#55).
+  - **PostgreSQL Adapter (`kvdock/adapters/postgres`)**: Relational key-value driver with automatic schema migration and parameterized queries (#54).
+  - **React Native AsyncStorage (`kvdock/adapters/async-storage`)**: Mobile client storage driver for React Native applications (#62).
+  - **LocalStorage Fallback Adapter (`kvdock/adapters/localstorage`)**: Zero-dependency browser storage driver with sweep cleaner and quota degradation (#61, #46).
+  - **DynamoDB Adapter (`kvdock/adapters/dynamodb`)**: Serverless document storage driver for AWS Lambda, ECS, and Fargate (#53).
+  - **Memcached Adapter (`kvdock/adapters/memcached`)**: High-performance binary protocol caching adapter with native CAS token support (#58).
+  - **LevelDB Adapter (`kvdock/adapters/leveldb`)**: Embedded fast key-value storage driver for Node.js runtimes.
+- **Observability & Telemetry Plugins**:
+  - **OpenTelemetry Plugin (`kvdock/plugins/opentelemetry`)**: W3C distributed tracing instrumenting storage calls with duration and status attributes (#65).
+  - **Prometheus Exporter (`kvdock/plugins/prometheus`)**: Production metrics collector exporting standard Prometheus scrapable metrics (#66).
+- **Concurrency & Tooling**:
+  - **Distributed Locks (`kvdock/middleware/lock`)**: `DistributedMutex` with monotonic fencing tokens and lease renewal, plus `DistributedSemaphore` with permit slots (#48).
+  - **Zero-Downtime Migration Utility (`kvdock/tooling/migrate`)**: Key migration engine between arbitrary docks and adapters with TTL preservation, retry backoff, and CLI command (`npx kvdock migrate`) (#72).
+  - **Multi-Adapter Performance Matrix (`scripts/benchmark-matrix.mjs`)**: Automated benchmark runner and Markdown report generator (`docs/PERFORMANCE_MATRIX.md`) (#51).
+- **Codecs & Protection**:
+  - **TokenBucketLimiter & SlidingWindowLimiter (`kvdock/plugins/rate-limiter`)**: Production rate limiters running directly on any KVDock storage adapter with atomic CAS support and smooth boundary estimation (#71, #47).
+  - **Transparent Compression Codec (`kvdock/codecs/compression`)**: Zero-dependency compression supporting Brotli, Gzip, and Deflate with configurable size threshold and magic byte prefixing (#63, #44).
+  - **Authenticated Encryption Codec (`kvdock/codecs/encryption`)**: AES-256-GCM authenticated encryption at rest with randomized IVs and tamper-detection auth tags (#64, #45).
 
 ## [0.2.0] - 2026-11-03
 
