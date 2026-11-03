@@ -8,3 +8,4 @@ One honest line per shipped item.
 - **2026-11-03**: Added automated `npm pack` tarball smoke test to CI pipeline (`.github/workflows/ci.yml`), verifying fresh isolated installation and package export integrity.
 - **2026-11-03**: Published real newcomer issues with `good first issue` and `help wanted` labels (#106, #107, #108) with actionable specs, verified `SECURITY.md` and `CONTRIBUTING.md`.
 - **2026-11-03**: Published multi-adapter benchmark results in `docs/PERFORMANCE_MATRIX.md` executed locally with real payload measurements across 1KB, 10KB, and 100KB sizes.
+- **2026-11-03**: Upgraded OpenSSF Scorecard action to `v2.5.0` (`ghcr.io`), pinned all workflow action SHAs, declared minimal workflow permissions across `ci.yml`, `release.yml`, and `scorecard.yml`.
