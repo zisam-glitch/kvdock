@@ -1,14 +1,18 @@
-import { Miniflare } from "miniflare";
+import type { Miniflare } from "miniflare";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { defineAdapterTestSuite } from "../../testing/index.js";
 import { CloudflareKVAdapter, type CloudflareKVNamespace } from "./index.js";
 
-describe("CloudflareKVAdapter (Miniflare Integration)", () => {
+const isSupported =
+  typeof File !== "undefined" && Number.parseInt(process.versions.node.split(".")[0], 10) >= 20;
+
+describe.skipIf(!isSupported)("CloudflareKVAdapter (Miniflare Integration)", () => {
   let mf: Miniflare;
   let kv: CloudflareKVNamespace;
   let adapter: CloudflareKVAdapter;
 
   beforeAll(async () => {
+    const { Miniflare } = await import("miniflare");
     mf = new Miniflare({
       modules: true,
       script: "export default { fetch() { return new Response(null); } }",
