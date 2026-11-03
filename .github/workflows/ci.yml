@@ -79,6 +79,17 @@ jobs:
           test -f dist/tooling/index.js
           test -f dist/testing/index.js
           test -f dist/cli/index.js
+      - name: smoke test npm pack
+        run: |
+          TARBALL=$(npm pack)
+          tar -tf "$TARBALL" | grep "package/dist/index.js"
+          tar -tf "$TARBALL" | grep "package/dist/index.d.ts"
+          tar -tf "$TARBALL" | grep "package/README.md"
+          tar -tf "$TARBALL" | grep "package/package.json"
+          mkdir -p /tmp/smoke-test && cd /tmp/smoke-test
+          npm init -y
+          npm install "$GITHUB_WORKSPACE/$TARBALL"
+          node -e 'const { KVDock } = require("kvdock"); console.log("kvdock packed package smoke test passed!");'
 
   benchmark:
     runs-on: ubuntu-latest
