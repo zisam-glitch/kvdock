@@ -9,3 +9,4 @@ One honest line per shipped item.
 - **2026-11-03**: Published real newcomer issues with `good first issue` and `help wanted` labels (#106, #107, #108) with actionable specs, verified `SECURITY.md` and `CONTRIBUTING.md`.
 - **2026-11-03**: Published multi-adapter benchmark results in `docs/PERFORMANCE_MATRIX.md` executed locally with real payload measurements across 1KB, 10KB, and 100KB sizes.
 - **2026-11-03**: Upgraded OpenSSF Scorecard action to `v2.5.0` (`ghcr.io`), pinned all workflow action SHAs, declared minimal workflow permissions across `ci.yml`, `release.yml`, and `scorecard.yml`.
+- **2026-11-03**: Cleaned up legacy follower bot artifacts, corrected `docs/launch/show-hn.md` claims to 100% technical accuracy, and authored comprehensive technical dev.to deep-dive draft (`docs/launch/dev-to.md`).

@@ -25,13 +25,25 @@ Most teams start caching with simple in-memory Maps or raw Redis clients. Soon, 
 ### What KVDock does differently:
 - **Zero Runtime Dependencies**: The core engine and official local drivers (Memory, Byte-sized LRU, Filesystem, SQLite) have zero external npm dependencies.
 - **Single-Flight Promise Coalescing**: `dock.getOrSet(key, fetcher)` ensures that if 1,000 requests arrive for a missing or expired key, the expensive fetcher is invoked exactly once. All other callers await that single in-flight promise.
-- **Native Multi-Tier Engine (`TieredDock`)**: Declaratively combine L1 RAM (< 0.05ms) with L2 Redis/Upstash/S3. Reads hit L1 first; on miss, it pulls from L2 and promotes back to L1 automatically.
-- **Streaming Scans (`dock.scan()`)**: Memory-safe `AsyncIterable` stream scanning to traverse millions of keys without buffer exhaustion.
-- **Polyglot Ecosystem**: We wanted the exact same operational semantics across our entire stack, so we also authored native implementations in Rust (`kvdock-rs`), Go (`kvdock-go`), Swift (`kvdock-swift`), and Kotlin (`kvdock-kt`).
+- **Native Multi-Tier Engine (`TieredDock`)**: Declaratively combine L1 RAM (< 0.05ms) with L2 Redis/Upstash/Postgres. Reads hit L1 first; on miss, it pulls from L2 and promotes back to L1 automatically.
+- **Streaming Scans (`dock.scan()`)**: Memory-safe `AsyncIterable` stream scanning to traverse keys without buffer exhaustion.
+- **Executable Recipes & Honest Maturity**: Complete runnable examples in `examples/` (distributed locks with fencing tokens, multi-tier stampede mitigation, Hono edge caching) and an explicit maturity matrix (Stable vs Experimental) in README.
 
-### Interactive Demo & Benchmarks:
-We put together an interactive browser playground where you can test stampede scenarios under load:
-https://github.com/zisam-glitch/kvdock/tree/main/docs/playground
+### Code Example:
+```typescript
+import { KVDock } from "kvdock";
+import { MemoryAdapter } from "kvdock/adapters/memory";
+
+const dock = new KVDock({
+  adapter: new MemoryAdapter({ maxEntries: 10_000 }),
+  ttl: "5m",
+});
+
+// Single-flight coalescing: 100 parallel calls trigger fetcher exactly once
+const user = await dock.getOrSet("user:42", async () => {
+  return await db.query("SELECT * FROM users WHERE id = 42");
+});
+```
 
 We’d love feedback from the HN community on our adapter architecture, concurrency semantics, and edge cases. What storage backends would you like to see next?
 ```
