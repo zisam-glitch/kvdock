@@ -296,6 +296,7 @@ Read the [Contributor Guide: Building a Custom Adapter in 15 Minutes](docs/guide
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/zisam-glitch"><img src="https://avatars.githubusercontent.com/u/190885141?v=4" width="100px;" alt="zisam shaikh"/><br /><sub><b>zisam shaikh</b></sub></a><br /><a href="#infra-zisam-glitch" title="Infrastructure">🚇</a> <a href="#maintenance-zisam-glitch" title="Maintenance">🚧</a> <a href="#code-zisam-glitch" title="Code">💻</a> <a href="#doc-zisam-glitch" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/Vamsi-2581"><img src="https://avatars.githubusercontent.com/u/101239848?v=4" width="100px;" alt="Vamsi"/><br /><sub><b>Vamsi</b></sub></a><br /><a href="#code-Vamsi-2581" title="Code">💻</a> <a href="#test-Vamsi-2581" title="Tests">⚠️</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/BryanOnKeys"><img src="https://avatars.githubusercontent.com/u/201409645?v=4" width="100px;" alt="Bryan | Full Stack Developer"/><br /><sub><b>Bryan | Full Stack Developer</b></sub></a><br /><a href="#code-BryanOnKeys" title="Code">💻</a> <a href="#test-BryanOnKeys" title="Tests">⚠️</a> <a href="#doc-BryanOnKeys" title="Documentation">📖</a></td>
     </tr>
   </tbody>
 </table>
