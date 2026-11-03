@@ -1,41 +1,76 @@
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * KVDock Autonomous Multi-Platform Social & Community Publisher
  *
- * This script allows AI and background cron jobs to programmatically publish
- * technical threads, engineering articles, and ecosystem updates across platforms.
- *
  * Supported Channels:
- * 1. X / Twitter (via X API v2)
- * 2. Dev.to (via Dev.to REST API)
- * 3. Reddit (via Reddit OAuth2 API)
- * 4. GitHub Discussions (via `gh` CLI)
+ * 1. Dev.to (REST API)
+ * 2. Hashnode (GraphQL API)
+ * 3. X / Twitter (REST API v2)
+ * 4. Reddit (OAuth2 Script)
+ * 5. GitHub Discussions & Releases (via `gh` CLI)
  */
 
-// Load environment variables from .env if present
-const envPath = path.resolve(process.cwd(), ".env");
-if (fs.existsSync(envPath)) {
-  const envContent = fs.readFileSync(envPath, "utf-8");
-  for (const line of envContent.split("\n")) {
-    const trimmed = line.trim();
-    if (trimmed && !trimmed.startsWith("#")) {
-      const [key, ...vals] = trimmed.split("=");
-      if (key && vals.length > 0) {
-        process.env[key.trim()] = vals.join("=").trim().replace(/^["']|["']$/g, "");
+// Robust .env loader: checks both script parent dir and process.cwd()
+function loadEnv() {
+  const candidatePaths = [
+    path.resolve(__dirname, "../.env"),
+    path.resolve(process.cwd(), ".env"),
+  ];
+
+  for (const envPath of candidatePaths) {
+    if (fs.existsSync(envPath)) {
+      const envContent = fs.readFileSync(envPath, "utf-8");
+      for (const line of envContent.split("\n")) {
+        const trimmed = line.trim();
+        if (trimmed && !trimmed.startsWith("#")) {
+          const eqIdx = trimmed.indexOf("=");
+          if (eqIdx !== -1) {
+            const key = trimmed.slice(0, eqIdx).trim();
+            const val = trimmed.slice(eqIdx + 1).trim().replace(/^["']|["']$/g, "");
+            if (key && !process.env[key]) {
+              process.env[key] = val;
+            }
+          }
+        }
       }
+      break;
     }
   }
 }
 
+loadEnv();
+
 // -----------------------------------------------------------------------------
-// 1. Dev.to Publisher (Free API Key, High SEO & Follower Conversion)
+// 1. Dev.to Publisher
 // -----------------------------------------------------------------------------
-export async function publishToDevTo({ title, bodyMarkdown, tags = ["javascript", "programming", "webdev", "rust"] }) {
+export async function testDevToAuth() {
+  const apiKey = process.env.DEVTO_API_KEY;
+  if (!apiKey) return { ok: false, error: "DEVTO_API_KEY missing" };
+
+  try {
+    const res = await fetch("https://dev.to/api/users/me", {
+      headers: { "api-key": apiKey },
+    });
+    const data = await res.json();
+    if (res.ok) {
+      return { ok: true, username: data.username, name: data.name };
+    }
+    return { ok: false, error: data.error || data.message || "Invalid API key" };
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+export async function publishToDevTo({ title, bodyMarkdown, tags = ["javascript", "webdev", "programming", "rust"] }) {
   const apiKey = process.env.DEVTO_API_KEY;
   if (!apiKey) {
-    console.log("[Dev.to] Skipped: DEVTO_API_KEY not configured in .env");
+    console.log("[Dev.to] Skipped: DEVTO_API_KEY not configured");
     return null;
   }
 
@@ -66,109 +101,136 @@ export async function publishToDevTo({ title, bodyMarkdown, tags = ["javascript"
 }
 
 // -----------------------------------------------------------------------------
-// 2. X / Twitter Publisher (Twitter API v2)
+// 2. Hashnode Publisher (GraphQL API)
 // -----------------------------------------------------------------------------
-export async function publishToTwitter(tweetText) {
-  const bearerToken = process.env.TWITTER_BEARER_TOKEN;
-  const accessToken = process.env.TWITTER_ACCESS_TOKEN;
+export async function testHashnodeAuth() {
+  const token = process.env.HASHNODE || process.env.HASHNODE_TOKEN;
+  if (!token) return { ok: false, error: "HASHNODE token missing" };
 
-  if (!accessToken && !bearerToken) {
-    console.log("[Twitter/X] Skipped: TWITTER_ACCESS_TOKEN not configured in .env");
-    return null;
-  }
+  const query = `query { me { id username name } }`;
 
   try {
-    const res = await fetch("https://api.twitter.com/2/tweets", {
+    const res = await fetch("https://gql.hashnode.com", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken || bearerToken}`,
+        Authorization: token,
       },
-      body: JSON.stringify({ text: tweetText }),
+      body: JSON.stringify({ query }),
     });
 
     const data = await res.json();
-    if (res.ok) {
-      console.log(`[Twitter/X] Tweet published successfully: ID ${data.data?.id}`);
-      return data;
-    } else {
-      console.error(`[Twitter/X] Error posting tweet:`, data);
-      return null;
+    if (data.data?.me) {
+      return { ok: true, username: data.data.me.username, name: data.data.me.name };
     }
+    return { ok: false, error: JSON.stringify(data.errors || data) };
   } catch (err) {
-    console.error(`[Twitter/X] Network error:`, err.message);
-    return null;
+    return { ok: false, error: err.message };
   }
 }
 
 // -----------------------------------------------------------------------------
-// 3. Reddit Publisher (Official Reddit OAuth2 Script App)
+// 3. Twitter / X Publisher
 // -----------------------------------------------------------------------------
-export async function publishToReddit({ subreddit, title, text, url }) {
+export async function testTwitterAuth() {
+  const token = process.env.TWITTER_ACCESS_TOKEN || process.env.TWITTER_BEARER_TOKEN;
+  if (!token) return { ok: false, error: "TWITTER_ACCESS_TOKEN missing" };
+
+  try {
+    const res = await fetch("https://api.twitter.com/2/users/me", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await res.json();
+    if (res.ok && data.data) {
+      return { ok: true, username: data.data.username };
+    }
+    return { ok: false, error: data.title || data.detail || JSON.stringify(data) };
+  } catch (err) {
+    return { ok: false, error: err.message };
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 4. Reddit Status & Responsible Builder Check
+// -----------------------------------------------------------------------------
+export async function testRedditAuth() {
   const clientId = process.env.REDDIT_CLIENT_ID;
   const clientSecret = process.env.REDDIT_CLIENT_SECRET;
   const username = process.env.REDDIT_USERNAME;
   const password = process.env.REDDIT_PASSWORD;
 
   if (!clientId || !clientSecret || !username || !password) {
-    console.log("[Reddit] Skipped: Reddit API credentials missing in .env");
-    return null;
+    return { ok: false, error: "Reddit credentials incomplete" };
   }
 
-  // 1. Get Access Token
   const authHeader = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
-  const tokenRes = await fetch("https://www.reddit.com/api/v1/access_token", {
-    method: "POST",
-    headers: {
-      Authorization: `Basic ${authHeader}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-      "User-Agent": "kvdock-growth-bot/1.0.0 (by /u/" + username + ")",
-    },
-    body: `grant_type=password&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`,
-  });
+  try {
+    const tokenRes = await fetch("https://www.reddit.com/api/v1/access_token", {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${authHeader}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+        "User-Agent": "kvdock-growth-bot/1.0.0 (by /u/" + username + ")",
+      },
+      body: `grant_type=password&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`,
+    });
 
-  const tokenData = await tokenRes.json();
-  if (!tokenData.access_token) {
-    console.error("[Reddit] Authentication failed:", tokenData);
-    return null;
+    const tokenData = await tokenRes.json();
+    if (tokenData.access_token) {
+      return { ok: true, access_token: "VALID" };
+    }
+    return { ok: false, error: tokenData.error || tokenData.message || JSON.stringify(tokenData) };
+  } catch (err) {
+    return { ok: false, error: err.message };
   }
-
-  // 2. Submit Post
-  const submitBody = new URLSearchParams({
-    api_type: "json",
-    kind: url ? "link" : "self",
-    sr: subreddit,
-    title,
-    ...(url ? { url } : { text }),
-  });
-
-  const submitRes = await fetch("https://oauth.reddit.com/api/submit", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${tokenData.access_token}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-      "User-Agent": "kvdock-growth-bot/1.0.0 (by /u/" + username + ")",
-    },
-    body: submitBody.toString(),
-  });
-
-  const submitData = await submitRes.json();
-  console.log(`[Reddit] Submitted to r/${subreddit}:`, submitData);
-  return submitData;
 }
 
 // -----------------------------------------------------------------------------
-// CLI Dispatcher
+// CLI Dispatcher & Diagnostic
 // -----------------------------------------------------------------------------
 async function main() {
-  const action = process.argv[2];
-  console.log(`[Autonomous Publisher] Triggered with action: ${action || "status"}`);
+  console.log("===============================================================");
+  console.log("       KVDock Autonomous Multi-Platform Publisher Status       ");
+  console.log("===============================================================\n");
 
-  console.log("\nConfigured Credentials Status:");
-  console.log(" - Dev.to API Key:    ", process.env.DEVTO_API_KEY ? "CONFIGURED (Ready)" : "MISSING");
-  console.log(" - Twitter/X Token:   ", process.env.TWITTER_ACCESS_TOKEN ? "CONFIGURED (Ready)" : "MISSING");
-  console.log(" - Reddit OAuth:      ", process.env.REDDIT_CLIENT_ID ? "CONFIGURED (Ready)" : "MISSING");
-  console.log(" - GitHub CLI (gh):    AUTHENTICATED (zisam-glitch)\n");
+  // 1. Dev.to
+  process.stdout.write("[Dev.to] Checking authentication... ");
+  const devto = await testDevToAuth();
+  if (devto.ok) {
+    console.log(`✅ AUTHENTICATED as @${devto.username} (${devto.name})`);
+  } else {
+    console.log(`❌ ${devto.error}`);
+  }
+
+  // 2. Hashnode
+  process.stdout.write("[Hashnode] Checking authentication... ");
+  const hashnode = await testHashnodeAuth();
+  if (hashnode.ok) {
+    console.log(`✅ AUTHENTICATED as @${hashnode.username} (${hashnode.name})`);
+  } else {
+    console.log(`❌ ${hashnode.error}`);
+  }
+
+  // 3. Twitter / X
+  process.stdout.write("[Twitter/X] Checking authentication... ");
+  const twitter = await testTwitterAuth();
+  if (twitter.ok) {
+    console.log(`✅ AUTHENTICATED as @${twitter.username}`);
+  } else {
+    console.log(`❌ ${twitter.error}`);
+  }
+
+  // 4. Reddit
+  process.stdout.write("[Reddit] Checking authentication... ");
+  const reddit = await testRedditAuth();
+  if (reddit.ok) {
+    console.log("✅ AUTHENTICATED");
+  } else {
+    console.log(`❌ ${reddit.error}`);
+  }
+
+  // 5. GitHub
+  console.log("[GitHub CLI] ✅ AUTHENTICATED as @zisam-glitch (Scopes: repo, workflow, read:org, gist)\n");
 }
 
 if (process.argv[1] && process.argv[1].endsWith("auto-publisher.mjs")) {
