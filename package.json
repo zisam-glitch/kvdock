@@ -105,6 +105,11 @@
       "import": "./dist/adapters/postgres/index.js",
       "require": "./dist/adapters/postgres/index.cjs"
     },
+    "./adapters/mongodb": {
+      "types": "./dist/adapters/mongodb/index.d.ts",
+      "import": "./dist/adapters/mongodb/index.js",
+      "require": "./dist/adapters/mongodb/index.cjs"
+    },
     "./adapters/indexeddb": {
       "types": "./dist/adapters/indexeddb/index.d.ts",
       "import": "./dist/adapters/indexeddb/index.js",
