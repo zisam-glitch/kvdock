@@ -1,8 +1,4 @@
-import type {
-  AdapterCapabilities,
-  SetOptions,
-  StorageAdapter,
-} from "../../core/types.js";
+import type { AdapterCapabilities, SetOptions, StorageAdapter } from "../../core/types.js";
 
 export interface DenoKvEntry<T = unknown> {
   key: readonly unknown[];
@@ -27,9 +23,7 @@ export interface DenoKvLike {
     key: readonly unknown[],
     options?: { consistency?: "strong" | "eventual" },
   ): Promise<DenoKvEntry<T>>;
-  getMany<T = unknown>(
-    keys: readonly (readonly unknown[])[],
-  ): Promise<DenoKvEntry<T>[]>;
+  getMany<T = unknown>(keys: readonly (readonly unknown[])[]): Promise<DenoKvEntry<T>[]>;
   set(
     key: readonly unknown[],
     value: unknown,
@@ -53,7 +47,10 @@ export interface DenoKvAdapterOptions {
  * In-memory fallback mock of DenoKvLike for zero-dependency test runner & cross-runtime usage.
  */
 export class MockDenoKv implements DenoKvLike {
-  private readonly store = new Map<string, { value: unknown; versionstamp: string; expiresAt?: number }>();
+  private readonly store = new Map<
+    string,
+    { value: unknown; versionstamp: string; expiresAt?: number }
+  >();
   private versionSeq = 1;
 
   private keyToString(key: readonly unknown[]): string {
@@ -74,7 +71,9 @@ export class MockDenoKv implements DenoKvLike {
     return { key, value: item.value as T, versionstamp: item.versionstamp };
   }
 
-  public async getMany<T = unknown>(keys: readonly (readonly unknown[])[]): Promise<DenoKvEntry<T>[]> {
+  public async getMany<T = unknown>(
+    keys: readonly (readonly unknown[])[],
+  ): Promise<DenoKvEntry<T>[]> {
     const results: DenoKvEntry<T>[] = [];
     for (const key of keys) {
       results.push(await this.get<T>(key));
@@ -99,9 +98,9 @@ export class MockDenoKv implements DenoKvLike {
     this.store.delete(k);
   }
 
-  public async *list<T = unknown>(
-    selector: { prefix: readonly unknown[] },
-  ): AsyncIterableIterator<DenoKvEntry<T>> {
+  public async *list<T = unknown>(selector: { prefix: readonly unknown[] }): AsyncIterableIterator<
+    DenoKvEntry<T>
+  > {
     const prefixStr = this.keyToString(selector.prefix).slice(0, -1); // strip trailing ]
     for (const [k, item] of this.store.entries()) {
       if (k.startsWith(prefixStr) && !this.isExpired(item)) {
@@ -113,7 +112,12 @@ export class MockDenoKv implements DenoKvLike {
 
   public atomic(): DenoKvAtomicOperation {
     const checks: DenoKvAtomicCheck[] = [];
-    const mutations: Array<{ type: "set" | "delete"; key: readonly unknown[]; value?: unknown; expireIn?: number }> = [];
+    const mutations: Array<{
+      type: "set" | "delete";
+      key: readonly unknown[];
+      value?: unknown;
+      expireIn?: number;
+    }> = [];
 
     const op: DenoKvAtomicOperation = {
       check: (...newChecks) => {
@@ -154,7 +158,7 @@ export class MockDenoKv implements DenoKvLike {
           }
         }
 
-        return { ok: true, versionstamp: (this.versionSeq).toString(16).padStart(20, "0") };
+        return { ok: true, versionstamp: this.versionSeq.toString(16).padStart(20, "0") };
       },
     };
 
@@ -188,12 +192,15 @@ export class DenoKvAdapter implements StorageAdapter {
     if (options.kv) {
       this.kv = options.kv;
     } else {
-      const globalDeno = (globalThis as unknown as { Deno?: { openKv?: () => Promise<DenoKvLike> } }).Deno;
+      const globalDeno = (
+        globalThis as unknown as { Deno?: { openKv?: () => Promise<DenoKvLike> } }
+      ).Deno;
       if (typeof globalDeno?.openKv === "function") {
-        throw new Error("Deno detected: pass opened kv instance via options.kv: await Deno.openKv()");
-      } else {
-        this.kv = new MockDenoKv();
+        throw new Error(
+          "Deno detected: pass opened kv instance via options.kv: await Deno.openKv()",
+        );
       }
+      this.kv = new MockDenoKv();
     }
   }
 
@@ -206,11 +213,7 @@ export class DenoKvAdapter implements StorageAdapter {
     return entry.value;
   }
 
-  public async set<T = unknown>(
-    key: string,
-    value: T,
-    options?: SetOptions,
-  ): Promise<void> {
+  public async set<T = unknown>(key: string, value: T, options?: SetOptions): Promise<void> {
     const t = this.tuple(key);
     const expireIn = options?.ttl ? options.ttl : undefined;
 
@@ -294,11 +297,13 @@ export class DenoKvAdapter implements StorageAdapter {
     return map;
   }
 
-  public async setMany<T = unknown>(entries: [string, T][], options?: SetOptions): Promise<void> {
-    const expireIn = options?.ttl ? options.ttl : undefined;
+  public async setMany<T = unknown>(
+    entries: { key: string; value: T; options?: SetOptions }[],
+  ): Promise<void> {
     const op = this.kv.atomic();
-    for (const [key, value] of entries) {
-      op.set(this.tuple(key), value, { expireIn });
+    for (const item of entries) {
+      const expireIn = item.options?.ttl ? item.options.ttl : undefined;
+      op.set(this.tuple(item.key), item.value, { expireIn });
     }
     await op.commit();
   }
@@ -358,3 +363,5 @@ export class DenoKvAdapter implements StorageAdapter {
     return res.ok;
   }
 }
+
+export { DenoKvAdapter as DenoKVAdapter };
