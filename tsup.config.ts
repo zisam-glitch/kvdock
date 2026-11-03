@@ -36,6 +36,7 @@ export default defineConfig({
     "src/integrations/nextjs/index.ts",
     "src/integrations/nuxt/index.ts",
     "src/integrations/fastify/index.ts",
+    "src/integrations/sveltekit/index.ts",
     "src/tooling/migrate.ts",
     "src/tooling/index.ts",
     "src/cli/index.ts",

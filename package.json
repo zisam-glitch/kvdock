@@ -180,6 +180,11 @@
       "import": "./dist/integrations/fastify/index.js",
       "require": "./dist/integrations/fastify/index.cjs"
     },
+    "./integrations/sveltekit": {
+      "types": "./dist/integrations/sveltekit/index.d.ts",
+      "import": "./dist/integrations/sveltekit/index.js",
+      "require": "./dist/integrations/sveltekit/index.cjs"
+    },
     "./tooling/migrate": {
       "types": "./dist/tooling/migrate.d.ts",
       "import": "./dist/tooling/migrate.js",
