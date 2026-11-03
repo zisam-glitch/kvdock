@@ -126,4 +126,34 @@ describe("LocalStorageAdapter", () => {
     const failAdapter = new LocalStorageAdapter({ storage: errorStorage });
     await expect(failAdapter.set("k", "v")).rejects.toThrow(KVDockError);
   });
+
+  it("safely handles malformed and non-envelope JSON without throwing", async () => {
+    // 1. Broken syntax
+    mockStorage.setItem("test:corrupted", "{ this is not valid json");
+    expect(await adapter.get("corrupted")).toBeNull();
+    expect(await adapter.has("corrupted")).toBe(false);
+
+    // 2. Primitive JSON values (number, boolean, string, null)
+    mockStorage.setItem("test:num", "12345");
+    expect(await adapter.get("num")).toBeNull();
+    expect(await adapter.has("num")).toBe(false);
+
+    mockStorage.setItem("test:bool", "true");
+    expect(await adapter.get("bool")).toBeNull();
+
+    mockStorage.setItem("test:str", '"raw string without envelope"');
+    expect(await adapter.get("str")).toBeNull();
+
+    mockStorage.setItem("test:null_literal", "null");
+    expect(await adapter.get("null_literal")).toBeNull();
+
+    // 3. Object missing envelope field 'v'
+    mockStorage.setItem("test:foreign_obj", JSON.stringify({ custom: "data", count: 1 }));
+    expect(await adapter.get("foreign_obj")).toBeNull();
+
+    // 4. Listing keys skips malformed entries
+    await adapter.set("valid", "good value");
+    const keys = await adapter.keys();
+    expect(keys).toEqual(["valid"]);
+  });
 });

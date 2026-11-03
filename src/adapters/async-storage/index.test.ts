@@ -64,4 +64,34 @@ describe("AsyncStorageAdapter", () => {
     await adapter.clear();
     expect(await adapter.get("k1")).toBeNull();
   });
+
+  it("safely handles malformed and non-envelope JSON without throwing", async () => {
+    const rawStorage = (
+      adapter as unknown as { storage: { setItem: (k: string, v: string) => Promise<void> } }
+    ).storage;
+
+    // 1. Broken syntax
+    await rawStorage.setItem("@test:corrupted", "{ broken json");
+    expect(await adapter.get("corrupted")).toBeNull();
+    expect(await adapter.has("corrupted")).toBe(false);
+
+    // 2. Primitive values
+    await rawStorage.setItem("@test:num", "98765");
+    expect(await adapter.get("num")).toBeNull();
+
+    await rawStorage.setItem("@test:str", '"raw string"');
+    expect(await adapter.get("str")).toBeNull();
+
+    await rawStorage.setItem("@test:null_literal", "null");
+    expect(await adapter.get("null_literal")).toBeNull();
+
+    // 3. Object missing 'v'
+    await rawStorage.setItem("@test:other_obj", JSON.stringify({ note: "no value" }));
+    expect(await adapter.get("other_obj")).toBeNull();
+
+    // 4. Listing keys skips malformed entries
+    await adapter.set("valid_entry", "valid");
+    const keys = await adapter.keys();
+    expect(keys).toEqual(["valid_entry"]);
+  });
 });

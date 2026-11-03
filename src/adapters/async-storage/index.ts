@@ -89,12 +89,15 @@ export class AsyncStorageAdapter implements StorageAdapter {
   private parseEnvelope(raw: string | null, key: string): StoredEnvelope | null {
     if (!raw) return null;
     try {
-      const envelope: StoredEnvelope = JSON.parse(raw);
-      if (envelope.e !== null && Date.now() > envelope.e) {
+      const envelope = JSON.parse(raw);
+      if (!envelope || typeof envelope !== "object" || !("v" in envelope)) {
+        return null;
+      }
+      if (envelope.e !== null && typeof envelope.e === "number" && Date.now() > envelope.e) {
         this.storage.removeItem(this.fullKey(key)).catch(() => {});
         return null;
       }
-      return envelope;
+      return envelope as StoredEnvelope;
     } catch {
       return null;
     }

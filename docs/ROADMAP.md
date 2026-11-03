@@ -12,7 +12,7 @@
 - [x] Write a launch post (Show HN / dev.to) and respond to real feedback
 
 ## Upcoming Milestones
-- [ ] Add malformed JSON error recovery test coverage for `LocalStorageAdapter` and `AsyncStorageAdapter` (#108)
+- [x] Add malformed JSON error recovery test coverage for `LocalStorageAdapter` and `AsyncStorageAdapter` (#108)
 - [ ] Add `Bun.serve` and `ElysiaJS` route caching recipe to `examples/elysia-caching` (#107)
 - [ ] Add cursor-based async iterator scan support for browser stores (`IndexedDBAdapter`) (#106)
 - [ ] Add automated Miniflare integration test for `CloudflareKVAdapter` and `D1Adapter`
