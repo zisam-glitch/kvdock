@@ -335,6 +335,7 @@ export class KVDockPrometheusPlugin {
     res.writeHead(200, {
       "Content-Type": "text/plain; version=0.0.4; charset=utf-8",
       "Cache-Control": "no-cache, no-store, must-revalidate",
+      Connection: "close",
     });
     res.end(body);
   }
@@ -351,11 +352,17 @@ export class KVDockPrometheusPlugin {
   ): Promise<PrometheusScrapeServer> {
     const http = await import("node:http");
     const port = options.port ?? 9090;
-    const host = options.host ?? "0.0.0.0";
+    const host = options.host ?? "127.0.0.1";
     const serverPath = options.path ?? this.path ?? "/metrics";
 
     const server = http.createServer((req, res) => {
       this.handleNodeRequest(req, res, serverPath);
+    });
+
+    const sockets = new Set<{ destroy: () => void }>();
+    server.on("connection", (socket) => {
+      sockets.add(socket);
+      socket.once("close", () => sockets.delete(socket));
     });
 
     await new Promise<void>((resolve, reject) => {
@@ -373,6 +380,13 @@ export class KVDockPrometheusPlugin {
       port: actualPort,
       url,
       close: async () => {
+        const s = server as unknown as { closeAllConnections?: () => void };
+        if (typeof s.closeAllConnections === "function") {
+          s.closeAllConnections();
+        }
+        for (const socket of sockets) {
+          socket.destroy();
+        }
         await new Promise<void>((resolve, reject) => {
           server.close((err) => (err ? reject(err) : resolve()));
         });

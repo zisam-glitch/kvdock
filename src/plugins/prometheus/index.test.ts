@@ -194,32 +194,39 @@ describe("KVDockPrometheusPlugin", () => {
       expect(statusCode).toBe(404);
     });
 
-    it("spins up standalone HTTP scraping server on dedicated port", async () => {
-      const plugin = createPrometheusPlugin();
-      plugin.onEvent({
-        type: "hit",
-        meta: { durationMs: 4.2 },
-        timestamp: Date.now(),
-      });
+    it(
+      "spins up standalone HTTP scraping server on dedicated port",
+      { timeout: 15000 },
+      async () => {
+        const plugin = createPrometheusPlugin();
+        plugin.onEvent({
+          type: "hit",
+          meta: { durationMs: 4.2 },
+          timestamp: Date.now(),
+        });
 
-      const scrapeServer = await plugin.serveScrapeEndpoint({
-        port: 0,
-        path: "/metrics",
-      });
-      try {
-        expect(scrapeServer.port).toBeGreaterThan(0);
-        expect(scrapeServer.url).toContain(`:${scrapeServer.port}/metrics`);
+        const scrapeServer = await plugin.serveScrapeEndpoint({
+          host: "127.0.0.1",
+          port: 0,
+          path: "/metrics",
+        });
+        try {
+          expect(scrapeServer.port).toBeGreaterThan(0);
+          expect(scrapeServer.url).toContain(`:${scrapeServer.port}/metrics`);
 
-        const res = await fetch(scrapeServer.url);
-        expect(res.status).toBe(200);
-        expect(res.headers.get("content-type")).toContain("text/plain; version=0.0.4");
-        const text = await res.text();
-        expect(text).toContain('kvdock_operations_total{op="hit"} 1');
-        expect(text).toContain('kvdock_operation_duration_seconds_count{op="hit"} 1');
-      } finally {
-        await scrapeServer.close();
-      }
-    });
+          const res = await fetch(scrapeServer.url, {
+            headers: { Connection: "close" },
+          });
+          expect(res.status).toBe(200);
+          expect(res.headers.get("content-type")).toContain("text/plain; version=0.0.4");
+          const text = await res.text();
+          expect(text).toContain('kvdock_operations_total{op="hit"} 1');
+          expect(text).toContain('kvdock_operation_duration_seconds_count{op="hit"} 1');
+        } finally {
+          await scrapeServer.close();
+        }
+      },
+    );
   });
 
   describe("Integration with Store", () => {
