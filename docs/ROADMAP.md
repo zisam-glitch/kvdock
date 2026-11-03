@@ -7,5 +7,5 @@
 - [x] Publish to npm with provenance; add `npm pack` smoke test in CI
 - [x] Add SECURITY.md, CONTRIBUTING.md, real "good first issue" labels
 - [x] Publish benchmark results in docs/PERFORMANCE_MATRIX.md from a real run
-- [ ] Add OpenSSF Scorecard GitHub Action and fix findings
+- [x] Add OpenSSF Scorecard GitHub Action and fix findings
 - [ ] Write a launch post (Show HN / dev.to) and respond to real feedback
