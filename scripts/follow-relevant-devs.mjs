@@ -31,7 +31,15 @@ const TARGET_REPOS = [
   "jaredwray/keyv",
   "honojs/hono",
   "fastify/fastify",
-  "oven-sh/bun"
+  "oven-sh/bun",
+  "valkey-io/valkey",
+  "tokio-rs/tokio",
+  "BurntSushi/aho-corasick",
+  "gofiber/fiber",
+  "gin-gonic/gin",
+  "trpc/trpc",
+  "vitejs/vite",
+  "supabase/supabase"
 ];
 
 async function sleep(ms) {
