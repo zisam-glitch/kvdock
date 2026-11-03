@@ -54,21 +54,49 @@ npm install kvdock
 
 ---
 
-## Adapters Matrix
+## Adapters & Integrations Matrix
 
-| Adapter | Status | Capabilities | Environment | Import |
+### Core & Local Storage Drivers (Zero External Dependencies)
+
+| Adapter | Maturity | Capabilities | Target Runtime | Import |
 | :--- | :---: | :--- | :--- | :--- |
-| **Memory** | :white_check_mark: Built-in | TTL, Batch, Scan, LRU, CAS | All runtimes | `kvdock/adapters/memory` |
-| **Memory (Byte-Sized)** | :white_check_mark: Built-in | TTL, Batch, Scan, CAS, Byte limit | All runtimes | `kvdock/adapters/memory-sized` |
-| **SQLite** | :white_check_mark: Built-in | TTL, Batch, Scan, CAS, ACID Tx | Node.js (>=22), Bun | `kvdock/adapters/sqlite` |
-| **Filesystem** | :white_check_mark: Built-in | TTL, Scan, Atomic writes | Node.js, Bun | `kvdock/adapters/fs` |
-| **Redis / Valkey** | :white_check_mark: Built-in | TTL, Batch, Scan, Streaming | Node, Bun, Deno | `kvdock/adapters/redis` |
-| **Valkey Cluster** | :white_check_mark: Built-in | TTL, Batch, Slot routing, MOVED | Node, Bun, Deno | `kvdock/adapters/valkey-cluster` |
-| **Upstash (REST)** | :white_check_mark: Built-in | TTL, Batch, Scan, Pipeline | Serverless, Edge | `kvdock/adapters/upstash` |
-| **Cloudflare KV** | :white_check_mark: Built-in | TTL (60s+ clamp), Scan, Cursors | Cloudflare Workers | `kvdock/adapters/cloudflare-kv` |
-| **IndexedDB** | :white_check_mark: Built-in | TTL, Batch, Scan, CAS | Browsers, PWAs | `kvdock/adapters/indexeddb` |
-| **S3 / MinIO** | :white_check_mark: Built-in | TTL, Batch, Scan, Binary, Blob | All cloud runtimes | `kvdock/adapters/s3` |
-| **LevelDB** | :white_check_mark: Built-in | TTL, Batch, Scan, Sublevels, LSM | Node.js, Bun, Embedded | `kvdock/adapters/leveldb` |
+| **Memory** | 🟢 Stable | TTL, Batch, Scan, LRU, CAS | All JS Runtimes | `kvdock/adapters/memory` |
+| **Memory (Byte-Sized)** | 🟢 Stable | TTL, Batch, Scan, CAS, Byte limit | All JS Runtimes | `kvdock/adapters/memory-sized` |
+| **SQLite (`node:sqlite`)** | 🟢 Stable | TTL, Batch, Scan, CAS, ACID Tx | Node.js (>=22), Bun | `kvdock/adapters/sqlite` |
+| **Bun SQLite** | 🟢 Stable | TTL, Batch, Scan, CAS, High-throughput | Bun | `kvdock/adapters/bun-sqlite` |
+| **Filesystem** | 🟢 Stable | TTL, Scan, Atomic writes | Node.js, Bun | `kvdock/adapters/fs` |
+| **LevelDB** | 🟢 Stable | TTL, Batch, Scan, LSM-tree | Node.js, Bun, Embedded | `kvdock/adapters/leveldb` |
+| **LocalStorage** | 🟢 Stable | Envelope TTL, Quota resilience | Browsers, Web Workers | `kvdock/adapters/localstorage` |
+| **IndexedDB** | 🟢 Stable | TTL, Batch, Scan, CAS | Browsers, PWAs | `kvdock/adapters/indexeddb` |
+
+### Distributed & Cloud Drivers (Optional Peer Dependencies)
+
+| Adapter | Maturity | Peer Dependency | Capabilities | Target Runtime | Import |
+| :--- | :---: | :--- | :--- | :--- | :--- |
+| **Redis** | 🟡 Production | `ioredis` (optional) | TTL, Batch, Scan, Streaming | Node, Bun, Deno | `kvdock/adapters/redis` |
+| **PostgreSQL** | 🟡 Production | `pg` (optional) | TTL, Atomic CAS, Upsert, Relational | Node, Bun | `kvdock/adapters/postgres` |
+| **MongoDB** | 🟡 Production | `mongodb` (optional) | Native TTL index, Atomic CAS, Document | Node, Bun | `kvdock/adapters/mongodb` |
+| **Valkey Cluster** | 🟡 Production | Zero-dep client | Slot routing, MOVED redirection, Batch | Node, Bun, Deno | `kvdock/adapters/valkey-cluster` |
+| **Upstash (REST)** | 🟡 Production | REST / fetch | Serverless pipelining, Edge-ready | Serverless, Edge | `kvdock/adapters/upstash` |
+| **Cloudflare D1** | 🟡 Production | D1 binding | SQL persistence, TTL, CAS | Cloudflare Workers | `kvdock/adapters/d1` |
+| **Cloudflare KV** | 🟡 Production | KV binding | Edge caching, Cursor pagination | Cloudflare Workers | `kvdock/adapters/cloudflare-kv` |
+| **Deno KV** | 🟡 Production | Deno native | Transactional tuples, Versionstamps | Deno | `kvdock/adapters/deno-kv` |
+| **LibSQL / Turso** | 🟡 Production | `@libsql/client` (optional) | Distributed SQLite, Edge replication | Edge, Node, Bun | `kvdock/adapters/libsql` |
+| **S3 / MinIO / R2** | 🟡 Production | AWS SDK S3 | Blob storage, Binary, Multipart | All cloud runtimes | `kvdock/adapters/s3` |
+| **AWS DynamoDB** | 🟡 Production | AWS SDK DynamoDB | Document client, TTL, Batch | AWS Lambda, Cloud | `kvdock/adapters/dynamodb` |
+| **Memcached** | 🟡 Production | Binary protocol | High-speed memcached wire protocol | Node, Bun | `kvdock/adapters/memcached` |
+| **React Native** | 🧪 Experimental | `@react-native-async-storage` | Mobile local persistence | React Native, Expo | `kvdock/adapters/async-storage` |
+
+### Full-Stack Framework Integrations
+
+| Framework | Integration | Scope | Import |
+| :--- | :--- | :--- | :--- |
+| **Next.js 15** | `KVDockNextCacheHandler` | App Router Incremental Cache & ISR | `kvdock/integrations/nextjs` |
+| **Hono** | `kvdockHonoCache`, `kvdockHonoSession` | HTTP 304 ETag Caching & Edge Sessions | `kvdock/integrations/hono` |
+| **Nuxt 3 / Nitro** | `defineKVDockDriver` | Unstorage backend driver | `kvdock/integrations/nuxt` |
+| **SvelteKit** | `createSvelteKitSession` | Hook session & cache middleware | `kvdock/integrations/sveltekit` |
+| **Fastify** | `kvdockFastifyPlugin` | Fastify route caching & session store | `kvdock/integrations/fastify` |
+| **Express** | `KVDockExpressStore` | Express-session store conforming API | `kvdock/integrations/express` |
 
 > See the complete [Adapters Guide & Architectural Comparison](docs/adapters-guide.md) for latency, persistence, and concurrency ratings.
 
