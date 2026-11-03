@@ -122,23 +122,26 @@ export class KVDock {
   }
 
   public async get<T = unknown>(key: string): Promise<T | null> {
+    const start = performance.now();
     this.log("debug", "get key", { key });
     const raw = await this.withTimeout(
       this.adapter.get<string>(this.resolveKey(key)),
       undefined,
       "get",
     );
+    const durationMs = performance.now() - start;
     if (raw === null || raw === undefined) {
       this.metrics.misses++;
-      this.emit("miss", key);
+      this.emit("miss", key, { durationMs });
       return null;
     }
     this.metrics.hits++;
-    this.emit("hit", key);
+    this.emit("hit", key, { durationMs });
     return this.serializer.deserialize<T>(raw);
   }
 
   public async set<T = unknown>(key: string, value: T, options?: SetOptions): Promise<void> {
+    const start = performance.now();
     const ttl = options?.ttl ?? this.defaultTTL;
     validateTTL(ttl);
 
@@ -149,8 +152,9 @@ export class KVDock {
       options?.timeoutMs,
       "set",
     );
+    const durationMs = performance.now() - start;
     this.metrics.sets++;
-    this.emit("set", key, { ttl });
+    this.emit("set", key, { ttl, durationMs });
     this.log("debug", "set key", { key, ttl });
 
     if (options?.tags && options.tags.length > 0) {
@@ -174,14 +178,16 @@ export class KVDock {
   }
 
   public async delete(key: string): Promise<boolean> {
+    const start = performance.now();
     const ok = await this.withTimeout(
       this.adapter.delete(this.resolveKey(key)),
       undefined,
       "delete",
     );
+    const durationMs = performance.now() - start;
     if (ok) {
       this.metrics.deletes++;
-      this.emit("delete", key);
+      this.emit("delete", key, { durationMs });
       this.log("debug", "deleted key", { key });
     }
     return ok;
@@ -192,8 +198,10 @@ export class KVDock {
   }
 
   public async clear(): Promise<void> {
+    const start = performance.now();
     await this.withTimeout(this.adapter.clear(), undefined, "clear");
-    this.emit("clear");
+    const durationMs = performance.now() - start;
+    this.emit("clear", undefined, { durationMs });
     this.log("info", "cache cleared");
   }
 
@@ -229,6 +237,7 @@ export class KVDock {
     update: T,
     options?: SetOptions,
   ): Promise<boolean> {
+    const start = performance.now();
     const ttl = options?.ttl ?? this.defaultTTL;
     validateTTL(ttl);
 
@@ -243,12 +252,13 @@ export class KVDock {
         serializedUpdate,
         { ...options, ttl },
       );
+      const durationMs = performance.now() - start;
       if (success) {
         this.metrics.casSuccess++;
-        this.emit("cas", key, { success: true });
+        this.emit("cas", key, { success: true, durationMs });
       } else {
         this.metrics.casFailure++;
-        this.emit("cas", key, { success: false });
+        this.emit("cas", key, { success: false, durationMs });
       }
       return success;
     }
@@ -261,15 +271,16 @@ export class KVDock {
         expected !== null &&
         this.serializer.serialize(current) === this.serializer.serialize(expected));
 
+    const durationMs = performance.now() - start;
     if (!isExpected) {
       this.metrics.casFailure++;
-      this.emit("cas", key, { success: false });
+      this.emit("cas", key, { success: false, durationMs });
       return false;
     }
 
     await this.set(key, update, options);
     this.metrics.casSuccess++;
-    this.emit("cas", key, { success: true });
+    this.emit("cas", key, { success: true, durationMs });
     return true;
   }
 
