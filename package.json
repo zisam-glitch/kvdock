@@ -1,6 +1,6 @@
 {
   "name": "kvdock",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Universal key-value adapter engine with zero-dependency core",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -196,7 +196,9 @@
       "require": "./dist/tooling/index.cjs"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "NODE_OPTIONS='--max-old-space-size=4096' tsup",
     "test": "vitest run",
@@ -210,7 +212,15 @@
     "changeset": "changeset",
     "changeset:publish": "node -e 'if (process.env.NPM_TOKEN) { require(\"child_process\").execSync(\"npm publish --access public\", { stdio: \"inherit\" }); } else { console.log(\"NPM_TOKEN secret not present, skipping registry publish\"); }'"
   },
-  "keywords": ["kv", "key-value", "cache", "storage", "adapter", "memory", "redis"],
+  "keywords": [
+    "kv",
+    "key-value",
+    "cache",
+    "storage",
+    "adapter",
+    "memory",
+    "redis"
+  ],
   "author": "zisam shaikh <zisamshaikh7@gmail.com>",
   "license": "MIT",
   "engines": {
