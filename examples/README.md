@@ -9,6 +9,7 @@ This directory contains executable, end-to-end examples demonstrating KVDock's f
 | **[tiered-cache](./tiered-cache/index.ts)** | L1 (Memory) + L2 (SQLite) tiered caching, stampede protection (100 -> 1 request coalescing), automatic promotions | `npx tsx examples/tiered-cache/index.ts` |
 | **[distributed-lock](./distributed-lock/index.ts)** | `DistributedMutex` with monotonic fencing tokens, lease renewal, and `DistributedSemaphore` concurrency pooling | `npx tsx examples/distributed-lock/index.ts` |
 | **[hono-caching](./hono-caching/index.ts)** | Edge HTTP route caching, automatic ETag generation, conditional `304 Not Modified` revalidation, encrypted sessions | `npx tsx examples/hono-caching/index.ts` |
+| **[elysia-caching](./elysia-caching/index.ts)** | ElysiaJS & Bun.serve route caching, `BunSQLiteAdapter`, conditional 304, stampede coalescing | `npx tsx examples/elysia-caching/index.ts` |
 | **[nextjs-isr](./nextjs-isr/index.ts)** | Next.js 14/15 App Router IncrementalCache handler (`cacheHandler`), tag-based invalidation (`revalidateTag`) | `npx tsx examples/nextjs-isr/index.ts` |
 
 ## Running the Examples
@@ -24,6 +25,9 @@ npx tsx examples/distributed-lock/index.ts
 
 # Hono edge route caching & HTTP 304 demo
 npx tsx examples/hono-caching/index.ts
+
+# ElysiaJS & Bun.serve route caching demo
+npx tsx examples/elysia-caching/index.ts
 
 # Next.js 14/15 App Router ISR cache handler demo
 npx tsx examples/nextjs-isr/index.ts
