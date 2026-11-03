@@ -196,9 +196,7 @@
       "require": "./dist/tooling/index.cjs"
     }
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "scripts": {
     "build": "NODE_OPTIONS='--max-old-space-size=4096' tsup",
     "test": "vitest run",
@@ -212,25 +210,36 @@
     "changeset": "changeset",
     "changeset:publish": "node -e 'if (process.env.NPM_TOKEN) { require(\"child_process\").execSync(\"npm publish --access public\", { stdio: \"inherit\" }); } else { console.log(\"NPM_TOKEN secret not present, skipping registry publish\"); }'"
   },
-  "keywords": [
-    "kv",
-    "key-value",
-    "cache",
-    "storage",
-    "adapter",
-    "memory",
-    "redis"
-  ],
+  "keywords": ["kv", "key-value", "cache", "storage", "adapter", "memory", "redis"],
   "author": "zisam shaikh <zisamshaikh7@gmail.com>",
   "license": "MIT",
   "engines": {
     "node": ">=18.0.0"
   },
+  "peerDependencies": {
+    "ioredis": "^5.0.0 || ^6.0.0",
+    "mongodb": "^5.0.0 || ^6.0.0 || ^7.0.0",
+    "pg": "^8.0.0"
+  },
+  "peerDependenciesMeta": {
+    "ioredis": {
+      "optional": true
+    },
+    "mongodb": {
+      "optional": true
+    },
+    "pg": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@changesets/cli": "^2.27.12",
     "@types/node": "^26.6.6",
+    "@types/pg": "^8.23.1",
     "ioredis": "^6.0.0",
+    "mongodb": "^7.8.0",
+    "pg": "^8.23.1",
     "tsup": "^8.3.6",
     "typescript": "^5.7.3",
     "vitest": "^3.0.5"
