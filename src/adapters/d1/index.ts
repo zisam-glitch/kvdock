@@ -53,17 +53,20 @@ export class D1Adapter implements StorageAdapter {
               return stmt;
             },
             async first<T = unknown>() {
+              const key = String(boundArgs[0]);
+              const row = mem.get(key);
+              if (!row) return null;
+              if (row.expires_at !== null && Date.now() > row.expires_at) {
+                mem.delete(key);
+                return null;
+              }
+              if (sql.includes("SELECT 1")) {
+                return { 1: 1 } as unknown as T;
+              }
               if (sql.includes("SELECT value, expires_at")) {
-                const key = String(boundArgs[0]);
-                const row = mem.get(key);
-                if (!row) return null;
-                if (row.expires_at !== null && Date.now() > row.expires_at) {
-                  mem.delete(key);
-                  return null;
-                }
                 return row as unknown as T;
               }
-              return null;
+              return row as unknown as T;
             },
             async run() {
               if (sql.includes("INSERT OR REPLACE")) {
@@ -127,7 +130,7 @@ export class D1Adapter implements StorageAdapter {
 
       if (!row) return null;
       if (row.expires_at !== null && Date.now() > row.expires_at) {
-        await this.delete(key);
+        await this.db.prepare(`DELETE FROM "${this.tableName}" WHERE key = ?;`).bind(key).run();
         return null;
       }
 
@@ -161,10 +164,13 @@ export class D1Adapter implements StorageAdapter {
   }
 
   public async delete(key: string): Promise<boolean> {
-    const existing = await this.get(key);
-    if (existing === null) return false;
-
     try {
+      const existing = await this.db
+        .prepare(`SELECT 1 FROM "${this.tableName}" WHERE key = ?;`)
+        .bind(key)
+        .first();
+      if (!existing) return false;
+
       await this.db.prepare(`DELETE FROM "${this.tableName}" WHERE key = ?;`).bind(key).run();
       return true;
     } catch (err: unknown) {
@@ -175,6 +181,30 @@ export class D1Adapter implements StorageAdapter {
 
   public async has(key: string): Promise<boolean> {
     return (await this.get(key)) !== null;
+  }
+
+  public async getMany<T = unknown>(keys: string[]): Promise<Map<string, T | null>> {
+    const res = new Map<string, T | null>();
+    for (const k of keys) {
+      res.set(k, await this.get<T>(k));
+    }
+    return res;
+  }
+
+  public async setMany<T = unknown>(
+    entries: Array<{ key: string; value: T; options?: SetOptions }>,
+  ): Promise<void> {
+    for (const entry of entries) {
+      await this.set(entry.key, entry.value, entry.options);
+    }
+  }
+
+  public async deleteMany(keys: string[]): Promise<number> {
+    let count = 0;
+    for (const k of keys) {
+      if (await this.delete(k)) count++;
+    }
+    return count;
   }
 
   public async clear(): Promise<void> {
