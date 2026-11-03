@@ -12,3 +12,4 @@ One honest line per shipped item.
 - **2026-11-03**: Cleaned up legacy follower bot artifacts, corrected `docs/launch/show-hn.md` claims to 100% technical accuracy, and authored comprehensive technical dev.to deep-dive draft (`docs/launch/dev-to.md`).
 - **2026-11-03**: Hardened JSON envelope parsing in `LocalStorageAdapter` and `AsyncStorageAdapter` against malformed payloads and non-envelope primitives, resolving #108 with full unit test coverage.
 - **2026-11-03**: Authored ElysiaJS and Bun.serve caching guide in `docs/guides/elysia.md` and created runnable cookbook recipe in `examples/elysia-caching/`, closing #107.
+- **2026-11-03**: Added automated Miniflare integration test suites for `CloudflareKVAdapter` and `D1Adapter`, fixed recursive loop in D1 delete/get, and implemented batch methods (`getMany`, `setMany`, `deleteMany`).

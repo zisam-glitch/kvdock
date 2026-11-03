@@ -40,7 +40,7 @@ export class CloudflareKVAdapter implements StorageAdapter {
   public readonly name = "cloudflare-kv";
   public readonly capabilities: AdapterCapabilities = {
     ttl: true,
-    batch: false,
+    batch: true,
     scan: true,
     cas: false,
     binary: false,
@@ -106,6 +106,30 @@ export class CloudflareKVAdapter implements StorageAdapter {
   public async has(key: string): Promise<boolean> {
     const val = await this.kv.get(this.pkey(key), { type: "text" });
     return val !== null;
+  }
+
+  public async getMany<T = unknown>(keys: string[]): Promise<Map<string, T | null>> {
+    const res = new Map<string, T | null>();
+    for (const k of keys) {
+      res.set(k, await this.get<T>(k));
+    }
+    return res;
+  }
+
+  public async setMany<T = unknown>(
+    entries: Array<{ key: string; value: T; options?: SetOptions }>,
+  ): Promise<void> {
+    for (const entry of entries) {
+      await this.set(entry.key, entry.value, entry.options);
+    }
+  }
+
+  public async deleteMany(keys: string[]): Promise<number> {
+    let count = 0;
+    for (const k of keys) {
+      if (await this.delete(k)) count++;
+    }
+    return count;
   }
 
   public async clear(): Promise<void> {
