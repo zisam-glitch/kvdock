@@ -4,6 +4,14 @@ All notable changes to `kvdock` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] - 2026-11-03
+
+### Added
+- **Official SvelteKit Integration (`kvdock/integrations/sveltekit`)**:
+  - `createKVDockHandle`: SvelteKit server `Handle` hook providing route response caching with automatic weak SHA-1 ETag computation and conditional `If-None-Match` revalidation returning `304 Not Modified` (#96).
+  - Supports configurable TTLs, vary header tracking, dynamic skip predicates (`shouldCache`), and custom `Cache-Control` propagation.
+  - `createSvelteKitSessionStore`: Type-safe session management engine integrated directly into SvelteKit cookies and server hooks with automatic session lifecycle management (`save`, `destroy`, `touch`).
+
 ## [0.3.0] - 2026-11-03
 
 ### Added
