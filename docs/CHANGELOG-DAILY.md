@@ -15,3 +15,4 @@ One honest line per shipped item.
 - **2026-11-03**: Added automated Miniflare integration test suites for `CloudflareKVAdapter` and `D1Adapter`, fixed recursive loop in D1 delete/get, and implemented batch methods (`getMany`, `setMany`, `deleteMany`).
 - **2026-11-03**: Added Prometheus metrics scraping endpoint handlers (Web Fetch API, Node HTTP, standalone server) and operation latency histograms with configurable buckets to `kvdock/plugins/prometheus`.
 - **2026-11-07**: Added W3C distributed trace context propagation (traceparent, tracestate, baggage) and transparent storage adapter tracing in `kvdock/plugins/opentelemetry`.
+- **2026-11-10**: Added resilient exponential backoff retry middleware with full, equal, and decorrelated jitter strategies in `kvdock/middleware/retry` with transparent storage adapter wrapping and cancellation support.

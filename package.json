@@ -155,6 +155,11 @@
       "import": "./dist/middleware/lock.js",
       "require": "./dist/middleware/lock.cjs"
     },
+    "./middleware/retry": {
+      "types": "./dist/middleware/retry.d.ts",
+      "import": "./dist/middleware/retry.js",
+      "require": "./dist/middleware/retry.cjs"
+    },
     "./integrations/express": {
       "types": "./dist/integrations/express/index.d.ts",
       "import": "./dist/integrations/express/index.js",

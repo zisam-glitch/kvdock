@@ -31,6 +31,7 @@ export default defineConfig({
     "src/plugins/opentelemetry/index.ts",
     "src/plugins/prometheus/index.ts",
     "src/middleware/lock.ts",
+    "src/middleware/retry.ts",
     "src/integrations/express/index.ts",
     "src/integrations/hono/index.ts",
     "src/integrations/nextjs/index.ts",
