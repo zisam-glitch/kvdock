@@ -9,18 +9,21 @@
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #090d16;
-      --card-bg: #111827;
-      --card-border: #1f293d;
-      --accent-blue: #38bdf8;
-      --accent-cyan: #06b6d4;
-      --accent-green: #10b981;
-      --accent-red: #ef4444;
-      --accent-amber: #f59e0b;
-      --text-main: #f3f4f6;
-      --text-muted: #94a3b8;
+      --bg: #0d1b4d;
+      --card-bg: #112260;
+      --card-border: #1d3686;
+      --card-border-subtle: rgba(223, 231, 255, 0.12);
+      --accent-gold: #ffcd3c;
+      --accent-cobalt: #4977ff;
+      --accent-blue: #ffcd3c;
+      --accent-cyan: #38bdf8;
+      --accent-green: #34d399;
+      --accent-red: #f87171;
+      --accent-amber: #ffcd3c;
+      --text-main: #dfe7ff;
+      --text-muted: #8fa6e6;
       --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      --font-mono: 'Fira Code', monospace;
+      --font-mono: 'Fira Code', 'JetBrains Mono', monospace;
     }
 
     * {
@@ -31,16 +34,19 @@
 
     body {
       background-color: var(--bg);
+      background-image: radial-gradient(1100px circle at 50% -100px, #182e75 0%, #0d1b4d 60%, #081131 100%);
+      background-attachment: fixed;
       color: var(--text-main);
       font-family: var(--font-sans);
       line-height: 1.6;
       padding-bottom: 0;
+      min-height: 100vh;
     }
 
     header {
-      background: linear-gradient(180deg, rgba(56, 189, 248, 0.08) 0%, rgba(9, 13, 22, 0) 100%);
+      background: linear-gradient(180deg, rgba(73, 119, 255, 0.15) 0%, rgba(13, 27, 77, 0) 100%);
       border-bottom: 1px solid var(--card-border);
-      padding: 32px 24px;
+      padding: 36px 24px 32px;
       text-align: center;
       position: relative;
     }
@@ -49,7 +55,7 @@
       display: flex;
       justify-content: center;
       gap: 12px;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
       flex-wrap: wrap;
     }
 
@@ -57,9 +63,9 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(223, 231, 255, 0.05);
       border: 1px solid var(--card-border);
-      padding: 4px 12px;
+      padding: 5px 14px;
       border-radius: 9999px;
       font-size: 0.85rem;
       font-weight: 500;
@@ -69,28 +75,41 @@
     }
 
     .badge:hover {
-      border-color: var(--accent-blue);
-      color: var(--accent-blue);
+      border-color: var(--accent-gold);
+      color: var(--accent-gold);
       transform: translateY(-1px);
     }
 
-    .star-btn {
-      background: linear-gradient(135deg, #0284c7, #2563eb);
-      color: #fff !important;
-      border: none !important;
-      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+    .npm-badge {
+      background: rgba(255, 205, 60, 0.12) !important;
+      border-color: rgba(255, 205, 60, 0.35) !important;
+      color: var(--accent-gold) !important;
       font-weight: 600;
     }
 
+    .npm-badge:hover {
+      box-shadow: 0 4px 14px rgba(255, 205, 60, 0.3);
+      border-color: var(--accent-gold) !important;
+    }
+
+    .star-btn {
+      background: linear-gradient(135deg, #ffcd3c, #f59e0b) !important;
+      color: #0d1b4d !important;
+      border: none !important;
+      box-shadow: 0 4px 16px rgba(255, 205, 60, 0.35);
+      font-weight: 700;
+    }
+
     .star-btn:hover {
-      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.55);
+      box-shadow: 0 6px 22px rgba(255, 205, 60, 0.55);
+      background: linear-gradient(135deg, #ffe082, #ffcd3c) !important;
     }
 
     h1 {
       font-size: 2.75rem;
       font-weight: 800;
       letter-spacing: -0.03em;
-      background: linear-gradient(135deg, #ffffff 40%, var(--accent-blue) 100%);
+      background: linear-gradient(135deg, #ffffff 40%, var(--accent-gold) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       margin-bottom: 12px;
@@ -106,7 +125,7 @@
     .container {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 32px 20px;
+      padding: 32px 20px 48px;
     }
 
     .grid-2 {
@@ -128,9 +147,10 @@
     .card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 24px;
+      border-radius: 14px;
+      padding: 26px;
       position: relative;
+      box-shadow: 0 12px 36px rgba(5, 12, 38, 0.5), inset 0 1px 0 rgba(223, 231, 255, 0.08);
     }
 
     .card-title {
@@ -140,6 +160,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
+      color: #ffffff;
     }
 
     .card-desc {
@@ -160,18 +181,20 @@
     .slider-label {
       font-size: 0.9rem;
       font-weight: 600;
+      color: var(--text-main);
     }
 
     .slider-val {
       font-family: var(--font-mono);
-      color: var(--accent-blue);
+      color: var(--accent-gold);
       font-weight: 700;
     }
 
     input[type=range] {
       width: 100%;
       height: 6px;
-      background: #1f293d;
+      background: #091338;
+      border: 1px solid rgba(223, 231, 255, 0.1);
       border-radius: 4px;
       outline: none;
       -webkit-appearance: none;
@@ -183,9 +206,9 @@
       width: 18px;
       height: 18px;
       border-radius: 50%;
-      background: var(--accent-blue);
+      background: var(--accent-gold);
       cursor: pointer;
-      box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+      box-shadow: 0 0 12px rgba(255, 205, 60, 0.6);
     }
 
     .sim-btn {
@@ -193,21 +216,22 @@
       padding: 14px;
       border-radius: 8px;
       font-size: 1rem;
-      font-weight: 700;
+      font-weight: 800;
       cursor: pointer;
       border: none;
-      background: linear-gradient(135deg, #0ea5e9, #3b82f6);
-      color: #fff;
+      background: linear-gradient(135deg, #ffcd3c, #f59e0b);
+      color: #0d1b4d;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
       transition: all 0.2s ease;
-      box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+      box-shadow: 0 4px 16px rgba(255, 205, 60, 0.35);
     }
 
     .sim-btn:hover {
-      box-shadow: 0 6px 22px rgba(14, 165, 233, 0.5);
+      box-shadow: 0 6px 24px rgba(255, 205, 60, 0.55);
+      background: linear-gradient(135deg, #ffe082, #ffcd3c);
       transform: translateY(-1px);
     }
 
@@ -225,7 +249,7 @@
     }
 
     .result-col {
-      background: rgba(0, 0, 0, 0.3);
+      background: rgba(7, 16, 48, 0.6);
       border: 1px solid var(--card-border);
       border-radius: 8px;
       padding: 16px;
@@ -237,12 +261,13 @@
     }
 
     .result-col.good {
-      border-top: 3px solid var(--accent-green);
+      border-top: 3px solid var(--accent-gold);
     }
 
     .result-col h4 {
       font-size: 0.95rem;
       margin-bottom: 8px;
+      color: #ffffff;
     }
 
     .metric-num {
@@ -264,27 +289,27 @@
     }
 
     .good .metric-num {
-      color: var(--accent-green);
+      color: var(--accent-gold);
     }
 
     /* Live Interactive Console */
     .console {
-      background: #050811;
+      background: #071030;
       border: 1px solid var(--card-border);
       border-radius: 8px;
       padding: 16px;
       font-family: var(--font-mono);
       font-size: 0.85rem;
-      color: #cbd5e1;
+      color: #c4d3fa;
       height: 260px;
       overflow-y: auto;
       white-space: pre-wrap;
     }
 
-    .log-info { color: var(--accent-blue); }
-    .log-success { color: var(--accent-green); }
-    .log-danger { color: var(--accent-red); }
-    .log-warn { color: var(--accent-amber); }
+    .log-info { color: #60a5fa; }
+    .log-success { color: #34d399; }
+    .log-danger { color: #f87171; }
+    .log-warn { color: var(--accent-gold); }
 
     /* Polyglot Code Snippet Tabs */
     .tab-bar {
@@ -293,6 +318,7 @@
       border-bottom: 1px solid var(--card-border);
       padding-bottom: 12px;
       margin-bottom: 16px;
+      overflow-x: auto;
     }
 
     .tab-btn {
@@ -308,27 +334,27 @@
     }
 
     .tab-btn.active {
-      background: rgba(56, 189, 248, 0.15);
-      color: var(--accent-blue);
+      background: rgba(255, 205, 60, 0.16);
+      color: var(--accent-gold);
     }
 
     pre code {
       display: block;
-      background: #050811;
+      background: #071030;
       border: 1px solid var(--card-border);
       border-radius: 8px;
       padding: 18px;
       font-family: var(--font-mono);
       font-size: 0.85rem;
-      color: #e2e8f0;
+      color: #dfe7ff;
       overflow-x: auto;
     }
 
     /* Author Attribution & Follow Banner */
     .creator-banner {
-      background: linear-gradient(135deg, rgba(56, 189, 248, 0.08) 0%, rgba(17, 24, 39, 0.8) 100%);
-      border: 1px solid rgba(56, 189, 248, 0.25);
-      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(73, 119, 255, 0.16) 0%, rgba(17, 34, 96, 0.95) 100%);
+      border: 1px solid rgba(255, 205, 60, 0.35);
+      border-radius: 14px;
       padding: 28px;
       display: flex;
       align-items: center;
@@ -336,12 +362,14 @@
       gap: 20px;
       flex-wrap: wrap;
       margin-top: 40px;
+      box-shadow: 0 10px 30px rgba(5, 12, 38, 0.5);
     }
 
     .creator-info h3 {
       font-size: 1.3rem;
       font-weight: 700;
       margin-bottom: 6px;
+      color: #ffffff;
     }
 
     .creator-info p {
@@ -351,24 +379,24 @@
     }
 
     .follow-btn {
-      background: #ffffff;
-      color: #000000;
+      background: var(--accent-gold);
+      color: #0d1b4d;
       text-decoration: none;
       padding: 12px 24px;
       border-radius: 8px;
-      font-weight: 700;
+      font-weight: 800;
       font-size: 0.95rem;
       display: inline-flex;
       align-items: center;
       gap: 8px;
       transition: all 0.2s ease;
-      box-shadow: 0 4px 14px rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 16px rgba(255, 205, 60, 0.35);
     }
 
     .follow-btn:hover {
-      background: #e2e8f0;
+      background: #ffe082;
       transform: translateY(-2px);
-      box-shadow: 0 6px 18px rgba(255, 255, 255, 0.35);
+      box-shadow: 0 6px 22px rgba(255, 205, 60, 0.55);
     }
 
     /* Halftone Wordmark Footer */
@@ -378,10 +406,10 @@
       min-height: 560px;
       overflow: hidden;
       isolation: isolate;
-      background: var(--hwf-bg, #090d16);
-      color: var(--hwf-ink, #e2e8f0);
+      background: var(--hwf-bg, #0d1b4d);
+      color: var(--hwf-ink, #dfe7ff);
       -webkit-font-smoothing: antialiased;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      border-top: 1px solid rgba(223, 231, 255, 0.12);
       user-select: none;
     }
 
@@ -430,9 +458,9 @@
     .hwf-col h3 {
       margin: 0 0 6px 0;
       font: inherit;
-      opacity: .5;
+      opacity: .65;
       font-weight: 600;
-      color: var(--accent-blue);
+      color: var(--accent-gold);
     }
 
     .hwf-col ul {
@@ -462,7 +490,7 @@
 
     .hwf-col a:hover, .hwf-up:hover {
       opacity: 1;
-      color: #fff;
+      color: var(--accent-gold);
       background-size: 100% 1px;
     }
 
@@ -481,7 +509,7 @@
       gap: 16px;
       margin: clamp(20px, 2.6vw, 36px) clamp(20px, 3.4vw, 48px) 0;
       padding-top: 14px;
-      border-top: 0.5px solid rgba(255, 255, 255, 0.1);
+      border-top: 0.5px solid rgba(223, 231, 255, 0.12);
       font-family: var(--hwf-mono, var(--font-mono));
       font-size: 10.5px;
       letter-spacing: .18em;
@@ -503,8 +531,8 @@
     }
 
     .hwf-pill {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(223, 231, 255, 0.05);
+      border: 1px solid rgba(223, 231, 255, 0.12);
       color: var(--text-muted);
       padding: 3px 10px;
       border-radius: 9999px;
@@ -518,14 +546,14 @@
 
     .hwf-pill:hover {
       color: #fff;
-      border-color: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 205, 60, 0.4);
     }
 
     .hwf-pill.active {
-      background: rgba(56, 189, 248, 0.15);
-      color: var(--accent-blue);
-      border-color: var(--accent-blue);
-      box-shadow: 0 0 8px rgba(56, 189, 248, 0.25);
+      background: rgba(255, 205, 60, 0.18);
+      color: var(--accent-gold);
+      border-color: var(--accent-gold);
+      box-shadow: 0 0 10px rgba(255, 205, 60, 0.35);
     }
 
     .hwf-sr {
@@ -572,6 +600,13 @@
         <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"></path></svg>
         Star on GitHub
       </a>
+      <a href="https://www.npmjs.com/package/kvdock" target="_blank" class="badge npm-badge" title="View latest npm package release">
+        <svg height="14" width="14" viewBox="0 0 24 24" fill="currentColor"><path d="M0 0v24h24V0H0zm20.8 20.8h-4.8V8.8h-4.8v12H3.2V3.2h17.6v17.6z"/></svg>
+        npm v0.3.2
+      </a>
+      <span class="badge" onclick="copyNpmInstall(this)" title="Click to copy npm install command" style="cursor: pointer;">
+        <code style="font-family: var(--font-mono); color: var(--accent-gold);">npm i kvdock</code>
+      </span>
       <span class="badge">Zero Runtime Dependencies</span>
       <span class="badge">Node • Bun • Deno • Edge • Rust • Go</span>
       <span class="badge">Single-Flight Stampede Guard</span>
@@ -696,18 +731,19 @@ const product = await dock.getOrSet("product:catalog:hot", async () => {
   <footer
     id="hwfFooter"
     class="hwf-root"
-    style="--hwf-bg: #090d16; --hwf-ink: #e2e8f0; --hwf-mono: 'Fira Code', 'JetBrains Mono', monospace;"
+    style="--hwf-bg: #0d1b4d; --hwf-ink: #dfe7ff; --hwf-mono: 'Fira Code', 'JetBrains Mono', monospace;"
   >
     <canvas id="hwfCanvas" aria-hidden="true"></canvas>
     <span class="hwf-sr">kvdock</span>
     <div class="hwf-top">
       <div class="hwf-brand">
-        <strong>kvdock engine</strong>
-        <span>Universal Multi-Tier Caching · MIT / Apache 2.0</span>
+        <strong>kvdock engine v0.3.2</strong>
+        <span>Zero-Dep Universal KV Caching · MIT / Apache 2.0 · Live on npm</span>
       </div>
       <nav class="hwf-col" aria-label="Ecosystem">
         <h3>Ecosystem</h3>
         <ul>
+          <li><a href="https://www.npmjs.com/package/kvdock" target="_blank" style="color: var(--accent-gold); font-weight: 600;">📦 npm package (v0.3.2)</a></li>
           <li><a href="https://github.com/zisam-glitch/kvdock" target="_blank">TypeScript / Node</a></li>
           <li><a href="https://github.com/zisam-glitch/kvdock" target="_blank">Rust (kvdock-rs)</a></li>
           <li><a href="https://github.com/zisam-glitch/kvdock" target="_blank">Go (kvdock-go)</a></li>
@@ -726,6 +762,7 @@ const product = await dock.getOrSet("product:catalog:hot", async () => {
       <nav class="hwf-col" aria-label="Documentation">
         <h3>Documentation</h3>
         <ul>
+          <li><a href="https://github.com/zisam-glitch/kvdock/releases/tag/v0.3.2" target="_blank" style="color: var(--accent-gold); font-weight: 600;">Release Notes (v0.3.2)</a></li>
           <li><a href="https://github.com/zisam-glitch/kvdock#quick-start" target="_blank">Quickstart Guide</a></li>
           <li><a href="https://github.com/zisam-glitch/kvdock#stampede-protection" target="_blank">Stampede Guard</a></li>
           <li><a href="https://github.com/zisam-glitch/kvdock#tiered-caching" target="_blank">Tiered L1/L2 Cache</a></li>
@@ -745,8 +782,8 @@ const product = await dock.getOrSet("product:catalog:hot", async () => {
     <div class="hwf-rule">
       <div class="hwf-presets">
         <span class="hwf-preset-label">Preset:</span>
-        <button type="button" class="hwf-pill active" onclick="setHalftonePreset('kvdock', this)">Cyan</button>
-        <button type="button" class="hwf-pill" onclick="setHalftonePreset('cobalt', this)">Cobalt</button>
+        <button type="button" class="hwf-pill active" onclick="setHalftonePreset('cobalt', this)">Cobalt</button>
+        <button type="button" class="hwf-pill" onclick="setHalftonePreset('kvdock', this)">Cyan</button>
         <button type="button" class="hwf-pill" onclick="setHalftonePreset('night', this)">Night</button>
         <button type="button" class="hwf-pill" onclick="setHalftonePreset('ember', this)">Ember</button>
         <button type="button" class="hwf-pill" onclick="setHalftonePreset('paper', this)">Paper</button>
@@ -758,12 +795,20 @@ const product = await dock.getOrSet("product:catalog:hot", async () => {
   </footer>
 
   <script>
+    function copyNpmInstall(btn) {
+      navigator.clipboard.writeText('npm install kvdock');
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<code style="font-family: var(--font-mono); color: #34d399;">Copied!</code>';
+      setTimeout(() => { btn.innerHTML = orig; }, 1800);
+    }
+
     function updateRequestLabel(val) {
       document.getElementById('requestCountLabel').innerText = Number(val).toLocaleString();
     }
 
     const snippets = {
-      ts: `import { KVDock, TieredDock } from "kvdock";
+      ts: `// npm install kvdock@0.3.2
+import { KVDock, TieredDock } from "kvdock";
 import { MemoryAdapter } from "kvdock/adapters/memory";
 import { RedisAdapter } from "kvdock/adapters/redis";
 
@@ -888,7 +933,7 @@ val order = dock.getOrSet("order:7788") {
         cobalt: { background: "#0d1b4d", ink: "#dfe7ff", warm: "#ffcd3c" }
       };
 
-      let colors = { ...HWF_PRESETS.kvdock };
+      let colors = { ...HWF_PRESETS.cobalt };
       const wordmark = "kvdock";
       const fontFamily = '"Inter", "Inter Tight", "Helvetica Neue", Arial, sans-serif';
       const fontWeight = 900;
@@ -934,8 +979,8 @@ val order = dock.getOrSet("order:7788") {
         return measured > 0 ? (width / measured) * 100 : 0;
       }
 
-      let ink = hwfHex(colors.ink) || [226, 232, 240];
-      let warm = hwfHex(colors.warm) || [56, 189, 248];
+      let ink = hwfHex(colors.ink) || [223, 231, 255];
+      let warm = hwfHex(colors.warm) || [255, 205, 60];
 
       const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       let w = 0;
@@ -1140,8 +1185,8 @@ val order = dock.getOrSet("order:7788") {
         colors = { ...HWF_PRESETS[presetKey] };
         root.style.setProperty('--hwf-bg', colors.background);
         root.style.setProperty('--hwf-ink', colors.ink);
-        ink = hwfHex(colors.ink) || [226, 232, 240];
-        warm = hwfHex(colors.warm) || [56, 189, 248];
+        ink = hwfHex(colors.ink) || [223, 231, 255];
+        warm = hwfHex(colors.warm) || [255, 205, 60];
         layout();
         wake();
       };
