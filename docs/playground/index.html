@@ -6,7 +6,7 @@
   <title>KVDock Playground & Interactive Stampede Simulator</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #090d16;
@@ -34,7 +34,7 @@
       color: var(--text-main);
       font-family: var(--font-sans);
       line-height: 1.6;
-      padding-bottom: 80px;
+      padding-bottom: 0;
     }
 
     header {
@@ -370,6 +370,198 @@
       transform: translateY(-2px);
       box-shadow: 0 6px 18px rgba(255, 255, 255, 0.35);
     }
+
+    /* Halftone Wordmark Footer */
+    .hwf-root {
+      position: relative;
+      width: 100%;
+      min-height: 560px;
+      overflow: hidden;
+      isolation: isolate;
+      background: var(--hwf-bg, #090d16);
+      color: var(--hwf-ink, #e2e8f0);
+      -webkit-font-smoothing: antialiased;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      user-select: none;
+    }
+
+    .hwf-root canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      max-width: none;
+      touch-action: pan-y;
+    }
+
+    .hwf-top {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) repeat(4, minmax(0, 1fr));
+      gap: 28px;
+      padding: clamp(28px, 3.6vw, 48px) clamp(20px, 3.4vw, 48px) 0;
+      font-family: var(--hwf-mono, var(--font-mono));
+      font-size: 11px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      line-height: 1.85;
+      user-select: text;
+    }
+
+    .hwf-brand strong {
+      display: block;
+      font-weight: 700;
+      color: #fff;
+      font-size: 13px;
+      letter-spacing: .12em;
+    }
+
+    .hwf-brand span {
+      opacity: .5;
+      font-size: 10px;
+      letter-spacing: .08em;
+      display: block;
+      margin-top: 4px;
+      line-height: 1.5;
+    }
+
+    .hwf-col h3 {
+      margin: 0 0 6px 0;
+      font: inherit;
+      opacity: .5;
+      font-weight: 600;
+      color: var(--accent-blue);
+    }
+
+    .hwf-col ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .hwf-col a, .hwf-up {
+      color: inherit;
+      text-decoration: none;
+      opacity: .75;
+      background: none;
+      border: 0;
+      padding: 0;
+      font: inherit;
+      letter-spacing: inherit;
+      text-transform: inherit;
+      cursor: pointer;
+      background-image: linear-gradient(currentColor, currentColor);
+      background-size: 0% 1px;
+      background-repeat: no-repeat;
+      background-position: 0 100%;
+      transition: opacity .25s ease, background-size .35s cubic-bezier(.2,.7,.1,1);
+      display: inline-block;
+    }
+
+    .hwf-col a:hover, .hwf-up:hover {
+      opacity: 1;
+      color: #fff;
+      background-size: 100% 1px;
+    }
+
+    .hwf-col a:focus-visible, .hwf-up:focus-visible {
+      outline: 1px solid currentColor;
+      outline-offset: 3px;
+      opacity: 1;
+    }
+
+    .hwf-rule {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin: clamp(20px, 2.6vw, 36px) clamp(20px, 3.4vw, 48px) 0;
+      padding-top: 14px;
+      border-top: 0.5px solid rgba(255, 255, 255, 0.1);
+      font-family: var(--hwf-mono, var(--font-mono));
+      font-size: 10.5px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      user-select: text;
+    }
+
+    .hwf-presets {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .hwf-preset-label {
+      opacity: 0.45;
+      font-size: 10px;
+      margin-right: 2px;
+    }
+
+    .hwf-pill {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-muted);
+      padding: 3px 10px;
+      border-radius: 9999px;
+      font-size: 10px;
+      font-family: inherit;
+      letter-spacing: inherit;
+      text-transform: inherit;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .hwf-pill:hover {
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .hwf-pill.active {
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent-blue);
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 8px rgba(56, 189, 248, 0.25);
+    }
+
+    .hwf-sr {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    @media (max-width: 900px) {
+      .hwf-top {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        row-gap: 24px;
+      }
+      .hwf-brand {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 540px) {
+      .hwf-top {
+        grid-template-columns: 1fr;
+      }
+      .hwf-rule {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hwf-col a, .hwf-up, .hwf-pill {
+        transition: none;
+      }
+    }
   </style>
 </head>
 <body>
@@ -500,6 +692,71 @@ const product = await dock.getOrSet("product:catalog:hot", async () => {
 
   </div>
 
+  <!-- Halftone Wordmark Footer -->
+  <footer
+    id="hwfFooter"
+    class="hwf-root"
+    style="--hwf-bg: #090d16; --hwf-ink: #e2e8f0; --hwf-mono: 'Fira Code', 'JetBrains Mono', monospace;"
+  >
+    <canvas id="hwfCanvas" aria-hidden="true"></canvas>
+    <span class="hwf-sr">kvdock</span>
+    <div class="hwf-top">
+      <div class="hwf-brand">
+        <strong>kvdock engine</strong>
+        <span>Universal Multi-Tier Caching · MIT / Apache 2.0</span>
+      </div>
+      <nav class="hwf-col" aria-label="Ecosystem">
+        <h3>Ecosystem</h3>
+        <ul>
+          <li><a href="https://github.com/zisam-glitch/kvdock" target="_blank">TypeScript / Node</a></li>
+          <li><a href="https://github.com/zisam-glitch/kvdock" target="_blank">Rust (kvdock-rs)</a></li>
+          <li><a href="https://github.com/zisam-glitch/kvdock" target="_blank">Go (kvdock-go)</a></li>
+          <li><a href="https://github.com/zisam-glitch/kvdock" target="_blank">Swift & Kotlin</a></li>
+        </ul>
+      </nav>
+      <nav class="hwf-col" aria-label="Adapters">
+        <h3>Adapters</h3>
+        <ul>
+          <li><a href="https://github.com/zisam-glitch/kvdock#storage-adapters" target="_blank">Memory & Sized LRU</a></li>
+          <li><a href="https://github.com/zisam-glitch/kvdock#storage-adapters" target="_blank">Redis & Valkey</a></li>
+          <li><a href="https://github.com/zisam-glitch/kvdock#storage-adapters" target="_blank">Cloudflare KV / D1</a></li>
+          <li><a href="https://github.com/zisam-glitch/kvdock#storage-adapters" target="_blank">SQLite & LibSQL</a></li>
+        </ul>
+      </nav>
+      <nav class="hwf-col" aria-label="Documentation">
+        <h3>Documentation</h3>
+        <ul>
+          <li><a href="https://github.com/zisam-glitch/kvdock#quick-start" target="_blank">Quickstart Guide</a></li>
+          <li><a href="https://github.com/zisam-glitch/kvdock#stampede-protection" target="_blank">Stampede Guard</a></li>
+          <li><a href="https://github.com/zisam-glitch/kvdock#tiered-caching" target="_blank">Tiered L1/L2 Cache</a></li>
+          <li><a href="https://github.com/zisam-glitch/kvdock/blob/main/docs/PERFORMANCE_MATRIX.md" target="_blank">Performance Matrix</a></li>
+        </ul>
+      </nav>
+      <nav class="hwf-col" aria-label="Community">
+        <h3>Community</h3>
+        <ul>
+          <li><a href="https://github.com/zisam-glitch/kvdock" target="_blank">GitHub Repo</a></li>
+          <li><a href="https://github.com/zisam-glitch" target="_blank">@zisam-glitch</a></li>
+          <li><a href="https://github.com/zisam-glitch/kvdock/issues" target="_blank">Issue Tracker</a></li>
+          <li><a href="https://github.com/zisam-glitch/kvdock/discussions" target="_blank">Discussions</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="hwf-rule">
+      <div class="hwf-presets">
+        <span class="hwf-preset-label">Preset:</span>
+        <button type="button" class="hwf-pill active" onclick="setHalftonePreset('kvdock', this)">Cyan</button>
+        <button type="button" class="hwf-pill" onclick="setHalftonePreset('cobalt', this)">Cobalt</button>
+        <button type="button" class="hwf-pill" onclick="setHalftonePreset('night', this)">Night</button>
+        <button type="button" class="hwf-pill" onclick="setHalftonePreset('ember', this)">Ember</button>
+        <button type="button" class="hwf-pill" onclick="setHalftonePreset('paper', this)">Paper</button>
+      </div>
+      <button type="button" class="hwf-up" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })">
+        Back to top ↑
+      </button>
+    </div>
+  </footer>
+
   <script>
     function updateRequestLabel(val) {
       document.getElementById('requestCountLabel').innerText = Number(val).toLocaleString();
@@ -613,6 +870,309 @@ val order = dock.getOrSet("order:7788") {
       btn.disabled = false;
       btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> Run Stampede Test Again`;
     }
+
+    /* ─── Halftone Wordmark Footer Engine ─── */
+    (function initHalftoneFooter() {
+      const root = document.getElementById("hwfFooter");
+      const canvas = document.getElementById("hwfCanvas");
+      if (!root || !canvas) return;
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+
+      const HWF_PRESETS = {
+        kvdock: { background: "#090d16", ink: "#e2e8f0", warm: "#38bdf8" },
+        night: { background: "#0c0c0b", ink: "#e9e4da", warm: "#e9762b" },
+        paper: { background: "#efebe3", ink: "#17150f", warm: "#c2361c" },
+        ember: { background: "#160a06", ink: "#f2c48c", warm: "#ff5a1f" },
+        cobalt: { background: "#0d1b4d", ink: "#dfe7ff", warm: "#ffcd3c" }
+      };
+
+      let colors = { ...HWF_PRESETS.kvdock };
+      const wordmark = "kvdock";
+      const fontFamily = '"Inter", "Inter Tight", "Helvetica Neue", Arial, sans-serif';
+      const fontWeight = 900;
+      const dotGap = 6;
+      const radius = 80;
+      const crop = 0.22;
+      const grain = 0.5;
+      const interactive = true;
+
+      function hwfHex(hex) {
+        const m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec((hex || "").trim());
+        if (!m) return null;
+        const h = m[1].length === 3 ? m[1].split("").map((c) => c + c).join("") : m[1];
+        return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+      }
+
+      function hwfRadius(coverage, gap) {
+        const c = coverage < 0 ? 0 : coverage > 1 ? 1 : coverage;
+        return Math.sqrt(c) * gap * 0.56;
+      }
+
+      function hwfStep(x, y, vx, vy, hx, hy, px, py, r) {
+        const dx = x - px;
+        const dy = y - py;
+        const d2 = dx * dx + dy * dy;
+        if (r > 0 && d2 < r * r) {
+          const d = Math.sqrt(d2) + 0.001;
+          const f = (1 - d / r) * 2.6;
+          vx += (dx / d) * f;
+          vy += (dy / d) * f;
+        }
+        vx = (vx + (hx - x) * 0.05) * 0.84;
+        vy = (vy + (hy - y) * 0.05) * 0.84;
+        return [x + vx, y + vy, vx, vy];
+      }
+
+      function hwfWarmth(x, y, hx, hy, span) {
+        const d = Math.hypot(x - hx, y - hy);
+        return span > 0 ? Math.min(1, d / span) : 0;
+      }
+
+      function hwfFitSize(measured, width) {
+        return measured > 0 ? (width / measured) * 100 : 0;
+      }
+
+      let ink = hwfHex(colors.ink) || [226, 232, 240];
+      let warm = hwfHex(colors.warm) || [56, 189, 248];
+
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      let w = 0;
+      let h = 0;
+      let dpr = 1;
+      let px = -1e5;
+      let py = -1e5;
+      let raf = 0;
+      let visible = true;
+      let awake = true;
+      let ring = { x: 0, y: 0, t: -1 };
+      let dots = new Float32Array(0);
+      let count = 0;
+      let grainTile = null;
+
+      function layout() {
+        const rect = root.getBoundingClientRect();
+        w = Math.max(1, Math.round(rect.width));
+        h = Math.max(1, Math.round(rect.height));
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.round(w * dpr);
+        canvas.height = Math.round(h * dpr);
+
+        const mask = document.createElement("canvas");
+        mask.width = w;
+        mask.height = h;
+        const m = mask.getContext("2d", { willReadFrequently: true });
+        if (!m) return;
+
+        m.font = fontWeight + " 100px " + fontFamily;
+        const fit = hwfFitSize(m.measureText(wordmark).width, w * 1.02);
+        m.font = fontWeight + " " + fit + "px " + fontFamily;
+        const box = m.measureText(wordmark);
+        const cap = box.actualBoundingBoxAscent || fit * 0.72;
+        const c = Math.max(0, Math.min(0.6, crop));
+        m.fillStyle = "#000";
+        m.textBaseline = "alphabetic";
+        m.fillText(wordmark, (w - box.width) / 2, h + cap * c);
+        const img = m.getImageData(0, 0, w, h).data;
+
+        const gap = Math.max(3, dotGap);
+        const cols = Math.ceil(w / gap);
+        const rows = Math.ceil(h / gap);
+        const tmp = [];
+        for (let gy = 0; gy < rows; gy++) {
+          for (let gx = 0; gx < cols; gx++) {
+            let sum = 0;
+            for (let sy = 0; sy < 3; sy++) {
+              for (let sx = 0; sx < 3; sx++) {
+                const x = Math.min(w - 1, Math.floor(gx * gap + ((sx + 0.5) * gap) / 3));
+                const y = Math.min(h - 1, Math.floor(gy * gap + ((sy + 0.5) * gap) / 3));
+                sum += img[(y * w + x) * 4 + 3];
+              }
+            }
+            const cov = sum / (9 * 255);
+            if (cov < 0.06) continue;
+            const hx = gx * gap + gap / 2;
+            const hy = gy * gap + gap / 2;
+            tmp.push(hx, hy, 0, 0, hx, hy, hwfRadius(cov, gap));
+          }
+        }
+        dots = new Float32Array(tmp);
+        count = tmp.length / 7;
+
+        grainTile = document.createElement("canvas");
+        grainTile.width = 256;
+        grainTile.height = 256;
+        const g = grainTile.getContext("2d");
+        if (g) {
+          const id = g.createImageData(256, 256);
+          for (let i = 0; i < id.data.length; i += 4) {
+            const v = Math.random() * 255;
+            id.data[i] = id.data[i + 1] = id.data[i + 2] = v;
+            id.data[i + 3] = Math.random() < 0.5 ? 0 : 255;
+          }
+          g.putImageData(id, 0, 0);
+        }
+        awake = true;
+      }
+
+      function draw(now) {
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.fillStyle = colors.background;
+        ctx.fillRect(0, 0, w, h);
+
+        const r = interactive && !reduced ? Math.max(0, radius) : 0;
+        const ringAge = ring.t < 0 ? 1e9 : now - ring.t;
+        const ringR = ringAge * 0.9;
+        let moving = false;
+
+        for (let i = 0; i < count; i++) {
+          const j = i * 7;
+          let x = dots[j];
+          let y = dots[j + 1];
+          let vx = dots[j + 2];
+          let vy = dots[j + 3];
+          const hx = dots[j + 4];
+          const hy = dots[j + 5];
+
+          if (!reduced) {
+            if (ringAge < 900) {
+              const dx = hx - ring.x;
+              const dy = hy - ring.y;
+              const d = Math.sqrt(dx * dx + dy * dy) + 0.001;
+              const band = 1 - Math.min(1, Math.abs(d - ringR) / 26);
+              if (band > 0) {
+                const f = band * 3.2 * (1 - ringAge / 900);
+                vx += (dx / d) * f;
+                vy += (dy / d) * f;
+              }
+            }
+            const s = hwfStep(x, y, vx, vy, hx, hy, px, py, r);
+            x = s[0];
+            y = s[1];
+            vx = s[2];
+            vy = s[3];
+            if (Math.abs(vx) + Math.abs(vy) > 0.02 || Math.abs(x - hx) + Math.abs(y - hy) > 0.05) {
+              moving = true;
+            } else {
+              x = hx;
+              y = hy;
+              vx = 0;
+              vy = 0;
+            }
+            dots[j] = x;
+            dots[j + 1] = y;
+            dots[j + 2] = vx;
+            dots[j + 3] = vy;
+          }
+
+          const k = hwfWarmth(x, y, hx, hy, 28);
+          ctx.fillStyle =
+            k > 0.02
+              ? "rgb(" +
+                Math.round(ink[0] + (warm[0] - ink[0]) * k) + "," +
+                Math.round(ink[1] + (warm[1] - ink[1]) * k) + "," +
+                Math.round(ink[2] + (warm[2] - ink[2]) * k) + ")"
+              : colors.ink;
+          ctx.beginPath();
+          ctx.arc(x, y, dots[j + 6], 0, 6.2832);
+          ctx.fill();
+        }
+
+        if (grainTile && grain > 0) {
+          ctx.globalAlpha = Math.min(1, grain) * 0.09;
+          ctx.globalCompositeOperation = "overlay";
+          const pattern = ctx.createPattern(grainTile, "repeat");
+          if (pattern) {
+            ctx.fillStyle = pattern;
+            ctx.fillRect(0, 0, w, h);
+          }
+          ctx.globalAlpha = 1;
+          ctx.globalCompositeOperation = "source-over";
+        }
+
+        awake = moving || ringAge < 900 || px > -1e4;
+      }
+
+      function loop(now) {
+        raf = 0;
+        if (!visible) return;
+        draw(now);
+        if (awake) raf = requestAnimationFrame(loop);
+      }
+
+      function wake() {
+        awake = true;
+        if (!raf && visible) raf = requestAnimationFrame(loop);
+      }
+
+      function toLocal(e) {
+        const b = canvas.getBoundingClientRect();
+        return [e.clientX - b.left, e.clientY - b.top];
+      }
+
+      function onMove(e) {
+        if (!interactive) return;
+        const p = toLocal(e);
+        px = p[0];
+        py = p[1];
+        wake();
+      }
+
+      function onLeave() {
+        px = -1e5;
+        py = -1e5;
+        wake();
+      }
+
+      function onDown(e) {
+        if (!interactive || reduced) return;
+        if (e.target && e.target.closest && e.target.closest("a,button")) return;
+        const p = toLocal(e);
+        ring = { x: p[0], y: p[1], t: performance.now() };
+        wake();
+      }
+
+      window.setHalftonePreset = function(presetKey, btn) {
+        if (!HWF_PRESETS[presetKey]) return;
+        document.querySelectorAll('.hwf-pill').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        colors = { ...HWF_PRESETS[presetKey] };
+        root.style.setProperty('--hwf-bg', colors.background);
+        root.style.setProperty('--hwf-ink', colors.ink);
+        ink = hwfHex(colors.ink) || [226, 232, 240];
+        warm = hwfHex(colors.warm) || [56, 189, 248];
+        layout();
+        wake();
+      };
+
+      layout();
+      draw(performance.now());
+      wake();
+
+      root.addEventListener("pointermove", onMove);
+      root.addEventListener("pointerleave", onLeave);
+      root.addEventListener("pointerdown", onDown);
+
+      const ro = new ResizeObserver(() => {
+        layout();
+        wake();
+      });
+      ro.observe(root);
+
+      const io = new IntersectionObserver((entries) => {
+        visible = entries[0] ? entries[0].isIntersecting : true;
+        if (visible) wake();
+      });
+      io.observe(root);
+
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => {
+          layout();
+          wake();
+        });
+      }
+    })();
   </script>
 </body>
 </html>
