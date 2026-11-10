@@ -230,6 +230,26 @@ const slidingWindow = new SlidingWindowLimiter({
 const result = await slidingWindow.consume("api_key:secret_key");
 ```
 
+### 7. Resilient Exponential Backoff Retry with Jitter
+
+Shield your docks and storage adapters against transient network timeouts, rate limit spikes (429), and connection resets using exponential backoff with full jitter:
+
+```typescript
+import { KVDock, withRetry } from "kvdock";
+import { RedisAdapter } from "kvdock/adapters/redis";
+
+// Wrap any adapter with automatic retry, exponential backoff, and full jitter
+const resilientRedis = withRetry(new RedisAdapter({ host: "localhost", port: 6379 }), {
+  maxRetries: 3,
+  initialDelayMs: 100,
+  maxDelayMs: 3000,
+  jitter: "full", // "full" | "equal" | "decorrelated" | "none"
+});
+
+const dock = new KVDock({ adapter: resilientRedis });
+await dock.set("session:123", { userId: 42 });
+```
+
 ---
 
 ## Runnable Examples & Framework Starters

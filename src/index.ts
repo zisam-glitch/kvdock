@@ -7,6 +7,7 @@ export * from "./codecs/compression.js";
 export * from "./codecs/encryption.js";
 export * from "./plugins/rate-limiter/index.js";
 export * from "./middleware/lock.js";
+export * from "./middleware/retry.js";
 export * from "./integrations/express/index.js";
 export * from "./integrations/hono/index.js";
 export * from "./integrations/nextjs/index.js";
