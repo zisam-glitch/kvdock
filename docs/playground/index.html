@@ -6,42 +6,39 @@
   <title>KVDock Playground & Interactive Stampede Simulator</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      /* Cobalt Preset Palette */
-      --ib-page: #0d1b4d;
-      --ib-hatch: rgba(223, 231, 255, 0.04);
-      --ib-paper: #10215b;
-      --ib-card: #0d1a4a;
-      --ib-raise: #162b70;
-      --ib-ink: #dfe7ff;
-      --ib-soft: #c4d3fa;
-      --ib-muted: #8fa6e6;
-      --ib-faint: #5a72b0;
-      --ib-line: rgba(223, 231, 255, 0.12);
-      --ib-line-strong: rgba(223, 231, 255, 0.22);
-      --ib-bracket: #4768b8;
-      --ib-bracket-hover: #ffcd3c;
-      --ib-gold: #ffcd3c;
-      --ib-inv: #ffcd3c;
-      --ib-inv-ink: #0d1b4d;
-      --ib-accent-red: #f87171;
-      --ib-accent-green: #34d399;
-      --ib-shadow: 0 4px 24px rgba(4, 9, 30, 0.5), 0 14px 38px -10px rgba(4, 9, 30, 0.7);
-      --ib-sans: "Inter", "Inter Tight", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      --ib-mono: "Fira Code", "JetBrains Mono", ui-monospace, monospace;
+      /* Authoritative Cobalt & Ice-Cyan Palette (Zero Yellow) */
+      --ib-page: #08102d;
+      --ib-surface: #0d1b4d;
+      --ib-raise: #132669;
+      --ib-raise-high: #1a348d;
+      --ib-ink: #f0f4ff;
+      --ib-soft: #c8d7fc;
+      --ib-muted: #8ba5e3;
+      --ib-faint: #4e6bb3;
 
-      /* Compatibility aliases */
-      --bg: var(--ib-page);
-      --card-bg: var(--ib-card);
-      --card-border: var(--ib-line);
-      --accent-blue: var(--ib-gold);
-      --accent-gold: var(--ib-gold);
-      --text-main: var(--ib-ink);
-      --text-muted: var(--ib-muted);
-      --font-sans: var(--ib-sans);
-      --font-mono: var(--ib-mono);
+      /* High-taste electric cyan accents - NO YELLOW */
+      --accent-cyan: #38bdf8;
+      --accent-cyan-bright: #0ea5e9;
+      --accent-cyan-soft: #7dd3fc;
+      --accent-cyan-deep: #0369a1;
+      --accent-cyan-ink: #041026;
+      --accent-red: #f87171;
+      --accent-green: #34d399;
+
+      /* Type System: Barlow Condensed (Display) + Barlow (Text) + JetBrains Mono (Code only) */
+      --font-display: "Barlow Condensed", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font-text: "Barlow", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-code: "JetBrains Mono", monospace;
+
+      /* Five scale steps */
+      --step-small: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem); /* 13-14px */
+      --step-body: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);      /* 16-18px */
+      --step-lead: clamp(1.2rem, 1.1rem + 0.4vw, 1.35rem);      /* 19-22px */
+      --step-head: clamp(1.6rem, 1.4rem + 1.2vw, 2.35rem);      /* 26-38px */
+      --step-display: clamp(2.1rem, 1.6rem + 4vw, 4.8rem);       /* 34-77px */
     }
 
     * {
@@ -52,157 +49,136 @@
 
     body {
       background-color: var(--ib-page);
-      background-image: repeating-linear-gradient(135deg, var(--ib-hatch) 0 1px, transparent 1px 12px);
       color: var(--ib-ink);
-      font-family: var(--ib-sans);
-      line-height: 1.6;
-      padding-bottom: 0;
+      font-family: var(--font-text);
+      font-size: var(--step-body);
+      line-height: 1.55;
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
     }
 
+    .page-wrap {
+      width: 100%;
+      max-width: 1200px;
+      margin-inline: auto;
+      padding-inline: clamp(20px, 4vw, 36px);
+    }
+
     header {
-      background: linear-gradient(180deg, rgba(73, 119, 255, 0.16) 0%, rgba(13, 27, 77, 0) 100%);
-      border-bottom: 1px solid var(--ib-line);
-      padding: 40px 24px 34px;
+      background: var(--ib-surface);
+      padding: clamp(48px, 6vw, 72px) 0 clamp(44px, 5vw, 60px);
       text-align: center;
       position: relative;
+    }
+
+    h1 {
+      font-family: var(--font-display);
+      font-size: var(--step-display);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+      line-height: 1.02;
+      margin-bottom: 16px;
+      max-width: 980px;
+      margin-inline: auto;
+    }
+
+    h1 .highlight {
+      color: var(--accent-cyan);
+    }
+
+    .subtitle {
+      color: var(--ib-soft);
+      font-size: var(--step-lead);
+      max-width: 720px;
+      margin: 0 auto 24px auto;
+      line-height: 1.5;
     }
 
     .header-badges {
       display: flex;
       justify-content: center;
-      gap: 12px;
-      margin-bottom: 18px;
+      align-items: center;
+      gap: 10px;
       flex-wrap: wrap;
     }
 
     .badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      background: rgba(223, 231, 255, 0.05);
-      border: 1px solid var(--ib-line);
-      padding: 5px 14px;
+      gap: 7px;
+      background: var(--ib-raise);
+      padding: 7px 16px;
       border-radius: 9999px;
-      font-size: 0.85rem;
+      font-size: var(--step-small);
       font-weight: 500;
-      color: var(--ib-muted);
+      color: var(--ib-soft);
       text-decoration: none;
-      transition: all 0.2s ease;
+      transition: background 0.2s ease, color 0.2s ease;
     }
 
     .badge:hover {
-      border-color: var(--ib-gold);
-      color: var(--ib-gold);
-      transform: translateY(-1px);
-    }
-
-    .npm-badge {
-      background: rgba(255, 205, 60, 0.12) !important;
-      border-color: rgba(255, 205, 60, 0.35) !important;
-      color: var(--ib-gold) !important;
-      font-weight: 600;
-    }
-
-    .npm-badge:hover {
-      box-shadow: 0 4px 14px rgba(255, 205, 60, 0.3);
-      border-color: var(--ib-gold) !important;
+      background: var(--ib-raise-high);
+      color: #ffffff;
     }
 
     .star-btn {
-      background: linear-gradient(135deg, #ffcd3c, #f59e0b) !important;
-      color: #0d1b4d !important;
-      border: none !important;
-      box-shadow: 0 4px 16px rgba(255, 205, 60, 0.35);
+      background: var(--accent-cyan) !important;
+      color: var(--accent-cyan-ink) !important;
       font-weight: 700;
     }
 
     .star-btn:hover {
-      box-shadow: 0 6px 22px rgba(255, 205, 60, 0.55);
-      background: linear-gradient(135deg, #ffe082, #ffcd3c) !important;
+      background: var(--accent-cyan-soft) !important;
+      color: var(--accent-cyan-ink) !important;
     }
 
-    .ib-tag {
-      display: inline-block;
-      padding: 4px 12px;
-      font-size: 11px;
-      font-family: var(--ib-mono);
-      letter-spacing: .14em;
+    .npm-badge {
+      background: var(--ib-raise-high) !important;
+      color: var(--accent-cyan) !important;
+      font-weight: 600;
+    }
+
+    .npm-badge:hover {
+      background: var(--accent-cyan-deep) !important;
+      color: #ffffff !important;
+    }
+
+    main {
+      padding-top: clamp(36px, 4vw, 52px);
+      padding-bottom: clamp(48px, 6vw, 72px);
+    }
+
+    /* Section Introductions */
+    .section-intro {
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: var(--step-head);
+      font-weight: 700;
       text-transform: uppercase;
-      color: var(--ib-gold);
-      background: rgba(255, 205, 60, 0.08);
-      border: 1px solid rgba(255, 205, 60, 0.25);
-      border-radius: 4px;
-      margin-bottom: 12px;
-    }
-
-    h1 {
-      font-size: clamp(2rem, 4.5vw, 3rem);
-      font-weight: 800;
-      letter-spacing: -0.03em;
+      letter-spacing: -0.01em;
       color: #ffffff;
-      margin-bottom: 12px;
-      line-height: 1.15;
+      margin-bottom: 6px;
     }
 
-    h1 .highlight {
-      background: linear-gradient(135deg, #ffffff 30%, var(--ib-gold) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .subtitle {
+    .section-desc {
       color: var(--ib-muted);
-      font-size: 1.12rem;
-      max-width: 780px;
-      margin: 0 auto 10px auto;
-      line-height: 1.6;
+      font-size: var(--step-body);
+      max-width: 680px;
     }
-
-    .ib-shell {
-      width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 36px 20px 56px;
-    }
-
-    /* Corner Bracket Frames */
-    .ib-frame {
-      position: relative;
-    }
-
-    .ib-c {
-      position: absolute;
-      width: 13px;
-      height: 13px;
-      border-color: var(--ib-bracket);
-      border-style: solid;
-      border-width: 0;
-      pointer-events: none;
-      transition: border-color .3s, transform .35s cubic-bezier(.2,.8,.2,1);
-      z-index: 4;
-    }
-    .ib-c-tl { top: -5px; left: -5px; border-top-width: 2px; border-left-width: 2px; }
-    .ib-c-tr { top: -5px; right: -5px; border-top-width: 2px; border-right-width: 2px; }
-    .ib-c-bl { bottom: -5px; left: -5px; border-bottom-width: 2px; border-left-width: 2px; }
-    .ib-c-br { bottom: -5px; right: -5px; border-bottom-width: 2px; border-right-width: 2px; }
-
-    .ib-frame-hover:hover > .ib-c {
-      border-color: var(--ib-bracket-hover);
-    }
-    .ib-frame-hover:hover > .ib-c-tl { transform: translate(-3px,-3px); }
-    .ib-frame-hover:hover > .ib-c-tr { transform: translate(3px,-3px); }
-    .ib-frame-hover:hover > .ib-c-bl { transform: translate(-3px,3px); }
-    .ib-frame-hover:hover > .ib-c-br { transform: translate(3px,3px); }
 
     /* Bento Grid */
     .ib-bento {
       display: grid;
       grid-template-columns: 1fr;
       gap: 28px;
-      margin-bottom: 32px;
+      margin-bottom: 48px;
     }
+
     @media (min-width: 768px) {
       .ib-bento {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -212,36 +188,43 @@
       }
     }
 
+    .ib-frame {
+      position: relative;
+    }
+
     .ib-card {
-      background: linear-gradient(180deg, var(--ib-raise) 0%, var(--ib-card) 100%);
-      border: 1px solid var(--ib-line);
-      border-radius: 14px;
-      padding: 24px;
+      background: var(--ib-surface);
+      border-radius: 12px;
+      padding: 26px;
       display: flex;
       flex-direction: column;
       gap: 16px;
-      box-shadow: var(--ib-shadow);
-      transition: border-color .3s, box-shadow .35s;
       position: relative;
       height: 100%;
-    }
-    .ib-card:hover {
-      border-color: var(--ib-line-strong);
+      transition: background 0.25s ease;
     }
 
-    .ib-card h3 {
-      font-size: 1.15rem;
+    .ib-card:hover {
+      background: var(--ib-raise);
+    }
+
+    .ib-card h2, .ib-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.45rem;
       font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
       color: #ffffff;
       margin: 0 0 6px 0;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
+
     .ib-card p {
-      font-size: 0.9rem;
-      line-height: 1.6;
-      color: var(--ib-muted);
+      font-size: var(--step-body);
+      line-height: 1.55;
+      color: var(--ib-soft);
       margin: 0;
     }
 
@@ -255,86 +238,97 @@
     .ib-wide-copy {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 20px;
+      gap: 24px;
     }
+
     @media (min-width: 640px) {
       .ib-wide-copy {
         grid-template-columns: 1fr 1fr;
       }
     }
 
-    /* SVG Flow & Node Styles */
+    /* SVG Flow & Node Styles - Pure Cyan & High Contrast */
     .ib-flow {
-      stroke: var(--ib-line-strong);
+      stroke: var(--ib-faint);
       fill: none;
-      stroke-width: 1.4;
+      stroke-width: 1.5;
       transition: stroke .3s;
     }
+
     .ib-flow-on {
-      stroke: var(--ib-gold);
+      stroke: var(--accent-cyan);
     }
+
     .ib-dash {
-      stroke-dasharray: 3 4;
+      stroke-dasharray: 4 4;
       animation: ib-dash 1.2s linear infinite;
     }
+
     .ib-pkt {
-      fill: var(--ib-gold);
+      fill: var(--accent-cyan);
     }
+
     .ib-node {
       fill: var(--ib-raise);
-      stroke: var(--ib-line-strong);
+      stroke: var(--ib-faint);
       transition: stroke .3s, transform .3s;
     }
+
     .ib-av {
       cursor: pointer;
-      transition: transform .35s cubic-bezier(.2,.8,.2,1);
+      transition: transform .3s ease;
       transform-box: fill-box;
       transform-origin: center;
     }
+
     .ib-av:hover, .ib-av:focus-visible {
-      transform: scale(1.18);
+      transform: scale(1.15);
     }
+
     .ib-av-tip {
       opacity: 0;
       transition: opacity .2s;
       pointer-events: none;
     }
+
     .ib-av:hover .ib-av-tip, .ib-av:focus .ib-av-tip {
       opacity: 1;
     }
+
     .ib-presence {
       animation: ib-pulse 2.2s ease-in-out infinite;
       transform-box: fill-box;
       transform-origin: center;
     }
-    .ib-sheet {
-      transition: transform .7s cubic-bezier(.2,.8,.2,1), opacity .7s;
-    }
-    .ib-sheet-new {
-      animation: ib-sheet-in .7s cubic-bezier(.2,.8,.2,1) both;
-    }
+
     .ib-tool {
       cursor: pointer;
-      transition: transform .3s cubic-bezier(.2,.8,.2,1);
+      transition: transform .25s ease;
       transform-box: fill-box;
       transform-origin: center;
     }
+
     .ib-tool:hover, .ib-tool-on {
       transform: translateY(-2px);
     }
+
     .ib-tool rect {
       transition: stroke .3s;
     }
+
     .ib-tool-on rect.ib-node {
-      stroke: var(--ib-gold);
+      stroke: var(--accent-cyan);
     }
+
     .ib-chart {
       cursor: crosshair;
     }
+
     .ib-line-draw {
       stroke-dasharray: 1;
       stroke-dashoffset: 0;
     }
+
     .ib-glow {
       animation: ib-pulse 2s ease-in-out infinite;
       transform-box: fill-box;
@@ -342,15 +336,12 @@
     }
 
     @keyframes ib-dash {
-      to { stroke-dashoffset: -14; }
+      to { stroke-dashoffset: -16; }
     }
+
     @keyframes ib-pulse {
       0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: .45; transform: scale(1.25); }
-    }
-    @keyframes ib-sheet-in {
-      from { opacity: 0; transform: translate(14px,-10px) rotate(4deg); }
-      to { opacity: 1; transform: none; }
+      50% { opacity: .45; transform: scale(1.2); }
     }
 
     /* Simulator Controls & Layout */
@@ -358,8 +349,9 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 28px;
-      margin-bottom: 32px;
+      margin-bottom: 48px;
     }
+
     @media (max-width: 860px) {
       .grid-2 {
         grid-template-columns: 1fr;
@@ -375,22 +367,22 @@
     }
 
     .slider-label {
-      font-size: 0.9rem;
-      font-weight: 600;
+      font-size: var(--step-body);
+      font-weight: 500;
       color: var(--ib-ink);
     }
 
     .slider-val {
-      font-family: var(--ib-mono);
-      color: var(--ib-gold);
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      color: var(--accent-cyan);
       font-weight: 700;
     }
 
     input[type=range] {
       width: 100%;
       height: 6px;
-      background: #091338;
-      border: 1px solid var(--ib-line);
+      background: var(--ib-raise);
       border-radius: 4px;
       outline: none;
       -webkit-appearance: none;
@@ -399,36 +391,33 @@
     input[type=range]::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
-      background: var(--ib-gold);
+      background: var(--accent-cyan);
       cursor: pointer;
-      box-shadow: 0 0 12px rgba(255, 205, 60, 0.6);
     }
 
     .sim-btn {
       width: 100%;
-      padding: 14px;
+      padding: 14px 20px;
       border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 800;
+      font-family: var(--font-text);
+      font-size: var(--step-body);
+      font-weight: 700;
       cursor: pointer;
       border: none;
-      background: linear-gradient(135deg, #ffcd3c, #f59e0b);
-      color: #0d1b4d;
+      background: var(--accent-cyan);
+      color: var(--accent-cyan-ink);
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 16px rgba(255, 205, 60, 0.35);
+      transition: background 0.2s ease;
     }
 
     .sim-btn:hover {
-      box-shadow: 0 6px 24px rgba(255, 205, 60, 0.55);
-      background: linear-gradient(135deg, #ffe082, #ffcd3c);
-      transform: translateY(-1px);
+      background: var(--accent-cyan-soft);
     }
 
     .sim-btn:disabled {
@@ -445,154 +434,158 @@
     }
 
     .result-col {
-      background: rgba(7, 16, 48, 0.6);
-      border: 1px solid var(--ib-line);
+      background: var(--ib-raise);
       border-radius: 8px;
-      padding: 16px;
+      padding: 18px 14px;
       text-align: center;
     }
 
     .result-col.bad {
-      border-top: 3px solid var(--ib-accent-red);
+      border-top: 4px solid var(--accent-red);
     }
 
     .result-col.good {
-      border-top: 3px solid var(--ib-gold);
+      border-top: 4px solid var(--accent-cyan);
     }
 
     .result-col h4 {
-      font-size: 0.95rem;
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
       margin-bottom: 8px;
       color: #ffffff;
     }
 
     .metric-num {
-      font-family: var(--ib-mono);
-      font-size: 2rem;
+      font-family: var(--font-display);
+      font-size: 2.5rem;
       font-weight: 800;
-      margin-bottom: 4px;
+      line-height: 1;
+      margin-bottom: 6px;
     }
 
     .metric-label {
-      font-size: 0.75rem;
+      font-size: var(--step-small);
       color: var(--ib-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
     }
 
     .bad .metric-num {
-      color: var(--ib-accent-red);
+      color: var(--accent-red);
     }
 
     .good .metric-num {
-      color: var(--ib-gold);
+      color: var(--accent-cyan);
     }
 
-    /* Console */
-    .console {
-      background: #071030;
-      border: 1px solid var(--ib-line);
+    /* Console in pre code block */
+    pre.console-wrap {
+      background: var(--ib-page);
       border-radius: 8px;
-      padding: 16px;
-      font-family: var(--ib-mono);
-      font-size: 0.85rem;
-      color: #c4d3fa;
-      height: 260px;
+      padding: 18px;
+      height: 270px;
       overflow-y: auto;
       white-space: pre-wrap;
     }
 
+    pre.console-wrap code {
+      background: transparent;
+      padding: 0;
+      font-family: var(--font-code);
+      font-size: 0.875rem;
+      line-height: 1.5;
+      color: #c4d3fa;
+      display: block;
+    }
+
     .log-info { color: #60a5fa; }
-    .log-success { color: var(--ib-accent-green); }
-    .log-danger { color: var(--ib-accent-red); }
-    .log-warn { color: var(--ib-gold); }
+    .log-success { color: var(--accent-green); }
+    .log-danger { color: var(--accent-red); }
+    .log-warn { color: var(--accent-cyan); }
 
     /* Polyglot Code Snippet Tabs */
     .tab-bar {
       display: flex;
-      gap: 8px;
-      border-bottom: 1px solid var(--ib-line);
-      padding-bottom: 12px;
+      gap: 10px;
       margin-bottom: 16px;
       overflow-x: auto;
     }
 
     .tab-btn {
-      background: none;
+      background: var(--ib-raise);
       border: none;
-      color: var(--ib-muted);
-      font-size: 0.9rem;
+      color: var(--ib-soft);
+      font-family: var(--font-text);
+      font-size: var(--step-small);
       font-weight: 600;
-      padding: 6px 14px;
+      padding: 8px 16px;
       cursor: pointer;
       border-radius: 6px;
-      transition: all 0.2s;
+      transition: background 0.2s, color 0.2s;
     }
 
     .tab-btn.active {
-      background: rgba(255, 205, 60, 0.16);
-      color: var(--ib-gold);
+      background: var(--accent-cyan);
+      color: var(--accent-cyan-ink);
     }
 
-    pre code {
+    pre code.snippet-code {
       display: block;
-      background: #071030;
-      border: 1px solid var(--ib-line);
+      background: var(--ib-page);
       border-radius: 8px;
-      padding: 18px;
-      font-family: var(--ib-mono);
-      font-size: 0.85rem;
-      color: #dfe7ff;
+      padding: 20px;
+      font-family: var(--font-code);
+      font-size: 0.875rem;
+      line-height: 1.6;
+      color: #e0e7ff;
       overflow-x: auto;
     }
 
     /* Author Attribution Banner */
     .creator-banner {
-      background: linear-gradient(135deg, rgba(73, 119, 255, 0.16) 0%, rgba(17, 34, 96, 0.95) 100%);
-      border: 1px solid rgba(255, 205, 60, 0.35);
-      border-radius: 14px;
-      padding: 28px;
+      background: var(--ib-surface);
+      border-radius: 12px;
+      padding: 32px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 20px;
+      gap: 24px;
       flex-wrap: wrap;
-      margin-top: 32px;
-      box-shadow: 0 10px 30px rgba(5, 12, 38, 0.5);
+      margin-top: 48px;
     }
 
     .creator-info h3 {
-      font-size: 1.3rem;
+      font-family: var(--font-display);
+      font-size: clamp(1.35rem, 2.5vw, 1.85rem);
+      text-transform: uppercase;
       font-weight: 700;
+      line-height: 1.15;
       margin-bottom: 6px;
       color: #ffffff;
     }
 
     .creator-info p {
-      color: var(--ib-muted);
-      font-size: 0.95rem;
-      max-width: 650px;
+      color: var(--ib-soft);
+      font-size: var(--step-body);
+      max-width: 680px;
     }
 
     .follow-btn {
-      background: var(--ib-gold);
-      color: #0d1b4d;
+      background: var(--accent-cyan);
+      color: var(--accent-cyan-ink);
       text-decoration: none;
       padding: 12px 24px;
       border-radius: 8px;
-      font-weight: 800;
-      font-size: 0.95rem;
+      font-weight: 700;
+      font-size: var(--step-body);
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 16px rgba(255, 205, 60, 0.35);
+      transition: background 0.2s ease;
     }
 
     .follow-btn:hover {
-      background: #ffe082;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 22px rgba(255, 205, 60, 0.55);
+      background: var(--accent-cyan-soft);
     }
 
     /* Halftone Wordmark Footer */
@@ -602,10 +595,9 @@
       min-height: 560px;
       overflow: hidden;
       isolation: isolate;
-      background: var(--hwf-bg, #0d1b4d);
+      background: var(--hwf-bg, #08102d);
       color: var(--hwf-ink, #dfe7ff);
       -webkit-font-smoothing: antialiased;
-      border-top: 1px solid var(--ib-line);
       user-select: none;
     }
 
@@ -623,40 +615,39 @@
       position: relative;
       z-index: 2;
       display: grid;
-      grid-template-columns: minmax(0, 1.35fr) repeat(4, minmax(0, 1fr));
-      gap: 28px;
-      padding: clamp(28px, 3.6vw, 48px) clamp(20px, 3.4vw, 48px) 0;
-      font-family: var(--hwf-mono, var(--ib-mono));
-      font-size: 11px;
-      letter-spacing: .16em;
-      text-transform: uppercase;
+      grid-template-columns: minmax(0, 1.4fr) repeat(4, minmax(0, 1fr));
+      gap: clamp(20px, 3vw, 36px);
+      padding-top: clamp(36px, 4vw, 56px);
+      font-size: var(--step-small);
       line-height: 1.85;
       user-select: text;
     }
 
     .hwf-brand strong {
       display: block;
+      font-family: var(--font-display);
       font-weight: 700;
-      color: #fff;
-      font-size: 13px;
-      letter-spacing: .12em;
+      color: #ffffff;
+      font-size: 1.35rem;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
     }
 
     .hwf-brand span {
-      opacity: .5;
-      font-size: 10px;
-      letter-spacing: .08em;
+      opacity: .75;
+      font-size: var(--step-small);
       display: block;
-      margin-top: 4px;
+      margin-top: 6px;
       line-height: 1.5;
     }
 
     .hwf-col h3 {
-      margin: 0 0 6px 0;
-      font: inherit;
-      opacity: .65;
-      font-weight: 600;
-      color: var(--ib-gold);
+      margin: 0 0 10px 0;
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: var(--accent-cyan);
     }
 
     .hwf-col ul {
@@ -668,32 +659,19 @@
     .hwf-col a, .hwf-up {
       color: inherit;
       text-decoration: none;
-      opacity: .75;
+      opacity: .8;
       background: none;
       border: 0;
       padding: 0;
       font: inherit;
-      letter-spacing: inherit;
-      text-transform: inherit;
       cursor: pointer;
-      background-image: linear-gradient(currentColor, currentColor);
-      background-size: 0% 1px;
-      background-repeat: no-repeat;
-      background-position: 0 100%;
-      transition: opacity .25s ease, background-size .35s cubic-bezier(.2,.7,.1,1);
       display: inline-block;
+      transition: opacity .2s ease, color .2s ease;
     }
 
     .hwf-col a:hover, .hwf-up:hover {
       opacity: 1;
-      color: var(--ib-gold);
-      background-size: 100% 1px;
-    }
-
-    .hwf-col a:focus-visible, .hwf-up:focus-visible {
-      outline: 1px solid currentColor;
-      outline-offset: 3px;
-      opacity: 1;
+      color: var(--accent-cyan);
     }
 
     .hwf-rule {
@@ -703,13 +681,9 @@
       justify-content: space-between;
       align-items: center;
       gap: 16px;
-      margin: clamp(20px, 2.6vw, 36px) clamp(20px, 3.4vw, 48px) 0;
-      padding-top: 14px;
-      border-top: 0.5px solid var(--ib-line);
-      font-family: var(--hwf-mono, var(--ib-mono));
-      font-size: 10.5px;
-      letter-spacing: .18em;
-      text-transform: uppercase;
+      margin-top: clamp(24px, 3vw, 40px);
+      padding-top: 18px;
+      font-size: var(--step-small);
       user-select: text;
     }
 
@@ -721,35 +695,32 @@
     }
 
     .hwf-preset-label {
-      opacity: 0.45;
-      font-size: 10px;
-      margin-right: 2px;
+      opacity: 0.7;
+      font-size: var(--step-small);
+      margin-right: 4px;
     }
 
     .hwf-pill {
-      background: rgba(223, 231, 255, 0.05);
-      border: 1px solid var(--ib-line);
-      color: var(--ib-muted);
-      padding: 3px 10px;
+      background: var(--ib-raise);
+      color: var(--ib-soft);
+      padding: 6px 14px;
       border-radius: 9999px;
-      font-size: 10px;
+      font-size: var(--step-small);
       font-family: inherit;
-      letter-spacing: inherit;
-      text-transform: inherit;
       cursor: pointer;
+      border: none;
       transition: all 0.2s ease;
     }
 
     .hwf-pill:hover {
-      color: #fff;
-      border-color: rgba(255, 205, 60, 0.4);
+      background: var(--ib-raise-high);
+      color: #ffffff;
     }
 
     .hwf-pill.active {
-      background: rgba(255, 205, 60, 0.18);
-      color: var(--ib-gold);
-      border-color: var(--ib-gold);
-      box-shadow: 0 0 10px rgba(255, 205, 60, 0.35);
+      background: var(--accent-cyan);
+      color: var(--accent-cyan-ink);
+      font-weight: 700;
     }
 
     .hwf-sr {
@@ -764,7 +735,7 @@
     @media (max-width: 900px) {
       .hwf-top {
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-        row-gap: 24px;
+        row-gap: 28px;
       }
       .hwf-brand {
         grid-column: 1 / -1;
@@ -782,8 +753,12 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .hwf-col a, .hwf-up, .hwf-pill {
-        transition: none;
+      *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+      .ib-av-tip {
+        opacity: 1 !important;
       }
     }
   </style>
@@ -791,118 +766,106 @@
 <body>
 
   <header>
-    <div class="header-badges">
-      <a href="https://github.com/zisam-glitch/kvdock" target="_blank" class="badge star-btn">
-        <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"></path></svg>
-        Star on GitHub
-      </a>
-      <a href="https://www.npmjs.com/package/kvdock" target="_blank" class="badge npm-badge" title="View latest npm package release">
-        <svg height="14" width="14" viewBox="0 0 24 24" fill="currentColor"><path d="M0 0v24h24V0H0zm20.8 20.8h-4.8V8.8h-4.8v12H3.2V3.2h17.6v17.6z"/></svg>
-        npm v0.3.2
-      </a>
-      <span class="badge" onclick="copyNpmInstall(this)" title="Click to copy npm install command" style="cursor: pointer;">
-        <code style="font-family: var(--ib-mono); color: var(--ib-gold);">npm i kvdock</code>
-      </span>
-      <span class="badge">Zero Runtime Dependencies</span>
-      <span class="badge">Node • Bun • Deno • Edge • Rust • Go</span>
-      <span class="badge">Single-Flight Stampede Guard</span>
+    <div class="page-wrap">
+      <h1>Universal <span class="highlight">Single-Flight</span> Engine</h1>
+      <p class="subtitle">
+        Zero-dependency multi-tier key-value caching runtime with built-in stampede protection, lockless promise coalescing, and pluggable storage adapters.
+      </p>
+      <nav class="header-badges" role="navigation" aria-label="Project links and ecosystem tags">
+        <a href="https://github.com/zisam-glitch/kvdock" target="_blank" class="badge star-btn">
+          <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 .25a.75.75 0 0 1 .673.418l1.882 3.815 4.21.612a.75.75 0 0 1 .416 1.279l-3.046 2.97.719 4.192a.75.75 0 0 1-1.088.791L8 12.347l-3.766 1.98a.75.75 0 0 1-1.088-.79l.72-4.194L.818 6.374a.75.75 0 0 1 .416-1.28l4.21-.611L7.327.668A.75.75 0 0 1 8 .25Z"></path></svg>
+          Star on GitHub
+        </a>
+        <a href="https://www.npmjs.com/package/kvdock" target="_blank" class="badge npm-badge" title="View latest npm package release">
+          <svg height="14" width="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M0 0v24h24V0H0zm20.8 20.8h-4.8V8.8h-4.8v12H3.2V3.2h17.6v17.6z"/></svg>
+          npm v0.3.2
+        </a>
+        <span class="badge" onclick="copyNpmInstall(this)" title="Click to copy npm install command" style="cursor: pointer;">
+          <code style="font-family: var(--font-code); color: var(--accent-cyan);">npm i kvdock</code>
+        </span>
+        <span class="badge">Zero Runtime Dependencies</span>
+        <span class="badge">Node • Bun • Deno • Edge • Rust • Go</span>
+        <span class="badge">Single-Flight Stampede Guard</span>
+      </nav>
     </div>
-
-    <div>
-      <span class="ib-tag">ARCHITECTURE · CONCURRENCY RUNTIME</span>
-    </div>
-    <h1>Universal <span class="highlight">Single-Flight</span> Engine</h1>
-    <p class="subtitle">
-      Zero-dependency multi-tier key-value caching runtime with built-in stampede protection, lockless promise coalescing, and pluggable storage adapters.
-    </p>
   </header>
 
-  <div class="ib-shell">
+  <main class="page-wrap">
 
     <!-- Section 1: Live Bento Diagrams -->
+    <section class="section-intro">
+      <h2 class="section-title">Telemetry & Concurrency Architecture</h2>
+      <p class="section-desc">Observe real-time promise coalescing, multi-tier adapter bridging, and zero-contention throughput under sustained concurrency.</p>
+    </section>
+
     <div class="ib-bento">
 
       <!-- Bento 1: Wide Flow Card -->
-      <div class="ib-frame ib-frame-hover ib-wide">
-        <span class="ib-c ib-c-tl" aria-hidden="true"></span>
-        <span class="ib-c ib-c-tr" aria-hidden="true"></span>
-        <span class="ib-c ib-c-bl" aria-hidden="true"></span>
-        <span class="ib-c ib-c-br" aria-hidden="true"></span>
+      <div class="ib-frame ib-wide" data-ui>
         <div class="ib-card" style="padding: 0; overflow: hidden;">
           <svg class="ib-diagram" viewBox="0 0 640 178" role="img" aria-label="Incoming requests flow through KVDock into finished cached responses">
-            <defs>
-              <radialGradient id="kvdockFlowGlow" cx="320" cy="110" r="190" gradientUnits="userSpaceOnUse">
-                <stop offset="0" stopColor="var(--ib-raise)" stopOpacity="1" />
-                <stop offset="1" stopColor="var(--ib-raise)" stopOpacity="0" />
-              </radialGradient>
-              <linearGradient id="kvdockRays" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="var(--ib-line-strong)" stopOpacity=".55" />
-                <stop offset="1" stopColor="var(--ib-line-strong)" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-            <rect x="0" y="0" width="640" height="178" fill="url(#kvdockFlowGlow)" />
-            <path d="M320,110 L140,-150 L160,-150 Z M320,110 L240,-150 L260,-150 Z M320,110 L380,-150 L400,-150 Z M320,110 L480,-150 L500,-150 Z" fill="url(#kvdockRays)" opacity=".3" />
+            <rect x="0" y="0" width="640" height="178" fill="var(--ib-raise)" />
 
             <!-- Client Cluster -->
             <g id="flowClientGroup">
-              <line x1="58" y1="38" x2="104" y2="70" stroke="var(--ib-line-strong)" stroke-dasharray="2 3" />
-              <line x1="104" y1="22" x2="104" y2="70" stroke="var(--ib-line-strong)" stroke-dasharray="2 3" />
-              <line x1="150" y1="40" x2="104" y2="70" stroke="var(--ib-line-strong)" stroke-dasharray="2 3" />
-              <line x1="46" y1="92" x2="104" y2="70" stroke="var(--ib-line-strong)" stroke-dasharray="2 3" />
-              <line x1="146" y1="114" x2="104" y2="70" stroke="var(--ib-line-strong)" stroke-dasharray="2 3" />
+              <line x1="58" y1="38" x2="104" y2="70" stroke="var(--ib-faint)" stroke-dasharray="2 3" />
+              <line x1="104" y1="22" x2="104" y2="70" stroke="var(--ib-faint)" stroke-dasharray="2 3" />
+              <line x1="150" y1="40" x2="104" y2="70" stroke="var(--ib-faint)" stroke-dasharray="2 3" />
+              <line x1="46" y1="92" x2="104" y2="70" stroke="var(--ib-faint)" stroke-dasharray="2 3" />
+              <line x1="146" y1="114" x2="104" y2="70" stroke="var(--ib-faint)" stroke-dasharray="2 3" />
 
               <!-- Cluster Gateway Node -->
               <g transform="translate(91,57)">
                 <rect width="26" height="26" rx="5" class="ib-node" />
-                <g transform="translate(5,5)" style="color: var(--ib-gold);">
+                <g transform="translate(5,5)" style="color: var(--accent-cyan);">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16"/><path d="M4 12h7l7-8"/><path d="M11 12l7 8"/></svg>
                 </g>
               </g>
 
               <!-- Client Avatars -->
               <g class="ib-av" tabIndex="0" role="img" aria-label="api-gateway · 1,200 req/s">
-                <circle cx="58" cy="38" r="10" fill="var(--ib-raise)" stroke="var(--ib-line-strong)" stroke-width="1.2" />
-                <circle cx="58" cy="38" r="4" fill="var(--ib-gold)" />
-                <circle cx="66" cy="46" r="2.6" fill="#22c55e" stroke="var(--ib-paper)" class="ib-presence" />
+                <circle cx="58" cy="38" r="10" fill="var(--ib-surface)" stroke="var(--ib-faint)" stroke-width="1.2" />
+                <circle cx="58" cy="38" r="4" fill="var(--accent-cyan)" />
+                <circle cx="66" cy="46" r="2.6" fill="#34d399" class="ib-presence" />
                 <g class="ib-av-tip" transform="translate(58,20)">
-                  <rect x="-60" y="-9" width="120" height="15" rx="3" fill="var(--ib-inv)" />
-                  <text x="0" y="2" text-anchor="middle" font-size="7.5" fill="var(--ib-inv-ink)" font-family="var(--ib-mono)">api-gateway · 1,200 req/s</text>
+                  <rect x="-64" y="-9" width="128" height="15" rx="3" fill="var(--accent-cyan)" />
+                  <text x="0" y="2" text-anchor="middle" font-size="7.5" fill="var(--accent-cyan-ink)" font-family="var(--font-text)" font-weight="600">api-gateway · 1,200 req/s</text>
                 </g>
               </g>
               <g class="ib-av" tabIndex="0" role="img" aria-label="web-client · key: hot-catalog">
-                <circle cx="104" cy="22" r="10" fill="var(--ib-raise)" stroke="var(--ib-line-strong)" stroke-width="1.2" />
-                <circle cx="104" cy="22" r="4" fill="var(--ib-gold)" />
-                <circle cx="112" cy="30" r="2.6" fill="#22c55e" stroke="var(--ib-paper)" class="ib-presence" />
+                <circle cx="104" cy="22" r="10" fill="var(--ib-surface)" stroke="var(--ib-faint)" stroke-width="1.2" />
+                <circle cx="104" cy="22" r="4" fill="var(--accent-cyan)" />
+                <circle cx="112" cy="30" r="2.6" fill="#34d399" class="ib-presence" />
                 <g class="ib-av-tip" transform="translate(104,4)">
-                  <rect x="-65" y="-9" width="130" height="15" rx="3" fill="var(--ib-inv)" />
-                  <text x="0" y="2" text-anchor="middle" font-size="7.5" fill="var(--ib-inv-ink)" font-family="var(--ib-mono)">web-client · key: catalog:hot</text>
+                  <rect x="-68" y="-9" width="136" height="15" rx="3" fill="var(--accent-cyan)" />
+                  <text x="0" y="2" text-anchor="middle" font-size="7.5" fill="var(--accent-cyan-ink)" font-family="var(--font-text)" font-weight="600">web-client · key: catalog:hot</text>
                 </g>
               </g>
               <g class="ib-av" tabIndex="0" role="img" aria-label="mobile-app · awaiting fetch">
-                <circle cx="150" cy="40" r="10" fill="var(--ib-raise)" stroke="var(--ib-line-strong)" stroke-width="1.2" />
-                <circle cx="150" cy="40" r="4" fill="var(--ib-gold)" />
-                <circle cx="158" cy="48" r="2.6" fill="#22c55e" stroke="var(--ib-paper)" class="ib-presence" />
+                <circle cx="150" cy="40" r="10" fill="var(--ib-surface)" stroke="var(--ib-faint)" stroke-width="1.2" />
+                <circle cx="150" cy="40" r="4" fill="var(--accent-cyan)" />
+                <circle cx="158" cy="48" r="2.6" fill="#34d399" class="ib-presence" />
                 <g class="ib-av-tip" transform="translate(150,22)">
-                  <rect x="-60" y="-9" width="120" height="15" rx="3" fill="var(--ib-inv)" />
-                  <text x="0" y="2" text-anchor="middle" font-size="7.5" fill="var(--ib-inv-ink)" font-family="var(--ib-mono)">mobile-app · coalescing</text>
+                  <rect x="-64" y="-9" width="128" height="15" rx="3" fill="var(--accent-cyan)" />
+                  <text x="0" y="2" text-anchor="middle" font-size="7.5" fill="var(--accent-cyan-ink)" font-family="var(--font-text)" font-weight="600">mobile-app · coalescing</text>
                 </g>
               </g>
               <g class="ib-av" tabIndex="0" role="img" aria-label="worker-node · in-flight query">
-                <circle cx="46" cy="92" r="10" fill="var(--ib-raise)" stroke="var(--ib-line-strong)" stroke-width="1.2" />
-                <circle cx="46" cy="92" r="4" fill="var(--ib-gold)" />
-                <circle cx="54" cy="100" r="2.6" fill="#22c55e" stroke="var(--ib-paper)" class="ib-presence" />
+                <circle cx="46" cy="92" r="10" fill="var(--ib-surface)" stroke="var(--ib-faint)" stroke-width="1.2" />
+                <circle cx="46" cy="92" r="4" fill="var(--accent-cyan)" />
+                <circle cx="54" cy="100" r="2.6" fill="#34d399" class="ib-presence" />
                 <g class="ib-av-tip" transform="translate(46,74)">
-                  <rect x="-60" y="-9" width="120" height="15" rx="3" fill="var(--ib-inv)" />
-                  <text x="0" y="2" text-anchor="middle" font-size="7.5" fill="var(--ib-inv-ink)" font-family="var(--ib-mono)">worker-node · in-flight</text>
+                  <rect x="-64" y="-9" width="128" height="15" rx="3" fill="var(--accent-cyan)" />
+                  <text x="0" y="2" text-anchor="middle" font-size="7.5" fill="var(--accent-cyan-ink)" font-family="var(--font-text)" font-weight="600">worker-node · in-flight</text>
                 </g>
               </g>
               <g class="ib-av" tabIndex="0" role="img" aria-label="edge-worker · listening">
-                <circle cx="146" cy="114" r="10" fill="var(--ib-raise)" stroke="var(--ib-line-strong)" stroke-width="1.2" />
-                <circle cx="146" cy="114" r="4" fill="var(--ib-gold)" />
-                <circle cx="154" cy="122" r="2.6" fill="var(--ib-faint)" stroke="var(--ib-paper)" />
+                <circle cx="146" cy="114" r="10" fill="var(--ib-surface)" stroke="var(--ib-faint)" stroke-width="1.2" />
+                <circle cx="146" cy="114" r="4" fill="var(--accent-cyan)" />
+                <circle cx="154" cy="122" r="2.6" fill="var(--ib-faint)" />
                 <g class="ib-av-tip" transform="translate(146,96)">
-                  <rect x="-55" y="-9" width="110" height="15" rx="3" fill="var(--ib-inv)" />
-                  <text x="0" y="2" text-anchor="middle" font-size="7.5" fill="var(--ib-inv-ink)" font-family="var(--ib-mono)">edge-worker · idle</text>
+                  <rect x="-58" y="-9" width="116" height="15" rx="3" fill="var(--accent-cyan)" />
+                  <text x="0" y="2" text-anchor="middle" font-size="7.5" fill="var(--accent-cyan-ink)" font-family="var(--font-text)" font-weight="600">edge-worker · idle</text>
                 </g>
               </g>
             </g>
@@ -914,56 +877,56 @@
             <path d="M378,120 C412,120 418,134 450,134" class="ib-flow ib-flow-on ib-dash" />
 
             <!-- Animated Packets -->
-            <circle r="2.4" class="ib-pkt">
+            <circle r="2.5" class="ib-pkt">
               <animateMotion dur="2.2s" begin="0s" repeatCount="indefinite" path="M117,67 C196,67 210,100 262,100" />
             </circle>
-            <circle r="2.4" class="ib-pkt">
+            <circle r="2.5" class="ib-pkt">
               <animateMotion dur="2.8s" begin="0.4s" repeatCount="indefinite" path="M117,73 C186,73 206,120 262,120" />
             </circle>
-            <circle r="2.4" class="ib-pkt">
+            <circle r="2.5" class="ib-pkt">
               <animateMotion dur="2.2s" begin="0.7s" repeatCount="indefinite" path="M378,100 C412,100 418,86 450,86" />
             </circle>
-            <circle r="2.4" class="ib-pkt">
+            <circle r="2.5" class="ib-pkt">
               <animateMotion dur="2.8s" begin="1.1s" repeatCount="indefinite" path="M378,120 C412,120 418,134 450,134" />
             </circle>
 
             <!-- KVDock Hub Chip -->
             <g transform="translate(262,88)">
-              <rect x="-4" y="-4" width="124" height="52" rx="8" fill="none" stroke="var(--ib-gold)" opacity="0.35" class="ib-glow" />
-              <rect width="116" height="44" rx="6" class="ib-node" style="filter: drop-shadow(0 6px 14px rgba(0,0,0,.35));" />
-              <g transform="translate(13,14)" style="color: var(--ib-gold);">
+              <rect x="-3" y="-3" width="122" height="50" rx="8" fill="none" stroke="var(--accent-cyan)" opacity="0.4" class="ib-glow" />
+              <rect width="116" height="44" rx="6" class="ib-node" />
+              <g transform="translate(13,14)" style="color: var(--accent-cyan);">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16"/><path d="M4 12h7l7-8"/><path d="M11 12l7 8"/></svg>
               </g>
-              <text x="36" y="27" font-size="9" letter-spacing="1.6" font-weight="700" fill="var(--ib-gold)" font-family="var(--ib-mono)">KVDOCK</text>
-              <path d="M100 18l4 4-4 4" fill="none" stroke="var(--ib-muted)" stroke-width="1.3" />
+              <text x="36" y="27" font-size="9" letter-spacing="1.2" font-weight="700" fill="var(--accent-cyan)" font-family="var(--font-display)">KVDOCK ENGINE</text>
+              <path d="M100 18l4 4-4 4" fill="none" stroke="var(--ib-soft)" stroke-width="1.3" />
             </g>
 
             <!-- Cached Response Stack -->
             <g id="flowResponseGroup">
-              <g transform="translate(474,20)" opacity="0.5">
-                <rect width="138" height="102" rx="3" fill="var(--ib-raise)" stroke="var(--ib-line-strong)" />
+              <g transform="translate(474,20)" opacity="0.45">
+                <rect width="138" height="102" rx="4" fill="var(--ib-surface)" stroke="var(--ib-faint)" />
               </g>
-              <g transform="translate(462,30)" opacity="0.75">
-                <rect width="138" height="102" rx="3" fill="var(--ib-raise)" stroke="var(--ib-line-strong)" />
+              <g transform="translate(462,30)" opacity="0.7">
+                <rect width="138" height="102" rx="4" fill="var(--ib-surface)" stroke="var(--ib-faint)" />
               </g>
               <g transform="translate(450,40)">
-                <rect width="138" height="102" rx="3" fill="var(--ib-raise)" stroke="var(--ib-line-strong)" />
-                <text x="10" y="16" font-size="7" fill="var(--ib-gold)" font-family="var(--ib-mono)" id="flowBatchText">STREAM BATCH #128</text>
+                <rect width="138" height="102" rx="4" fill="var(--ib-surface)" stroke="var(--ib-faint)" />
+                <text x="10" y="16" font-size="7.5" fill="var(--accent-cyan)" font-family="var(--font-text)" font-weight="600" id="flowBatchText">STREAM BATCH #128</text>
                 <rect x="10" y="24" width="64" height="5" rx="1" fill="var(--ib-ink)" opacity=".8" />
-                <rect x="10" y="33" width="92" height="3" rx="1" fill="var(--ib-line-strong)" />
-                <rect x="10" y="39" width="80" height="3" rx="1" fill="var(--ib-line-strong)" />
-                <rect x="12" y="74" width="8" height="18" fill="var(--ib-gold)" opacity="0.4" />
-                <rect x="25" y="66" width="8" height="26" fill="var(--ib-gold)" opacity="0.55" />
-                <rect x="38" y="78" width="8" height="14" fill="var(--ib-gold)" opacity="0.7" />
-                <rect x="51" y="62" width="8" height="30" fill="var(--ib-gold)" opacity="0.85" />
-                <rect x="64" y="70" width="8" height="22" fill="var(--ib-gold)" opacity="0.95" />
-                <rect x="77" y="58" width="8" height="34" fill="var(--ib-gold)" />
-                <path d="M92 64h34M92 72h28M92 80h32" stroke="var(--ib-line-strong)" stroke-width="2.5" />
+                <rect x="10" y="33" width="92" height="3" rx="1" fill="var(--ib-faint)" />
+                <rect x="10" y="39" width="80" height="3" rx="1" fill="var(--ib-faint)" />
+                <rect x="12" y="74" width="8" height="18" fill="var(--accent-cyan)" opacity="0.4" />
+                <rect x="25" y="66" width="8" height="26" fill="var(--accent-cyan)" opacity="0.55" />
+                <rect x="38" y="78" width="8" height="14" fill="var(--accent-cyan)" opacity="0.7" />
+                <rect x="51" y="62" width="8" height="30" fill="var(--accent-cyan)" opacity="0.85" />
+                <rect x="64" y="70" width="8" height="22" fill="var(--accent-cyan)" opacity="0.95" />
+                <rect x="77" y="58" width="8" height="34" fill="var(--accent-cyan)" />
+                <path d="M92 64h34M92 72h28M92 80h32" stroke="var(--ib-faint)" stroke-width="2.5" />
               </g>
             </g>
           </svg>
 
-          <div class="ib-wide-copy" style="padding: 0 24px 22px;">
+          <div class="ib-wide-copy" style="padding: 0 26px 26px;">
             <div>
               <h3>Single-Flight Stampede Guard</h3>
               <p>Concurrent queries for expired keys are coalesced into a single backend execution, protecting databases from destructive thundering herd spikes.</p>
@@ -977,11 +940,7 @@
       </div>
 
       <!-- Bento 2: Storage Adapters Hub -->
-      <div class="ib-frame ib-frame-hover">
-        <span class="ib-c ib-c-tl" aria-hidden="true"></span>
-        <span class="ib-c ib-c-tr" aria-hidden="true"></span>
-        <span class="ib-c ib-c-bl" aria-hidden="true"></span>
-        <span class="ib-c ib-c-br" aria-hidden="true"></span>
+      <div class="ib-frame" data-ui>
         <div class="ib-card">
           <svg class="ib-diagram" viewBox="0 0 300 150" role="group" aria-label="Storage Adapters Hub">
             <!-- 4 Adapter Connector Paths -->
@@ -991,14 +950,14 @@
             <path d="M167,75 H192 V116 H219" class="ib-flow ib-tool-flow" id="flowPath3" />
 
             <!-- Dynamic Packet -->
-            <circle r="2.4" class="ib-pkt">
+            <circle r="2.5" class="ib-pkt">
               <animateMotion id="adapterPktMotion" dur="1.2s" repeatCount="indefinite" path="M133,75 H108 V34 H81" />
             </circle>
 
             <!-- Center KVDock Node -->
             <g transform="translate(133,58)">
-              <rect width="34" height="34" rx="7" class="ib-node" style="filter: drop-shadow(0 4px 10px rgba(0,0,0,.3));" />
-              <g transform="translate(8,8)" style="color: var(--ib-gold);">
+              <rect width="34" height="34" rx="7" class="ib-node" />
+              <g transform="translate(8,8)" style="color: var(--accent-cyan);">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16"/><path d="M4 12h7l7-8"/><path d="M11 12l7 8"/></svg>
               </g>
             </g>
@@ -1007,14 +966,14 @@
             <!-- 0: Redis -->
             <g class="ib-tool ib-tool-node ib-tool-on" data-index="0" tabIndex="0" role="img" aria-label="Redis">
               <rect x="51" y="19" width="30" height="30" rx="6" class="ib-node" />
-              <g transform="translate(66,34)" style="color: var(--ib-gold);">
+              <g transform="translate(66,34)" style="color: var(--accent-cyan);">
                 <g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                   <ellipse cx="0" cy="-4" rx="6" ry="2.5" />
                   <path d="M-6 -4v8c0 1.4 2.7 2.5 6 2.5s6 -1.1 6 -2.5v-8" />
                   <path d="M-6 0c0 1.4 2.7 2.5 6 2.5s6 -1.1 6 -2.5" />
                 </g>
               </g>
-              <text x="66" y="13" text-anchor="middle" font-size="8" fill="var(--ib-gold)" font-family="var(--ib-sans)">Redis</text>
+              <text x="66" y="13" text-anchor="middle" font-size="8.5" fill="var(--accent-cyan)" font-family="var(--font-text)">Redis</text>
             </g>
 
             <!-- 1: Cloudflare KV -->
@@ -1025,7 +984,7 @@
                   <path d="M-5 3a3 3 0 0 1 0 -6 4 4 0 0 1 7.5 -1.2 3 3 0 0 1 3 3.2 3 3 0 0 1 -3 4z" />
                 </g>
               </g>
-              <text x="66" y="144" text-anchor="middle" font-size="8" fill="var(--ib-gold)" font-family="var(--ib-sans)">Cloudflare KV</text>
+              <text x="66" y="144" text-anchor="middle" font-size="8.5" fill="var(--accent-cyan)" font-family="var(--font-text)">Cloudflare KV</text>
             </g>
 
             <!-- 2: SQLite / D1 -->
@@ -1037,7 +996,7 @@
                   <path d="M-6 0h12M0 -6v12" />
                 </g>
               </g>
-              <text x="234" y="13" text-anchor="middle" font-size="8" fill="var(--ib-gold)" font-family="var(--ib-sans)">SQLite / D1</text>
+              <text x="234" y="13" text-anchor="middle" font-size="8.5" fill="var(--accent-cyan)" font-family="var(--font-text)">SQLite / D1</text>
             </g>
 
             <!-- 3: Memory LRU -->
@@ -1048,10 +1007,10 @@
                   <path d="M-1 -5L-5 1h5l-1 5 6 -7h-5z" />
                 </g>
               </g>
-              <text x="234" y="144" text-anchor="middle" font-size="8" fill="var(--ib-gold)" font-family="var(--ib-sans)">Memory LRU</text>
+              <text x="234" y="144" text-anchor="middle" font-size="8.5" fill="var(--accent-cyan)" font-family="var(--font-text)">Memory LRU</text>
             </g>
 
-            <text x="150" y="112" text-anchor="middle" font-size="7.5" fill="var(--ib-faint)" font-family="var(--ib-mono)" id="adapterStatusText">active adapter · redis</text>
+            <text x="150" y="112" text-anchor="middle" font-size="8" fill="var(--ib-soft)" font-family="var(--font-text)" id="adapterStatusText">active adapter · redis</text>
           </svg>
 
           <div style="margin-top: auto;">
@@ -1062,42 +1021,31 @@
       </div>
 
       <!-- Bento 3: Scrubbable Concurrency Insights Chart -->
-      <div class="ib-frame ib-frame-hover">
-        <span class="ib-c ib-c-tl" aria-hidden="true"></span>
-        <span class="ib-c ib-c-tr" aria-hidden="true"></span>
-        <span class="ib-c ib-c-bl" aria-hidden="true"></span>
-        <span class="ib-c ib-c-br" aria-hidden="true"></span>
+      <div class="ib-frame" data-ui>
         <div class="ib-card">
           <svg class="ib-diagram ib-chart" id="insightsChartSvg" viewBox="0 0 300 136" role="img" aria-label="Concurrency Benchmark Load Reduction Chart">
-            <defs>
-              <linearGradient id="insightsGoldArea" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stopColor="var(--ib-gold)" stopOpacity=".25" />
-                <stop offset="1" stopColor="var(--ib-gold)" stopOpacity="0" />
-              </linearGradient>
-            </defs>
-
             <!-- Grid Lines -->
-            <line x1="14" x2="286" y1="32.5" y2="32.5" stroke="var(--ib-line)" />
-            <line x1="14" x2="286" y1="65" y2="65" stroke="var(--ib-line)" />
-            <line x1="14" x2="286" y1="97.5" y2="97.5" stroke="var(--ib-line)" />
+            <line x1="14" x2="286" y1="32.5" y2="32.5" stroke="var(--ib-raise)" />
+            <line x1="14" x2="286" y1="65" y2="65" stroke="var(--ib-raise)" />
+            <line x1="14" x2="286" y1="97.5" y2="97.5" stroke="var(--ib-raise)" />
 
-            <!-- Curve Area & Line -->
-            <path d="M14.0,116.0 C26.4,116.0 26.4,108.1 38.7,108.1 C51.1,108.1 51.1,110.8 63.5,110.8 C75.8,110.8 75.8,98.9 88.2,98.9 C100.5,98.9 100.5,102.9 112.9,102.9 C125.3,102.9 125.3,85.7 137.6,85.7 C150.0,85.7 150.0,89.6 162.4,89.6 C174.7,89.6 174.7,68.5 187.1,68.5 C199.5,68.5 199.5,59.2 211.8,59.2 C224.2,59.2 224.2,36.7 236.5,36.7 C248.9,36.7 248.9,20.8 261.3,20.8 C273.6,20.8 273.6,14.0 286.0,14.0 L286.0,116 L14.0,116 Z" fill="url(#insightsGoldArea)" />
-            <path d="M14.0,116.0 C26.4,116.0 26.4,108.1 38.7,108.1 C51.1,108.1 51.1,110.8 63.5,110.8 C75.8,110.8 75.8,98.9 88.2,98.9 C100.5,98.9 100.5,102.9 112.9,102.9 C125.3,102.9 125.3,85.7 137.6,85.7 C150.0,85.7 150.0,89.6 162.4,89.6 C174.7,89.6 174.7,68.5 187.1,68.5 C199.5,68.5 199.5,59.2 211.8,59.2 C224.2,59.2 224.2,36.7 236.5,36.7 C248.9,36.7 248.9,20.8 261.3,20.8 C273.6,20.8 273.6,14.0 286.0,14.0" fill="none" stroke="var(--ib-gold)" stroke-width="1.6" class="ib-line-draw" opacity=".95" />
+            <!-- Area and Line - Solid Cyan fill with opacity -->
+            <path d="M14.0,116.0 C26.4,116.0 26.4,108.1 38.7,108.1 C51.1,108.1 51.1,110.8 63.5,110.8 C75.8,110.8 75.8,98.9 88.2,98.9 C100.5,98.9 100.5,102.9 112.9,102.9 C125.3,102.9 125.3,85.7 137.6,85.7 C150.0,85.7 150.0,89.6 162.4,89.6 C174.7,89.6 174.7,68.5 187.1,68.5 C199.5,68.5 199.5,59.2 211.8,59.2 C224.2,59.2 224.2,36.7 236.5,36.7 C248.9,36.7 248.9,20.8 261.3,20.8 C273.6,20.8 273.6,14.0 286.0,14.0 L286.0,116 L14.0,116 Z" fill="var(--accent-cyan)" fill-opacity="0.18" />
+            <path d="M14.0,116.0 C26.4,116.0 26.4,108.1 38.7,108.1 C51.1,108.1 51.1,110.8 63.5,110.8 C75.8,110.8 75.8,98.9 88.2,98.9 C100.5,98.9 100.5,102.9 112.9,102.9 C125.3,102.9 125.3,85.7 137.6,85.7 C150.0,85.7 150.0,89.6 162.4,89.6 C174.7,89.6 174.7,68.5 187.1,68.5 C199.5,68.5 199.5,59.2 211.8,59.2 C224.2,59.2 224.2,36.7 236.5,36.7 C248.9,36.7 248.9,20.8 261.3,20.8 C273.6,20.8 273.6,14.0 286.0,14.0" fill="none" stroke="var(--accent-cyan)" stroke-width="2" class="ib-line-draw" />
 
             <!-- Forecast Divider -->
-            <line x1="211.8" x2="211.8" y1="10" y2="116" stroke="var(--ib-line-strong)" stroke-dasharray="2 3" />
-            <text x="207" y="112" text-anchor="end" font-size="7" fill="var(--ib-faint)" font-family="var(--ib-mono)">STRESS RUN</text>
+            <line x1="211.8" x2="211.8" y1="10" y2="116" stroke="var(--ib-faint)" stroke-dasharray="2 3" />
+            <text x="207" y="112" text-anchor="end" font-size="7.5" fill="var(--ib-soft)" font-family="var(--font-text)">Stress Run</text>
 
             <!-- Dynamic Tracker -->
-            <line id="chartHoverLine" x1="286" x2="286" y1="8" y2="116" stroke="var(--ib-gold)" stroke-opacity=".4" style="opacity: 0; transition: opacity .2s;" />
-            <circle cx="286" cy="14" r="6" fill="var(--ib-gold)" opacity=".18" class="ib-glow" />
-            <circle id="chartActivePoint" cx="286" cy="14" r="3.2" fill="var(--ib-raise)" stroke="var(--ib-gold)" stroke-width="1.8" />
+            <line id="chartHoverLine" x1="286" x2="286" y1="8" y2="116" stroke="var(--accent-cyan)" stroke-opacity=".5" style="opacity: 0; transition: opacity .2s;" />
+            <circle cx="286" cy="14" r="6" fill="var(--accent-cyan)" opacity=".2" class="ib-glow" />
+            <circle id="chartActivePoint" cx="286" cy="14" r="3.5" fill="var(--ib-surface)" stroke="var(--accent-cyan)" stroke-width="2" />
 
             <!-- Floating Scrubber Tooltip -->
             <g id="chartTooltip" transform="translate(244, 36)" style="opacity: 0; transition: opacity .2s;">
-              <rect x="-38" y="-11" width="76" height="15" rx="2" fill="var(--ib-inv)" />
-              <text id="chartTooltipText" x="0" y="-1" text-anchor="middle" font-size="7.5" fill="var(--ib-inv-ink)" font-family="var(--ib-mono)">pred +99.9% saved</text>
+              <rect x="-42" y="-11" width="84" height="16" rx="3" fill="var(--accent-cyan)" />
+              <text id="chartTooltipText" x="0" y="0" text-anchor="middle" font-size="8" fill="var(--accent-cyan-ink)" font-family="var(--font-text)" font-weight="700">pred +99.9% saved</text>
             </g>
           </svg>
 
@@ -1111,28 +1059,29 @@
     </div>
 
     <!-- Section 2: Interactive Stampede Simulator -->
+    <section class="section-intro">
+      <h2 class="section-title">Live Cache Stampede Simulator</h2>
+      <p class="section-desc">Test thundering herd resilience when a hot cache key expires under thousands of simultaneous requests.</p>
+    </section>
+
     <div class="grid-2">
       <!-- Simulator Controls -->
-      <div class="ib-frame ib-frame-hover">
-        <span class="ib-c ib-c-tl" aria-hidden="true"></span>
-        <span class="ib-c ib-c-tr" aria-hidden="true"></span>
-        <span class="ib-c ib-c-bl" aria-hidden="true"></span>
-        <span class="ib-c ib-c-br" aria-hidden="true"></span>
+      <div class="ib-frame" data-ui>
         <div class="ib-card">
-          <h3><span>⚡ Live Cache Stampede Simulator</span></h3>
+          <h3>Interactive Workload Injector</h3>
           <p>
-            Test what happens when a hot cache key expires while thousands of concurrent users request it simultaneously.
+            Simulate uncoordinated clients querying an expired cache key concurrently and observe the single-flight coalesce response.
           </p>
 
-          <div class="control-row" style="margin-top: 8px;">
+          <div class="control-row" style="margin-top: 12px;">
             <span class="slider-label">Concurrent Incoming Requests:</span>
             <span class="slider-val" id="requestCountLabel">1,000</span>
           </div>
           <input type="range" id="requestSlider" min="50" max="5000" step="50" value="1000" oninput="updateRequestLabel(this.value)">
 
-          <div style="margin: 18px 0 10px;">
+          <div style="margin: 20px 0 10px;">
             <button class="sim-btn" id="runSimBtn" onclick="runStampedeSimulation()">
-              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
               Trigger Stampede Test
             </button>
           </div>
@@ -1142,50 +1091,45 @@
               <h4>Traditional Cache</h4>
               <div class="metric-num" id="tradDbHits">-</div>
               <div class="metric-label">Database Queries</div>
-              <div style="font-size: 0.75rem; color: var(--ib-accent-red); margin-top: 6px;" id="tradStatus">Thundering Herd Risk</div>
+              <div style="font-size: var(--step-small); color: var(--accent-red); margin-top: 8px; font-weight: 500;" id="tradStatus">Thundering Herd Risk</div>
             </div>
 
             <div class="result-col good">
               <h4>KVDock Single-Flight</h4>
               <div class="metric-num" id="kvdockDbHits">-</div>
               <div class="metric-label">Database Queries</div>
-              <div style="font-size: 0.75rem; color: var(--ib-gold); margin-top: 6px;" id="kvdockSaved">100% Protected</div>
+              <div style="font-size: var(--step-small); color: var(--accent-cyan); margin-top: 8px; font-weight: 600;" id="kvdockSaved">100% Protected</div>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Real-time Console -->
-      <div class="ib-frame ib-frame-hover">
-        <span class="ib-c ib-c-tl" aria-hidden="true"></span>
-        <span class="ib-c ib-c-tr" aria-hidden="true"></span>
-        <span class="ib-c ib-c-bl" aria-hidden="true"></span>
-        <span class="ib-c ib-c-br" aria-hidden="true"></span>
+      <div class="ib-frame" data-ui>
         <div class="ib-card">
-          <h3><span>📟 Execution Trace Console</span></h3>
+          <h3>Execution Trace Console</h3>
           <p>
-            Real-time metrics, promise coalescing events, and internal microsecond latency telemetry.
+            Real-time execution events, promise coalescing locks, and internal microsecond latency telemetry.
           </p>
-          <div class="console" id="consoleOutput">
-[READY] KVDock Engine v0.3.2 initialized.
+          <pre class="console-wrap"><code id="consoleOutput">[READY] KVDock Engine v0.3.2 initialized.
 [INFO] Primary Adapter: Memory LRU + Redis L2
 [INFO] Single-Flight Coalescing: ACTIVE
-[INFO] Ready for concurrent load injection. Click 'Trigger Stampede Test'.
-          </div>
+[INFO] Ready for concurrent load injection. Click 'Trigger Stampede Test'.</code></pre>
         </div>
       </div>
     </div>
 
     <!-- Section 3: Polyglot Native Implementations -->
-    <div class="ib-frame ib-frame-hover">
-      <span class="ib-c ib-c-tl" aria-hidden="true"></span>
-      <span class="ib-c ib-c-tr" aria-hidden="true"></span>
-      <span class="ib-c ib-c-bl" aria-hidden="true"></span>
-      <span class="ib-c ib-c-br" aria-hidden="true"></span>
+    <section class="section-intro">
+      <h2 class="section-title">Polyglot Architecture</h2>
+      <p class="section-desc">One standard specification with native implementations across TypeScript, Rust, Go, Swift, and Kotlin.</p>
+    </section>
+
+    <div class="ib-frame" data-ui>
       <div class="ib-card">
-        <h3><span>🌐 Polyglot Architecture: One Standard, Five Native Implementations</span></h3>
+        <h3>One Standard, Five Native Implementations</h3>
         <p>
-          KVDock runs with identical semantics and zero external runtime dependencies across your entire engineering stack.
+          KVDock executes with identical zero-dependency semantics across edge runtimes, serverless handlers, and distributed microservices.
         </p>
 
         <div class="tab-bar">
@@ -1196,7 +1140,7 @@
           <button class="tab-btn" onclick="switchTab('kt', this)">Kotlin (kvdock-kt)</button>
         </div>
 
-        <pre><code id="codeSnippet">// npm install kvdock@0.3.2
+        <pre><code class="snippet-code" id="codeSnippet">// npm install kvdock@0.3.2
 import { KVDock, TieredDock } from "kvdock";
 import { MemoryAdapter } from "kvdock/adapters/memory";
 import { RedisAdapter } from "kvdock/adapters/redis";
@@ -1216,91 +1160,86 @@ const product = await dock.getOrSet("product:catalog:hot", async () => {
     </div>
 
     <!-- Section 4: Maintainer Profile Banner -->
-    <div class="ib-frame ib-frame-hover">
-      <span class="ib-c ib-c-tl" aria-hidden="true"></span>
-      <span class="ib-c ib-c-tr" aria-hidden="true"></span>
-      <span class="ib-c ib-c-bl" aria-hidden="true"></span>
-      <span class="ib-c ib-c-br" aria-hidden="true"></span>
-      <div class="creator-banner">
-        <div class="creator-info">
-          <h3>Architected by zisam shaikh (@zisam-glitch)</h3>
-          <p>
-            Systems & Concurrency Engineer building zero-dependency runtimes, lockless primitives, and resilient infrastructure across TypeScript, Rust, and Go.
-          </p>
-        </div>
-        <a href="https://github.com/zisam-glitch" target="_blank" class="follow-btn">
-          <svg height="20" width="20" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path></svg>
-          Follow @zisam-glitch
-        </a>
+    <div class="creator-banner">
+      <div class="creator-info">
+        <h3>Architected by zisam shaikh</h3>
+        <p>
+          Systems & Concurrency Engineer building zero-dependency runtimes, lockless primitives, and resilient infrastructure across TypeScript, Rust, and Go.
+        </p>
       </div>
+      <a href="https://github.com/zisam-glitch" target="_blank" class="follow-btn">
+        <svg height="20" width="20" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path></svg>
+        Follow @zisam-glitch
+      </a>
     </div>
 
-  </div>
+  </main>
 
   <!-- Section 5: Halftone Wordmark Footer -->
   <footer
     id="hwfFooter"
     class="hwf-root"
-    style="--hwf-bg: #0d1b4d; --hwf-ink: #dfe7ff; --hwf-mono: 'Fira Code', 'JetBrains Mono', monospace;"
+    style="--hwf-bg: #08102d; --hwf-ink: #dfe7ff;"
   >
     <canvas id="hwfCanvas" aria-hidden="true"></canvas>
     <span class="hwf-sr">kvdock</span>
-    <div class="hwf-top">
-      <div class="hwf-brand">
-        <strong>kvdock engine v0.3.2</strong>
-        <span>Zero-Dep Universal KV Caching · MIT / Apache 2.0 · Live on npm</span>
+    <div class="page-wrap">
+      <div class="hwf-top">
+        <div class="hwf-brand">
+          <strong>kvdock engine v0.3.2</strong>
+          <span>Zero-dependency universal caching runtime under MIT and Apache 2.0. Published live on npm registry.</span>
+        </div>
+        <nav class="hwf-col" aria-label="Ecosystem">
+          <h3>Ecosystem</h3>
+          <ul>
+            <li><a href="https://www.npmjs.com/package/kvdock" target="_blank" style="color: var(--accent-cyan); font-weight: 600;">npm package (v0.3.2)</a></li>
+            <li><a href="https://github.com/zisam-glitch/kvdock" target="_blank">TypeScript / Node</a></li>
+            <li><a href="https://github.com/zisam-glitch/kvdock" target="_blank">Rust (kvdock-rs)</a></li>
+            <li><a href="https://github.com/zisam-glitch/kvdock" target="_blank">Go (kvdock-go)</a></li>
+            <li><a href="https://github.com/zisam-glitch/kvdock" target="_blank">Swift & Kotlin</a></li>
+          </ul>
+        </nav>
+        <nav class="hwf-col" aria-label="Adapters">
+          <h3>Adapters</h3>
+          <ul>
+            <li><a href="https://github.com/zisam-glitch/kvdock#storage-adapters" target="_blank">Memory & Sized LRU</a></li>
+            <li><a href="https://github.com/zisam-glitch/kvdock#storage-adapters" target="_blank">Redis & Valkey</a></li>
+            <li><a href="https://github.com/zisam-glitch/kvdock#storage-adapters" target="_blank">Cloudflare KV / D1</a></li>
+            <li><a href="https://github.com/zisam-glitch/kvdock#storage-adapters" target="_blank">SQLite & LibSQL</a></li>
+          </ul>
+        </nav>
+        <nav class="hwf-col" aria-label="Documentation">
+          <h3>Documentation</h3>
+          <ul>
+            <li><a href="https://github.com/zisam-glitch/kvdock/releases/tag/v0.3.2" target="_blank" style="color: var(--accent-cyan); font-weight: 600;">Release Notes (v0.3.2)</a></li>
+            <li><a href="https://github.com/zisam-glitch/kvdock#quick-start" target="_blank">Quickstart Guide</a></li>
+            <li><a href="https://github.com/zisam-glitch/kvdock#stampede-protection" target="_blank">Stampede Guard</a></li>
+            <li><a href="https://github.com/zisam-glitch/kvdock#tiered-caching" target="_blank">Tiered L1/L2 Cache</a></li>
+            <li><a href="https://github.com/zisam-glitch/kvdock/blob/main/docs/PERFORMANCE_MATRIX.md" target="_blank">Performance Matrix</a></li>
+          </ul>
+        </nav>
+        <nav class="hwf-col" aria-label="Community">
+          <h3>Community</h3>
+          <ul>
+            <li><a href="https://github.com/zisam-glitch/kvdock" target="_blank">GitHub Repo</a></li>
+            <li><a href="https://github.com/zisam-glitch" target="_blank">@zisam-glitch</a></li>
+            <li><a href="https://github.com/zisam-glitch/kvdock/issues" target="_blank">Issue Tracker</a></li>
+            <li><a href="https://github.com/zisam-glitch/kvdock/discussions" target="_blank">Discussions</a></li>
+          </ul>
+        </nav>
       </div>
-      <nav class="hwf-col" aria-label="Ecosystem">
-        <h3>Ecosystem</h3>
-        <ul>
-          <li><a href="https://www.npmjs.com/package/kvdock" target="_blank" style="color: var(--ib-gold); font-weight: 600;">📦 npm package (v0.3.2)</a></li>
-          <li><a href="https://github.com/zisam-glitch/kvdock" target="_blank">TypeScript / Node</a></li>
-          <li><a href="https://github.com/zisam-glitch/kvdock" target="_blank">Rust (kvdock-rs)</a></li>
-          <li><a href="https://github.com/zisam-glitch/kvdock" target="_blank">Go (kvdock-go)</a></li>
-          <li><a href="https://github.com/zisam-glitch/kvdock" target="_blank">Swift & Kotlin</a></li>
-        </ul>
-      </nav>
-      <nav class="hwf-col" aria-label="Adapters">
-        <h3>Adapters</h3>
-        <ul>
-          <li><a href="https://github.com/zisam-glitch/kvdock#storage-adapters" target="_blank">Memory & Sized LRU</a></li>
-          <li><a href="https://github.com/zisam-glitch/kvdock#storage-adapters" target="_blank">Redis & Valkey</a></li>
-          <li><a href="https://github.com/zisam-glitch/kvdock#storage-adapters" target="_blank">Cloudflare KV / D1</a></li>
-          <li><a href="https://github.com/zisam-glitch/kvdock#storage-adapters" target="_blank">SQLite & LibSQL</a></li>
-        </ul>
-      </nav>
-      <nav class="hwf-col" aria-label="Documentation">
-        <h3>Documentation</h3>
-        <ul>
-          <li><a href="https://github.com/zisam-glitch/kvdock/releases/tag/v0.3.2" target="_blank" style="color: var(--ib-gold); font-weight: 600;">Release Notes (v0.3.2)</a></li>
-          <li><a href="https://github.com/zisam-glitch/kvdock#quick-start" target="_blank">Quickstart Guide</a></li>
-          <li><a href="https://github.com/zisam-glitch/kvdock#stampede-protection" target="_blank">Stampede Guard</a></li>
-          <li><a href="https://github.com/zisam-glitch/kvdock#tiered-caching" target="_blank">Tiered L1/L2 Cache</a></li>
-          <li><a href="https://github.com/zisam-glitch/kvdock/blob/main/docs/PERFORMANCE_MATRIX.md" target="_blank">Performance Matrix</a></li>
-        </ul>
-      </nav>
-      <nav class="hwf-col" aria-label="Community">
-        <h3>Community</h3>
-        <ul>
-          <li><a href="https://github.com/zisam-glitch/kvdock" target="_blank">GitHub Repo</a></li>
-          <li><a href="https://github.com/zisam-glitch" target="_blank">@zisam-glitch</a></li>
-          <li><a href="https://github.com/zisam-glitch/kvdock/issues" target="_blank">Issue Tracker</a></li>
-          <li><a href="https://github.com/zisam-glitch/kvdock/discussions" target="_blank">Discussions</a></li>
-        </ul>
-      </nav>
-    </div>
-    <div class="hwf-rule">
-      <div class="hwf-presets">
-        <span class="hwf-preset-label">Preset:</span>
-        <button type="button" class="hwf-pill active" onclick="setHalftonePreset('cobalt', this)">Cobalt</button>
-        <button type="button" class="hwf-pill" onclick="setHalftonePreset('kvdock', this)">Cyan</button>
-        <button type="button" class="hwf-pill" onclick="setHalftonePreset('night', this)">Night</button>
-        <button type="button" class="hwf-pill" onclick="setHalftonePreset('ember', this)">Ember</button>
-        <button type="button" class="hwf-pill" onclick="setHalftonePreset('paper', this)">Paper</button>
+      <div class="hwf-rule">
+        <div class="hwf-presets">
+          <span class="hwf-preset-label">Theme Preset:</span>
+          <button type="button" class="hwf-pill active" onclick="setHalftonePreset('cobalt', this)">Cobalt</button>
+          <button type="button" class="hwf-pill" onclick="setHalftonePreset('cyan', this)">Cyan</button>
+          <button type="button" class="hwf-pill" onclick="setHalftonePreset('night', this)">Night</button>
+          <button type="button" class="hwf-pill" onclick="setHalftonePreset('paper', this)">Paper</button>
+        </div>
+        <button type="button" class="hwf-up" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })">
+          Back to top ↑
+        </button>
       </div>
-      <button type="button" class="hwf-up" onclick="window.scrollTo({ top: 0, behavior: 'smooth' })">
-        Back to top ↑
-      </button>
     </div>
   </footer>
 
@@ -1308,7 +1247,7 @@ const product = await dock.getOrSet("product:catalog:hot", async () => {
     function copyNpmInstall(btn) {
       navigator.clipboard.writeText('npm install kvdock');
       const orig = btn.innerHTML;
-      btn.innerHTML = '<code style="font-family: var(--ib-mono); color: #34d399;">Copied!</code>';
+      btn.innerHTML = '<code style="font-family: var(--font-code); color: var(--accent-green);">Copied!</code>';
       setTimeout(() => { btn.innerHTML = orig; }, 1800);
     }
 
@@ -1423,7 +1362,7 @@ val order = dock.getOrSet("order:7788") {
       con.innerHTML += `[STATUS] Simulation complete. Zero backend contention.`;
 
       btn.disabled = false;
-      btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> Run Stampede Test Again`;
+      btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> Run Stampede Test Again`;
     }
 
     /* ─── Live Bento Diagrams Controllers ─── */
@@ -1545,7 +1484,7 @@ val order = dock.getOrSet("order:7788") {
       });
     }
 
-    /* ─── Halftone Wordmark Footer Engine ─── */
+    /* ─── Halftone Wordmark Footer Engine (Zero Yellow) ─── */
     (function initHalftoneFooter() {
       const root = document.getElementById("hwfFooter");
       const canvas = document.getElementById("hwfCanvas");
@@ -1555,21 +1494,20 @@ val order = dock.getOrSet("order:7788") {
       if (!ctx) return;
 
       const HWF_PRESETS = {
-        cobalt: { background: "#0d1b4d", ink: "#dfe7ff", warm: "#ffcd3c" },
-        kvdock: { background: "#090d16", ink: "#e2e8f0", warm: "#38bdf8" },
-        night: { background: "#0c0c0b", ink: "#e9e4da", warm: "#e9762b" },
-        paper: { background: "#efebe3", ink: "#17150f", warm: "#c2361c" },
-        ember: { background: "#160a06", ink: "#f2c48c", warm: "#ff5a1f" }
+        cobalt: { background: "#08102d", ink: "#dfe7ff", warm: "#38bdf8" },
+        cyan: { background: "#041026", ink: "#e0f2fe", warm: "#0ea5e9" },
+        night: { background: "#0c0c0b", ink: "#e9e4da", warm: "#38bdf8" },
+        paper: { background: "#efebe3", ink: "#17150f", warm: "#0284c7" }
       };
 
       let colors = { ...HWF_PRESETS.cobalt };
       const wordmark = "kvdock";
-      const fontFamily = '"Inter", "Inter Tight", "Helvetica Neue", Arial, sans-serif';
-      const fontWeight = 900;
+      const fontFamily = '"Barlow Condensed", "Inter", -apple-system, sans-serif';
+      const fontWeight = 800;
       const dotGap = 6;
       const radius = 80;
       const crop = 0.22;
-      const grain = 0.5;
+      const grain = 0.45;
       const interactive = true;
 
       function hwfHex(hex) {
@@ -1609,7 +1547,7 @@ val order = dock.getOrSet("order:7788") {
       }
 
       let ink = hwfHex(colors.ink) || [223, 231, 255];
-      let warm = hwfHex(colors.warm) || [255, 205, 60];
+      let warm = hwfHex(colors.warm) || [56, 189, 248];
 
       const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       let w = 0;
@@ -1648,6 +1586,7 @@ val order = dock.getOrSet("order:7788") {
         m.fillStyle = "#000";
         m.textBaseline = "alphabetic";
         m.fillText(wordmark, (w - box.width) / 2, h + cap * c);
+
         const img = m.getImageData(0, 0, w, h).data;
 
         const gap = Math.max(3, dotGap);
@@ -1754,7 +1693,7 @@ val order = dock.getOrSet("order:7788") {
         }
 
         if (grainTile && grain > 0) {
-          ctx.globalAlpha = Math.min(1, grain) * 0.09;
+          ctx.globalAlpha = Math.min(1, grain) * 0.08;
           ctx.globalCompositeOperation = "overlay";
           const pattern = ctx.createPattern(grainTile, "repeat");
           if (pattern) {
@@ -1815,7 +1754,7 @@ val order = dock.getOrSet("order:7788") {
         root.style.setProperty('--hwf-bg', colors.background);
         root.style.setProperty('--hwf-ink', colors.ink);
         ink = hwfHex(colors.ink) || [223, 231, 255];
-        warm = hwfHex(colors.warm) || [255, 205, 60];
+        warm = hwfHex(colors.warm) || [56, 189, 248];
         layout();
         wake();
       };

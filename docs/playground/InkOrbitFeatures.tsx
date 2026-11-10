@@ -275,14 +275,14 @@ function FlowCard({ brand, features, uid, inView }: { brand: string; features: I
             ))}
             <g transform="translate(91,57)">
               <rect width="26" height="26" rx="5" className="ib-node" />
-              <g transform="translate(5,5)" style={{ color: "var(--ib-gold)" }}>
+              <g transform="translate(5,5)" style={{ color: "var(--accent-cyan, #38bdf8)" }}>
                 <Mark size={16} />
               </g>
             </g>
             {team.map((m, i) => (
               <g key={i} className="ib-av" tabIndex={0} role="img" aria-label={m.name}>
                 <circle cx={m.x} cy={m.y} r="10" fill="var(--ib-raise)" stroke="var(--ib-line-strong)" strokeWidth="1.2" />
-                <circle cx={m.x} cy={m.y} r="4" fill="var(--ib-gold)" />
+                <circle cx={m.x} cy={m.y} r="4" fill="var(--accent-cyan, #38bdf8)" />
                 <circle cx={m.x + 8} cy={m.y + 8} r="2.6" fill="#22c55e" stroke="var(--ib-paper)" className="ib-presence" />
                 <g className="ib-av-tip" transform={"translate(" + m.x + "," + (m.y - 18) + ")"}>
                   <rect x={-m.name.length * 2.5 - 6} y="-9" width={m.name.length * 5 + 12} height="14" rx="2" fill="var(--ib-inv)" />
@@ -309,12 +309,12 @@ function FlowCard({ brand, features, uid, inView }: { brand: string; features: I
 
           {/* the hub chip */}
           <g transform="translate(262,88)">
-            <rect x="-4" y="-4" width="124" height="52" rx="8" fill="none" stroke="var(--ib-gold)" opacity="0.3" className="ib-glow" />
+            <rect x="-4" y="-4" width="124" height="52" rx="8" fill="none" stroke="var(--accent-cyan, #38bdf8)" opacity="0.3" className="ib-glow" />
             <rect width="116" height="44" rx="6" className="ib-node" style={{ filter: "drop-shadow(0 6px 12px rgba(0,0,0,.3))" }} />
-            <g transform="translate(13,14)" style={{ color: "var(--ib-gold)" }}>
+            <g transform="translate(13,14)" style={{ color: "var(--accent-cyan, #38bdf8)" }}>
               <Mark size={16} />
             </g>
-            <text x="36" y="26" fontSize="8.5" letterSpacing="1.4" fontWeight="700" fill="var(--ib-gold)" fontFamily="var(--ib-mono)">
+            <text x="36" y="26" fontSize="8.5" letterSpacing="1.4" fontWeight="700" fill="var(--accent-cyan, #38bdf8)" fontFamily="var(--ib-mono)">
               {chip}
             </text>
             <path d="M100 18l4 4-4 4" fill="none" stroke="var(--ib-muted)" strokeWidth="1.3" />
@@ -328,14 +328,14 @@ function FlowCard({ brand, features, uid, inView }: { brand: string; features: I
                   <rect width="138" height="102" rx="3" fill="var(--ib-raise)" stroke="var(--ib-line-strong)" />
                   {k === 0 && (
                     <>
-                      <text x="10" y="16" fontSize="7" fill="var(--ib-gold)" fontFamily="var(--ib-mono)">
+                      <text x="10" y="16" fontSize="7" fill="var(--accent-cyan, #38bdf8)" fontFamily="var(--ib-mono)">
                         {"STREAM BATCH #" + reports}
                       </text>
                       <rect x="10" y="24" width="64" height="5" rx="1" fill="var(--ib-ink)" opacity=".8" />
                       <rect x="10" y="33" width="92" height="3" rx="1" fill="var(--ib-line-strong)" />
                       <rect x="10" y="39" width="80" height="3" rx="1" fill="var(--ib-line-strong)" />
                       {[18, 26, 14, 30, 22, 34].map((h, j) => (
-                        <rect key={j} x={12 + j * 13} y={92 - h} width="8" height={h} fill="var(--ib-gold)" opacity={0.35 + j * 0.12} />
+                        <rect key={j} x={12 + j * 13} y={92 - h} width="8" height={h} fill="var(--accent-cyan, #38bdf8)" opacity={0.35 + j * 0.12} />
                       ))}
                       <path d="M92 64h34M92 72h28M92 80h32" stroke="var(--ib-line-strong)" strokeWidth="2.5" />
                     </>
@@ -395,7 +395,7 @@ function IntegrationsCard({ copy }: { copy: InkFeatures["integrations"] }) {
           )}
           <g transform="translate(133,58)">
             <rect width="34" height="34" rx="7" className="ib-node" style={{ filter: "drop-shadow(0 4px 8px rgba(0,0,0,.2))" }} />
-            <g transform="translate(8,8)" style={{ color: "var(--ib-gold)" }}>
+            <g transform="translate(8,8)" style={{ color: "var(--accent-cyan, #38bdf8)" }}>
               <Mark size={18} />
             </g>
           </g>
@@ -412,10 +412,10 @@ function IntegrationsCard({ copy }: { copy: InkFeatures["integrations"] }) {
               onBlur={() => setHover(-1)}
             >
               <rect x={t.x - 15} y={t.y - 15} width="30" height="30" rx="6" className="ib-node" />
-              <g transform={"translate(" + t.x + "," + t.y + ")"} style={{ color: on === i ? "var(--ib-gold)" : "var(--ib-ink)" }}>
+              <g transform={"translate(" + t.x + "," + t.y + ")"} style={{ color: on === i ? "var(--accent-cyan, #38bdf8)" : "var(--ib-ink)" }}>
                 <ToolGlyph index={i} />
               </g>
-              <text x={t.x} y={t.y + (t.y < 75 ? -21 : 28)} textAnchor="middle" fontSize="8" fill="var(--ib-gold)" fontFamily="var(--ib-sans)" opacity={on === i ? 1 : 0} style={{ transition: "opacity .25s" }}>
+              <text x={t.x} y={t.y + (t.y < 75 ? -21 : 28)} textAnchor="middle" fontSize="8" fill="var(--accent-cyan, #38bdf8)" fontFamily="var(--ib-sans)" opacity={on === i ? 1 : 0} style={{ transition: "opacity .25s" }}>
                 {copy.tools[i] ?? ""}
               </text>
             </g>
@@ -457,22 +457,22 @@ function InsightsCard({ copy, uid }: { copy: InkFeatures["insights"]; uid: strin
         <svg className="ib-diagram ib-chart" viewBox={"0 0 " + W + " " + (H + 6)} onPointerMove={onMove} onPointerLeave={() => setHover(-1)} role="img" aria-label={copy.title + " chart"}>
           <defs>
             <linearGradient id={fill} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="var(--ib-gold)" stopOpacity=".2" />
-              <stop offset="1" stopColor="var(--ib-gold)" stopOpacity="0" />
+              <stop offset="0" stopColor="var(--accent-cyan, #38bdf8)" stopOpacity=".2" />
+              <stop offset="1" stopColor="var(--accent-cyan, #38bdf8)" stopOpacity="0" />
             </linearGradient>
           </defs>
           {[0.25, 0.5, 0.75].map((g) => (
             <line key={g} x1="14" x2={W - 14} y1={H * g} y2={H * g} stroke="var(--ib-line)" />
           ))}
           <path d={area} fill={"url(#" + fill + ")"} />
-          <path d={line} fill="none" stroke="var(--ib-gold)" strokeWidth="1.6" pathLength={1} className="ib-line-draw" opacity=".95" />
+          <path d={line} fill="none" stroke="var(--accent-cyan, #38bdf8)" strokeWidth="1.6" pathLength={1} className="ib-line-draw" opacity=".95" />
           <line x1={points[split][0]} x2={points[split][0]} y1="10" y2={H - 14} stroke="var(--ib-line-strong)" strokeDasharray="2 3" />
           <text x={points[split][0] - 4} y={H - 18} textAnchor="end" fontSize="7" fill="var(--ib-faint)" fontFamily="var(--ib-mono)">
             STRESS TEST
           </text>
-          {hover >= 0 && <line x1={p[0]} x2={p[0]} y1="8" y2={H - 14} stroke="var(--ib-gold)" strokeOpacity=".4" />}
-          {hover < 0 && <circle cx={last[0]} cy={last[1]} r="7" fill="var(--ib-gold)" opacity=".18" className="ib-glow" />}
-          <circle cx={p[0]} cy={p[1]} r="3.2" fill="var(--ib-raise)" stroke="var(--ib-gold)" strokeWidth="1.8" />
+          {hover >= 0 && <line x1={p[0]} x2={p[0]} y1="8" y2={H - 14} stroke="var(--accent-cyan, #38bdf8)" strokeOpacity=".4" />}
+          {hover < 0 && <circle cx={last[0]} cy={last[1]} r="7" fill="var(--accent-cyan, #38bdf8)" opacity=".18" className="ib-glow" />}
+          <circle cx={p[0]} cy={p[1]} r="3.2" fill="var(--ib-raise)" stroke="var(--accent-cyan, #38bdf8)" strokeWidth="1.8" />
           <g transform={"translate(" + clamp(p[0], 40, W - 40) + "," + (p[1] < 34 ? p[1] + 22 : p[1] - 12) + ")"}>
             <rect x="-34" y="-11" width="68" height="15" rx="2" fill="var(--ib-inv)" />
             <text x="0" y="-1" textAnchor="middle" fontSize="7.5" fill="var(--ib-inv-ink)" fontFamily="var(--ib-mono)">

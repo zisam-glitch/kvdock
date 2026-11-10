@@ -76,7 +76,7 @@ const PRESETS: { [K in HalftonePreset]: HalftonePalette } = {
   night: { background: "#0c0c0b", ink: "#e9e4da", warm: "#e9762b" },
   paper: { background: "#efebe3", ink: "#17150f", warm: "#c2361c" },
   ember: { background: "#160a06", ink: "#f2c48c", warm: "#ff5a1f" },
-  cobalt: { background: "#0d1b4d", ink: "#dfe7ff", warm: "#ffcd3c" },
+  cobalt: { background: "#0d1b4d", ink: "#dfe7ff", warm: "#38bdf8" },
 }
 
 const DEFAULT_COLUMNS: FooterColumn[] = [
