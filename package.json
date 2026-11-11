@@ -160,6 +160,11 @@
       "import": "./dist/middleware/retry.js",
       "require": "./dist/middleware/retry.cjs"
     },
+    "./middleware/circuit-breaker": {
+      "types": "./dist/middleware/circuit-breaker.d.ts",
+      "import": "./dist/middleware/circuit-breaker.js",
+      "require": "./dist/middleware/circuit-breaker.cjs"
+    },
     "./integrations/express": {
       "types": "./dist/integrations/express/index.d.ts",
       "import": "./dist/integrations/express/index.js",

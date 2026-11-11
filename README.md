@@ -250,6 +250,51 @@ const dock = new KVDock({ adapter: resilientRedis });
 await dock.set("session:123", { userId: 42 });
 ```
 
+### 8. Zero-Downtime Cache Coalescing: SWR & XFetch Stampede Prevention
+
+Eliminate cache miss latency for hot keys using RFC 5861 Stale-While-Revalidate and the optimal ACM XFetch probabilistic recomputation algorithm:
+
+```typescript
+import { KVDock } from "kvdock";
+import { RedisAdapter } from "kvdock/adapters/redis";
+
+const dock = new KVDock({ adapter: new RedisAdapter() });
+
+// Stale-While-Revalidate: serve stale data immediately (0ms wait)
+// while an asynchronous single-flight promise refreshes the cache in the background
+const catalog = await dock.getOrSet("products:feed", async () => {
+  return await fetchHeavyCatalog();
+}, {
+  ttl: 60_000,                  // Fresh for 60 seconds
+  staleWhileRevalidate: 300_000, // Serve stale for up to 5 minutes during background refresh
+  xfetch: true,                 // Optimal probabilistic early refresh before expiration (ACM 2015)
+});
+```
+
+### 9. High-Availability Circuit Breaker & Multi-Adapter Failover
+
+Protect applications from cascading outages when distributed cache backends (Redis, DynamoDB, Upstash, Postgres) suffer network partitions or latency spikes:
+
+```typescript
+import { KVDock, withCircuitBreaker, withFailover } from "kvdock";
+import { RedisAdapter } from "kvdock/adapters/redis";
+import { MemoryAdapter } from "kvdock/adapters/memory";
+
+// Circuit Breaker: fail fast, detect slow calls, and divert to in-memory fallback
+const breakerRedis = withCircuitBreaker(new RedisAdapter(), {
+  failureThreshold: 3,        // Trips after 3 consecutive failures (or error rate > 50%)
+  resetTimeoutMs: 10_000,     // Probes recovery after 10s
+  fallbackAdapter: new MemoryAdapter(), // Transparent fallback during outage
+  degradeGracefully: true,    // Return safe defaults instead of crashing if no fallback
+});
+
+// Active-Passive Multi-Adapter Failover with write replication
+const failoverStore = withFailover([new RedisAdapter(), new MemoryAdapter()], {
+  replicateWrites: true,      // Keep standby cache pre-warmed
+  healthCheckIntervalMs: 5000,// Auto-failback when primary recovers
+});
+```
+
 ---
 
 ## Runnable Examples & Framework Starters
@@ -259,6 +304,7 @@ Check out the standalone, runnable applications in the **[`examples/`](examples/
 | Starter Example | Key Capabilities Demonstrated | Run Command |
 |---|---|---|
 | **[`examples/tiered-cache`](examples/tiered-cache/index.ts)** | L1 (Memory) + L2 (SQLite) tiered caching, single-flight stampede coalescing (100 -> 1 query), automatic promotions | `npx tsx examples/tiered-cache/index.ts` |
+| **[`examples/circuit-breaker-failover`](examples/circuit-breaker-failover/index.ts)** | Circuit breaker failover, active-passive multi-adapter failover, write replication, and SWR zero-latency caching | `npx tsx examples/circuit-breaker-failover/index.ts` |
 | **[`examples/distributed-lock`](examples/distributed-lock/index.ts)** | Distributed Mutex with monotonic fencing tokens, lease renewal, and Distributed Semaphore concurrency pooling | `npx tsx examples/distributed-lock/index.ts` |
 | **[`examples/hono-caching`](examples/hono-caching/index.ts)** | Edge HTTP route caching, automatic ETag generation, conditional `304 Not Modified` revalidation, encrypted sessions | `npx tsx examples/hono-caching/index.ts` |
 | **[`examples/nextjs-isr`](examples/nextjs-isr/index.ts)** | Next.js 14/15 App Router IncrementalCache handler (`cacheHandler`), tag-based invalidation (`revalidateTag`) | `npx tsx examples/nextjs-isr/index.ts` |

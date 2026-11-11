@@ -19,4 +19,6 @@
 - [x] Add Prometheus metrics scraping endpoint and export latency histograms in `kvdock/plugins/prometheus`
 - [x] Add OpenTelemetry distributed trace context propagation in `kvdock/plugins/opentelemetry`
 - [x] Add resilient exponential backoff retry middleware with jitter in `kvdock/middleware/retry`
+- [x] Add high-availability Circuit Breaker middleware and active-passive failover in `kvdock/middleware/circuit-breaker`
+- [x] Add zero-downtime Stale-While-Revalidate (SWR) and XFetch optimal probabilistic cache stampede prevention in `KVDock.getOrSet`
 - [ ] Add client-side payload decompression benchmark in `docs/BENCHMARKS.md`

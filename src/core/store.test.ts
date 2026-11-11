@@ -327,4 +327,131 @@ describe("KVDock core", () => {
       ]),
     ).rejects.toThrow("simulated driver write failure");
   });
+
+  describe("Stale-While-Revalidate (SWR) and XFetch Stampede Prevention", () => {
+    it("serves stale value immediately and updates cache in background", async () => {
+      const adapter = new MockAdapter();
+      const events: string[] = [];
+      const dock = new KVDock({
+        adapter,
+        onEvent: (e) => events.push(e.type),
+      });
+
+      let fetchCount = 0;
+      const fetcher = async () => {
+        fetchCount++;
+        return { count: fetchCount };
+      };
+
+      // Initial populate with ttl: 50ms, swr: 200ms
+      const initial = await dock.getOrSet("swr_key", fetcher, {
+        ttl: 50,
+        staleWhileRevalidate: 300,
+      });
+      expect(initial).toEqual({ count: 1 });
+      expect(fetchCount).toBe(1);
+
+      // Sleep 70ms: key is now expired (past 50ms) but within SWR window (50ms + 300ms = 350ms)
+      await new Promise((r) => setTimeout(r, 70));
+
+      // Immediate call returns stale data with 0ms wait!
+      const staleResult = await dock.getOrSet("swr_key", fetcher, {
+        ttl: 50,
+        staleWhileRevalidate: 300,
+      });
+      expect(staleResult).toEqual({ count: 1 });
+      expect(events).toContain("stale_hit");
+      expect(events).toContain("background_refresh");
+      expect(dock.stats.staleHits).toBe(1);
+      expect(dock.stats.backgroundRefreshes).toBe(1);
+
+      // Wait 30ms for background promise to finish updating the cache
+      await new Promise((r) => setTimeout(r, 40));
+      expect(fetchCount).toBe(2);
+
+      // Next call retrieves fresh value from background update
+      const freshResult = await dock.get("swr_key");
+      expect(freshResult).toEqual({ count: 2 });
+    });
+
+    it("coalesces concurrent requests during background refresh so fetcher runs only once", async () => {
+      const adapter = new MockAdapter();
+      const dock = new KVDock({ adapter });
+
+      let fetchCount = 0;
+      const fetcher = async () => {
+        fetchCount++;
+        await new Promise((r) => setTimeout(r, 20));
+        return { val: fetchCount };
+      };
+
+      await dock.getOrSet("coalesce_key", fetcher, {
+        ttl: 40,
+        staleWhileRevalidate: 400,
+      });
+      expect(fetchCount).toBe(1);
+
+      await new Promise((r) => setTimeout(r, 60));
+
+      // 20 concurrent requests hitting the stale key simultaneously
+      const results = await Promise.all(
+        Array.from({ length: 20 }, () =>
+          dock.getOrSet("coalesce_key", fetcher, {
+            ttl: 40,
+            staleWhileRevalidate: 400,
+          }),
+        ),
+      );
+
+      // All 20 immediately got the stale value without waiting
+      for (const res of results) {
+        expect(res).toEqual({ val: 1 });
+      }
+
+      // Wait for background refresh to finish
+      await new Promise((r) => setTimeout(r, 40));
+
+      // fetchCount only incremented ONCE (single-flight background refresh!)
+      expect(fetchCount).toBe(2);
+      expect(dock.stats.backgroundRefreshes).toBe(1);
+    });
+
+    it("supports XFetch probabilistic early recomputation", async () => {
+      const adapter = new MockAdapter();
+      const events: string[] = [];
+      const dock = new KVDock({
+        adapter,
+        onEvent: (e) => events.push(e.type),
+      });
+
+      let fetchCount = 0;
+      const fetcher = async () => {
+        fetchCount++;
+        await new Promise((r) => setTimeout(r, 15));
+        return `val_${fetchCount}`;
+      };
+
+      // Populate with xfetch enabled and large beta to ensure deterministic recomputation trigger
+      const first = await dock.getOrSet("xfetch_key", fetcher, {
+        ttl: 40,
+        xfetch: true,
+        beta: 10.0,
+      });
+      expect(first).toBe("val_1");
+      expect(fetchCount).toBe(1);
+
+      // Call while still fresh (within 40ms): XFetch triggers background refresh
+      const second = await dock.getOrSet("xfetch_key", fetcher, {
+        ttl: 40,
+        xfetch: true,
+        beta: 10.0,
+        randomFn: () => 0.01,
+      });
+      expect(second).toBe("val_1");
+      expect(events).toContain("background_refresh");
+
+      await new Promise((r) => setTimeout(r, 30));
+      expect(fetchCount).toBe(2);
+    });
+  });
 });

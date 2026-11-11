@@ -2,6 +2,7 @@ import { AdapterConnectionError, TTLValidationError } from "./errors.js";
 import { createCodecSerializer, defaultSerializer } from "./serializer.js";
 
 import type {
+  GetOrSetOptions,
   KVDockEvent,
   KVDockEventType,
   KVDockLogLevel,
@@ -13,6 +14,25 @@ import type {
   StoreMetrics,
   StoreOptions,
 } from "./types.js";
+
+interface SwrEnvelope<T = unknown> {
+  readonly __kvdock_swr__: true;
+  readonly v: T;
+  readonly savedAt: number;
+  readonly freshUntil: number;
+  readonly staleUntil: number;
+  readonly deltaMs: number;
+}
+
+function isSwrEnvelope<T = unknown>(value: unknown): value is SwrEnvelope<T> {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "__kvdock_swr__" in value &&
+    (value as Record<string, unknown>).__kvdock_swr__ === true &&
+    "v" in value
+  );
+}
 
 function validateTTL(ttl: unknown): asserts ttl is number | undefined {
   if (ttl === undefined) return;
@@ -30,6 +50,7 @@ export class KVDock {
   private readonly logger?: KVDockLogger;
   private readonly onEvent?: (event: KVDockEvent) => void;
   private readonly inFlight = new Map<string, Promise<unknown>>();
+  private readonly backgroundInFlight = new Map<string, Promise<unknown>>();
 
   private readonly metrics: StoreMetrics = {
     hits: 0,
@@ -39,6 +60,8 @@ export class KVDock {
     casSuccess: 0,
     casFailure: 0,
     stampedeCoalesced: 0,
+    staleHits: 0,
+    backgroundRefreshes: 0,
   };
 
   constructor(options: StoreOptions) {
@@ -137,7 +160,8 @@ export class KVDock {
     }
     this.metrics.hits++;
     this.emit("hit", key, { durationMs });
-    return this.serializer.deserialize<T>(raw);
+    const parsed = this.serializer.deserialize<unknown>(raw);
+    return (isSwrEnvelope<T>(parsed) ? parsed.v : parsed) as T;
   }
 
   public async set<T = unknown>(key: string, value: T, options?: SetOptions): Promise<void> {
@@ -334,7 +358,8 @@ export class KVDock {
         } else {
           this.metrics.hits++;
           this.emit("hit", key);
-          result.set(key, this.serializer.deserialize<T>(raw));
+          const parsed = this.serializer.deserialize<unknown>(raw);
+          result.set(key, (isSwrEnvelope<T>(parsed) ? parsed.v : parsed) as T);
         }
       }
       return result;
@@ -381,8 +406,13 @@ export class KVDock {
   public async getOrSet<T = unknown>(
     key: string,
     fetcher: () => Promise<T> | T,
-    options?: SetOptions,
+    options?: GetOrSetOptions,
   ): Promise<T> {
+    const swrWindow = options?.staleWhileRevalidate;
+    const isXFetch = options?.xfetch ?? false;
+    const beta = options?.beta ?? 1.0;
+    const usesEnvelope = (swrWindow !== undefined && swrWindow > 0) || isXFetch;
+
     const running = this.inFlight.get(key);
     if (running) {
       this.metrics.stampedeCoalesced++;
@@ -391,14 +421,113 @@ export class KVDock {
       return (await running) as T;
     }
 
+    const triggerBackgroundRefresh = () => {
+      if (this.backgroundInFlight.has(key)) return;
+      this.metrics.backgroundRefreshes++;
+      this.emit("background_refresh", key);
+      this.log("debug", "Triggering background cache refresh", { key });
+
+      const bgTask = (async () => {
+        try {
+          const start = performance.now();
+          const fresh = await fetcher();
+          const deltaMs = performance.now() - start;
+
+          const baseTTL = options?.ttl ?? this.defaultTTL;
+          const totalTTL = baseTTL ? baseTTL + (swrWindow ?? 0) : undefined;
+          const now = Date.now();
+
+          const envelope: SwrEnvelope<T> = {
+            __kvdock_swr__: true,
+            v: fresh,
+            savedAt: now,
+            freshUntil: baseTTL ? now + baseTTL : Number.POSITIVE_INFINITY,
+            staleUntil: totalTTL ? now + totalTTL : Number.POSITIVE_INFINITY,
+            deltaMs,
+          };
+
+          await this.set(key, envelope, { ...options, ttl: totalTTL });
+        } catch (err) {
+          this.log("warn", "Background refresh failed", { key, error: String(err) });
+        } finally {
+          this.backgroundInFlight.delete(key);
+        }
+      })();
+
+      this.backgroundInFlight.set(key, bgTask);
+    };
+
     const run = (async () => {
       try {
-        const cached = await this.get<T>(key);
-        if (cached !== null) {
-          return cached;
+        const raw = await this.withTimeout(
+          this.adapter.get<string>(this.resolveKey(key)),
+          undefined,
+          "get",
+        );
+
+        if (raw !== null && raw !== undefined) {
+          const parsed = this.serializer.deserialize<unknown>(raw);
+
+          if (isSwrEnvelope<T>(parsed)) {
+            const now = Date.now();
+            const isFresh = now < parsed.freshUntil;
+            const isStale = !isFresh && now < parsed.staleUntil;
+
+            if (isFresh) {
+              if (isXFetch) {
+                const delta = parsed.deltaMs >= 1 ? parsed.deltaMs : 10;
+                const randGen = options?.randomFn ?? Math.random;
+                const rand = Math.max(0.0001, randGen());
+                const timeUntilExpiry = parsed.freshUntil - now;
+                const earlyRecompute = -delta * beta * Math.log(rand) > timeUntilExpiry;
+
+                if (earlyRecompute) {
+                  triggerBackgroundRefresh();
+                }
+              }
+              this.metrics.hits++;
+              this.emit("hit", key);
+              return parsed.v;
+            }
+
+            if (isStale) {
+              this.metrics.hits++;
+              this.metrics.staleHits++;
+              this.emit("hit", key);
+              this.emit("stale_hit", key);
+              triggerBackgroundRefresh();
+              return parsed.v;
+            }
+          } else {
+            this.metrics.hits++;
+            this.emit("hit", key);
+            return parsed as T;
+          }
         }
+
+        const start = performance.now();
         const fresh = await fetcher();
-        await this.set(key, fresh, options);
+        const deltaMs = performance.now() - start;
+
+        if (usesEnvelope) {
+          const baseTTL = options?.ttl ?? this.defaultTTL;
+          const totalTTL = baseTTL ? baseTTL + (swrWindow ?? 0) : undefined;
+          const now = Date.now();
+
+          const envelope: SwrEnvelope<T> = {
+            __kvdock_swr__: true,
+            v: fresh,
+            savedAt: now,
+            freshUntil: baseTTL ? now + baseTTL : Number.POSITIVE_INFINITY,
+            staleUntil: totalTTL ? now + totalTTL : Number.POSITIVE_INFINITY,
+            deltaMs,
+          };
+
+          await this.set(key, envelope, { ...options, ttl: totalTTL });
+        } else {
+          await this.set(key, fresh, options);
+        }
+
         return fresh;
       } finally {
         this.inFlight.delete(key);
@@ -414,5 +543,6 @@ export class KVDock {
       await this.adapter.disconnect();
     }
     this.inFlight.clear();
+    this.backgroundInFlight.clear();
   }
 }

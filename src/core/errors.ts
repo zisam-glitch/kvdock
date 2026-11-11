@@ -4,7 +4,8 @@ export type ErrorCode =
   | "ERR_NOT_FOUND"
   | "ERR_SERIALIZATION"
   | "ERR_TTL_INVALID"
-  | "ERR_CONDITION_FAILED";
+  | "ERR_CONDITION_FAILED"
+  | "ERR_CIRCUIT_OPEN";
 
 export class KVDockError extends Error {
   public readonly code: ErrorCode;
@@ -35,5 +36,20 @@ export class TTLValidationError extends KVDockError {
   constructor(ttl: unknown) {
     super(`invalid ttl value: ${String(ttl)}`, "ERR_TTL_INVALID");
     this.name = "TTLValidationError";
+  }
+}
+
+export class CircuitBreakerOpenError extends KVDockError {
+  public readonly resetTimeoutMs: number;
+  public readonly timeRemainingMs: number;
+
+  constructor(adapterName: string, resetTimeoutMs: number, timeRemainingMs: number) {
+    super(
+      `circuit breaker is OPEN for adapter '${adapterName}' (${Math.max(0, Math.ceil(timeRemainingMs))}ms until half-open probe)`,
+      "ERR_CIRCUIT_OPEN",
+    );
+    this.name = "CircuitBreakerOpenError";
+    this.resetTimeoutMs = resetTimeoutMs;
+    this.timeRemainingMs = Math.max(0, timeRemainingMs);
   }
 }

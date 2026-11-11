@@ -6,6 +6,32 @@ export interface SetOptions {
   readonly timeoutMs?: number;
 }
 
+export interface GetOrSetOptions extends SetOptions {
+  /**
+   * Duration in milliseconds during which stale cached content is served immediately
+   * to callers (0ms wait) while an asynchronous background fetcher refreshes the cache (RFC 5861 SWR).
+   */
+  readonly staleWhileRevalidate?: number;
+
+  /**
+   * Enable optimal probabilistic cache stampede prevention (XFetch algorithm, ACM 2015).
+   * Refreshes the cache proactively before TTL expiration based on computation duration.
+   */
+  readonly xfetch?: boolean;
+
+  /**
+   * Multiplier beta parameter for XFetch formula. Values > 1.0 make recomputation more aggressive.
+   * @default 1.0
+   */
+  readonly beta?: number;
+
+  /**
+   * Custom pseudo-random generator function returning float in (0, 1).
+   * @default Math.random
+   */
+  readonly randomFn?: () => number;
+}
+
 export interface ScanOptions {
   readonly batchSize?: number;
 }
@@ -80,7 +106,9 @@ export type KVDockEventType =
   | "delete"
   | "clear"
   | "cas"
-  | "stampede_coalesced";
+  | "stampede_coalesced"
+  | "stale_hit"
+  | "background_refresh";
 
 export interface KVDockEvent {
   readonly type: KVDockEventType;
@@ -108,4 +136,6 @@ export interface StoreMetrics {
   casSuccess: number;
   casFailure: number;
   stampedeCoalesced: number;
+  staleHits: number;
+  backgroundRefreshes: number;
 }

@@ -39,6 +39,8 @@ export class TieredDock {
     casSuccess: 0,
     casFailure: 0,
     stampedeCoalesced: 0,
+    staleHits: 0,
+    backgroundRefreshes: 0,
     l1Hits: 0,
     l2Hits: 0,
     promotions: 0,

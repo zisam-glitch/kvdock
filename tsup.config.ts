@@ -32,6 +32,7 @@ export default defineConfig({
     "src/plugins/prometheus/index.ts",
     "src/middleware/lock.ts",
     "src/middleware/retry.ts",
+    "src/middleware/circuit-breaker.ts",
     "src/integrations/express/index.ts",
     "src/integrations/hono/index.ts",
     "src/integrations/nextjs/index.ts",
