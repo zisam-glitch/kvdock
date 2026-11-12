@@ -17,3 +17,7 @@ One honest line per shipped item.
 - **2026-11-07**: Added W3C distributed trace context propagation (traceparent, tracestate, baggage) and transparent storage adapter tracing in `kvdock/plugins/opentelemetry`.
 - **2026-11-10**: Added resilient exponential backoff retry middleware with full, equal, and decorrelated jitter strategies in `kvdock/middleware/retry` with transparent storage adapter wrapping and cancellation support.
 - **2026-11-12**: Shipped High-Availability Resilience Suite: production sliding-window Circuit Breaker (`withCircuitBreaker`), active-passive Multi-Adapter Failover with write replication (`withFailover`), and zero-downtime Stale-While-Revalidate (SWR) with XFetch optimal probabilistic cache stampede prevention in `KVDock.getOrSet`.
+- **2026-11-12**: Added `RouterDock` (`kvdock/router`) for zero-overhead hierarchical prefix mounting across heterogeneous storage backends with single-flight stampede protection and wildcard scan routing.
+- **2026-11-12**: Added multi-node cluster invalidation bus (`kvdock/bus`) with `EventEmitterBus`, `BroadcastChannelBus`, and `RedisPubSubBus`, seamlessly auto-evicting TieredDock L1 caches across horizontal instances.
+- **2026-11-12**: Added `WindowTinyLFUAdapter` (`kvdock/adapters/memory-wtinylfu`) featuring 4-bit Count-Min frequency sketch admission and segmented window cache for optimal hit-ratio memory storage.
+- **2026-11-12**: Added client-side payload decompression & compression benchmarks across Gzip and Brotli (1KB to 1MB) with empirical results published in `docs/BENCHMARKS.md`.

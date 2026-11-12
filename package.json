@@ -20,6 +20,16 @@
       "import": "./dist/testing/index.js",
       "require": "./dist/testing/index.cjs"
     },
+    "./bus": {
+      "types": "./dist/bus/index.d.ts",
+      "import": "./dist/bus/index.js",
+      "require": "./dist/bus/index.cjs"
+    },
+    "./router": {
+      "types": "./dist/router/index.d.ts",
+      "import": "./dist/router/index.js",
+      "require": "./dist/router/index.cjs"
+    },
     "./adapters/memory": {
       "types": "./dist/adapters/memory/index.d.ts",
       "import": "./dist/adapters/memory/index.js",
@@ -29,6 +39,11 @@
       "types": "./dist/adapters/memory-sized/index.d.ts",
       "import": "./dist/adapters/memory-sized/index.js",
       "require": "./dist/adapters/memory-sized/index.cjs"
+    },
+    "./adapters/memory-wtinylfu": {
+      "types": "./dist/adapters/memory-wtinylfu/index.d.ts",
+      "import": "./dist/adapters/memory-wtinylfu/index.js",
+      "require": "./dist/adapters/memory-wtinylfu/index.cjs"
     },
     "./adapters/fs": {
       "types": "./dist/adapters/fs/index.d.ts",

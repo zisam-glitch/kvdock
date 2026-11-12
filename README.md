@@ -62,6 +62,7 @@ npm install kvdock
 | :--- | :---: | :--- | :--- | :--- |
 | **Memory** | 🟢 Stable | TTL, Batch, Scan, LRU, CAS | All JS Runtimes | `kvdock/adapters/memory` |
 | **Memory (Byte-Sized)** | 🟢 Stable | TTL, Batch, Scan, CAS, Byte limit | All JS Runtimes | `kvdock/adapters/memory-sized` |
+| **Memory (Window TinyLFU)** | 🟢 Stable | Frequency sketch, Window cache, Admission policy | All JS Runtimes | `kvdock/adapters/memory-wtinylfu` |
 | **SQLite (`node:sqlite`)** | 🟢 Stable | TTL, Batch, Scan, CAS, ACID Tx | Node.js (>=22), Bun | `kvdock/adapters/sqlite` |
 | **Bun SQLite** | 🟢 Stable | TTL, Batch, Scan, CAS, High-throughput | Bun | `kvdock/adapters/bun-sqlite` |
 | **Filesystem** | 🟢 Stable | TTL, Scan, Atomic writes | Node.js, Bun | `kvdock/adapters/fs` |
@@ -294,6 +295,69 @@ const failoverStore = withFailover([new RedisAdapter(), new MemoryAdapter()], {
   healthCheckIntervalMs: 5000,// Auto-failback when primary recovers
 });
 ```
+
+### 10. RouterDock: Hierarchical Prefix Mounts
+
+Mount distinct storage backends to key prefix hierarchies through a unified, transparent client interface:
+
+```typescript
+import { RouterDock, KVDock } from "kvdock";
+import { MemoryAdapter } from "kvdock/adapters/memory";
+import { RedisAdapter } from "kvdock/adapters/redis";
+import { S3Adapter } from "kvdock/adapters/s3";
+
+const router = new RouterDock({
+  default: new KVDock({ adapter: new RedisAdapter() }),
+})
+  .mount("session:", new KVDock({ adapter: new MemoryAdapter({ maxSize: 10_000 }) }))
+  .mount("media:", new KVDock({ adapter: new S3Adapter({ bucket: "assets" }) }));
+
+// Transparently routes "session:user_1" to in-memory, "media:avatar.png" to S3, and everything else to Redis
+await router.set("session:user_1", { name: "Alice" });
+await router.set("media:avatar.png", imageBuffer);
+await router.set("config:site_title", "My App");
+```
+
+### 11. Multi-Node Cluster Invalidation: `KVDockBus`
+
+Synchronize in-memory L1 caches across horizontal microservice pods or worker clusters in real time:
+
+```typescript
+import { TieredDock, RedisPubSubBus, BroadcastChannelBus } from "kvdock";
+import { MemoryAdapter } from "kvdock/adapters/memory";
+import { RedisAdapter } from "kvdock/adapters/redis";
+import Redis from "ioredis";
+
+const redis = new Redis(process.env.REDIS_URL);
+const bus = new RedisPubSubBus({ pubClient: redis, subClient: redis.duplicate() });
+
+const dock = new TieredDock({
+  l1: new MemoryAdapter({ maxSize: 50_000 }),
+  l2: new RedisAdapter({ client: redis }),
+  bus, // Automatically broadcasts evictions across all cluster pods
+});
+
+// Modifying or deleting a key evicts L1 on every listening instance across your cluster
+await dock.delete("product:price:1001");
+```
+
+### 12. Window TinyLFU Cache: High-Hit-Ratio Admission Policy
+
+Achieve near-optimal hit ratios that outperform pure LRU by combining a fast admission window with a 4-bit Count-Min frequency sketch:
+
+```typescript
+import { KVDock } from "kvdock";
+import { WindowTinyLFUAdapter } from "kvdock/adapters/memory-wtinylfu";
+
+const dock = new KVDock({
+  adapter: new WindowTinyLFUAdapter({
+    maxSize: 100_000,
+    windowRatio: 0.01, // 1% window cache for burst recency protection
+  }),
+});
+```
+
+> Benchmark performance: see [BENCHMARKS.md](docs/BENCHMARKS.md) for empirical payload compression and throughput evaluations.
 
 ---
 

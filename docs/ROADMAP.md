@@ -21,4 +21,9 @@
 - [x] Add resilient exponential backoff retry middleware with jitter in `kvdock/middleware/retry`
 - [x] Add high-availability Circuit Breaker middleware and active-passive failover in `kvdock/middleware/circuit-breaker`
 - [x] Add zero-downtime Stale-While-Revalidate (SWR) and XFetch optimal probabilistic cache stampede prevention in `KVDock.getOrSet`
-- [ ] Add client-side payload decompression benchmark in `docs/BENCHMARKS.md`
+- [x] Add client-side payload decompression benchmark in `docs/BENCHMARKS.md`
+- [x] Add multi-node cluster cache synchronization bus (`KVDockBus`, `RedisPubSubBus`, `BroadcastChannelBus`) with automatic L1 invalidation in `TieredDock`
+- [x] Add zero-downtime Grace-Mode stale fallback on upstream database error in `KVDock.getOrSet`
+- [x] Add hierarchical mount point routing and cross-mount batching in `RouterDock` (`kvdock/router`)
+- [x] Add Window-TinyLFU (W-TinyLFU) high hit-ratio memory adapter with 4-bit CountMinSketch frequency filter (`kvdock/adapters/memory-wtinylfu`)
+- [x] Add bidirectional middleware interceptor pipeline (`dock.use`) and reactive mutation watchers (`dock.watch`) in core `KVDock`

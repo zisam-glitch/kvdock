@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { TTLValidationError } from "./errors.js";
 import { KVDock } from "./store.js";
-import type { StorageAdapter } from "./types.js";
+import type { StorageAdapter, WatchEvent } from "./types.js";
 
 class MockAdapter implements StorageAdapter {
   public readonly name = "mock";
@@ -452,6 +452,85 @@ describe("KVDock core", () => {
 
       await new Promise((r) => setTimeout(r, 30));
       expect(fetchCount).toBe(2);
+    });
+
+    it("serves cached stale value in Grace Mode when upstream fetcher fails", async () => {
+      const adapter = new MockAdapter();
+      const events: string[] = [];
+      const dock = new KVDock({
+        adapter,
+        onEvent: (e) => events.push(e.type),
+      });
+
+      // 1. Initial successful population
+      const first = await dock.getOrSet("user_profile", () => ({ id: 42, role: "admin" }), {
+        ttl: 20,
+        gracePeriodMs: 500,
+      });
+      expect(first).toEqual({ id: 42, role: "admin" });
+
+      // 2. Wait for initial TTL to expire (20ms), entering grace window
+      await new Promise((r) => setTimeout(r, 30));
+
+      // 3. Upstream DB is down / fetcher throws
+      const failingFetcher = async () => {
+        throw new Error("Database connection timeout");
+      };
+
+      const fallback = await dock.getOrSet("user_profile", failingFetcher, {
+        ttl: 20,
+        gracePeriodMs: 500,
+      });
+
+      expect(fallback).toEqual({ id: 42, role: "admin" });
+      expect(dock.stats.graceHits).toBe(1);
+      expect(events).toContain("grace_hit");
+    });
+  });
+
+  describe("Middleware Interceptors and Reactive Watchers", () => {
+    it("transforms keys and values through interceptor pipeline", async () => {
+      const adapter = new MockAdapter();
+      const dock = new KVDock({ adapter });
+
+      dock.use({
+        beforeSet: (key, val, opts) => ({
+          key: `tenantA:${key}`,
+          value: typeof val === "string" ? val.toUpperCase() : val,
+          options: opts,
+        }),
+        beforeGet: (key) => `tenantA:${key}`,
+        afterGet: (_key, val) => (typeof val === "string" ? `[processed] ${val}` : val),
+      });
+
+      await dock.set("message", "hello world");
+      const result = await dock.get("message");
+
+      expect(result).toBe("[processed] HELLO WORLD");
+    });
+
+    it("notifies reactive storage watchers on set, delete, and clear", async () => {
+      const adapter = new MockAdapter();
+      const dock = new KVDock({ adapter });
+
+      const events: WatchEvent[] = [];
+      const unsubscribe = dock.watch((e) => {
+        events.push(e);
+      });
+
+      await dock.set("session:abc", { loggedIn: true });
+      await dock.delete("session:abc");
+      await dock.clear();
+
+      expect(events).toEqual([
+        { type: "set", key: "session:abc", value: { loggedIn: true } },
+        { type: "delete", key: "session:abc" },
+        { type: "clear" },
+      ]);
+
+      unsubscribe();
+      await dock.set("ignored", 123);
+      expect(events).toHaveLength(3);
     });
   });
 });

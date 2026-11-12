@@ -1,5 +1,7 @@
+import type { KVDockBus } from "../bus/types.js";
 import { KVDock } from "./store.js";
 import type {
+  GetOrSetOptions,
   KVDockEvent,
   KVDockLogger,
   Serializer,
@@ -17,18 +19,22 @@ export interface TieredDockOptions {
   serializer?: Serializer;
   logger?: KVDockLogger;
   onEvent?: (event: KVDockEvent) => void;
+  bus?: KVDockBus;
 }
 
 export interface TieredStoreMetrics extends StoreMetrics {
   l1Hits: number;
   l2Hits: number;
   promotions: number;
+  busInvalidationsReceived: number;
 }
 
 export class TieredDock {
   private readonly l1Dock: KVDock;
   private readonly l2Dock: KVDock;
   private readonly l1TTL?: number;
+  private readonly bus?: KVDockBus;
+  private readonly unsubscribeBus?: () => void;
   private readonly inFlight = new Map<string, Promise<unknown>>();
 
   private readonly tieredMetrics: TieredStoreMetrics = {
@@ -40,14 +46,17 @@ export class TieredDock {
     casFailure: 0,
     stampedeCoalesced: 0,
     staleHits: 0,
+    graceHits: 0,
     backgroundRefreshes: 0,
     l1Hits: 0,
     l2Hits: 0,
     promotions: 0,
+    busInvalidationsReceived: 0,
   };
 
   constructor(options: TieredDockOptions) {
     this.l1TTL = options.l1TTL;
+    this.bus = options.bus;
 
     this.l1Dock = new KVDock({
       adapter: options.l1,
@@ -66,6 +75,29 @@ export class TieredDock {
       logger: options.logger,
       onEvent: options.onEvent,
     });
+
+    if (this.bus) {
+      this.unsubscribeBus = this.bus.subscribe((msg) => {
+        // Ignore messages sent by this instance to avoid redundant L1 evictions
+        if (msg.senderId === this.bus?.id) return;
+
+        this.tieredMetrics.busInvalidationsReceived++;
+        if (msg.type === "set" || msg.type === "delete") {
+          if (msg.key) {
+            void this.l1Dock.delete(msg.key);
+          }
+        } else if (msg.type === "clear") {
+          void this.l1Dock.clear();
+        } else if (msg.type === "tag_invalidation") {
+          if (msg.keys && msg.keys.length > 0) {
+            void Promise.all(msg.keys.map((k) => this.l1Dock.delete(k)));
+          }
+          if (msg.tag) {
+            void this.l1Dock.invalidateTag(msg.tag);
+          }
+        }
+      });
+    }
   }
 
   public get stats(): Readonly<TieredStoreMetrics> {
@@ -104,6 +136,10 @@ export class TieredDock {
       this.l2Dock.set(key, value, options),
     ]);
     this.tieredMetrics.sets++;
+
+    if (this.bus) {
+      await this.bus.publish({ type: "set", key });
+    }
   }
 
   public async delete(key: string): Promise<boolean> {
@@ -112,6 +148,11 @@ export class TieredDock {
     if (ok) {
       this.tieredMetrics.deletes++;
     }
+
+    if (this.bus) {
+      await this.bus.publish({ type: "delete", key });
+    }
+
     return ok;
   }
 
@@ -123,6 +164,29 @@ export class TieredDock {
 
   public async clear(): Promise<void> {
     await Promise.all([this.l1Dock.clear(), this.l2Dock.clear()]);
+
+    if (this.bus) {
+      await this.bus.publish({ type: "clear" });
+    }
+  }
+
+  public async invalidateTag(tag: string): Promise<void> {
+    const tagKey = `__tag__:${tag}`;
+    const raw = await this.l2Dock.get<string | string[]>(tagKey);
+    let keys: string[] = [];
+    if (raw) {
+      try {
+        keys = Array.isArray(raw) ? raw : (JSON.parse(raw) as string[]);
+      } catch {
+        // Ignore parse error
+      }
+    }
+
+    await Promise.all([this.l1Dock.invalidateTag(tag), this.l2Dock.invalidateTag(tag)]);
+
+    if (this.bus) {
+      await this.bus.publish({ type: "tag_invalidation", tag, keys });
+    }
   }
 
   public async keys(pattern?: string): Promise<string[]> {
@@ -136,7 +200,7 @@ export class TieredDock {
   public async getOrSet<T = unknown>(
     key: string,
     fetcher: () => Promise<T> | T,
-    options?: SetOptions,
+    options?: GetOrSetOptions,
   ): Promise<T> {
     const inFlightPromise = this.inFlight.get(key);
     if (inFlightPromise) {
@@ -163,6 +227,12 @@ export class TieredDock {
   }
 
   public async close(): Promise<void> {
+    if (this.unsubscribeBus) {
+      this.unsubscribeBus();
+    }
+    if (this.bus?.disconnect) {
+      await this.bus.disconnect();
+    }
     await Promise.all([this.l1Dock.close(), this.l2Dock.close()]);
     this.inFlight.clear();
   }

@@ -11,8 +11,11 @@ import type {
   Serializer,
   SetOptions,
   StorageAdapter,
+  StoreInterceptor,
   StoreMetrics,
   StoreOptions,
+  WatchEvent,
+  WatchHandler,
 } from "./types.js";
 
 interface SwrEnvelope<T = unknown> {
@@ -21,6 +24,7 @@ interface SwrEnvelope<T = unknown> {
   readonly savedAt: number;
   readonly freshUntil: number;
   readonly staleUntil: number;
+  readonly graceUntil?: number;
   readonly deltaMs: number;
 }
 
@@ -51,6 +55,8 @@ export class KVDock {
   private readonly onEvent?: (event: KVDockEvent) => void;
   private readonly inFlight = new Map<string, Promise<unknown>>();
   private readonly backgroundInFlight = new Map<string, Promise<unknown>>();
+  private readonly interceptors: StoreInterceptor[] = [];
+  private readonly watchers = new Set<WatchHandler<unknown>>();
 
   private readonly metrics: StoreMetrics = {
     hits: 0,
@@ -61,6 +67,7 @@ export class KVDock {
     casFailure: 0,
     stampedeCoalesced: 0,
     staleHits: 0,
+    graceHits: 0,
     backgroundRefreshes: 0,
   };
 
@@ -144,45 +151,129 @@ export class KVDock {
     return { ...this.metrics };
   }
 
+  /**
+   * Registers a bidirectional middleware interceptor for transformation, validation, or observability.
+   */
+  public use(interceptor: StoreInterceptor): this {
+    this.interceptors.push(interceptor);
+    return this;
+  }
+
+  /**
+   * Subscribes to real-time cache mutations (set, delete, clear).
+   */
+  public watch<T = unknown>(handler: WatchHandler<T>): () => void {
+    const fn = handler as WatchHandler<unknown>;
+    this.watchers.add(fn);
+    return () => {
+      this.watchers.delete(fn);
+    };
+  }
+
+  private notifyWatchers(event: WatchEvent<unknown>): void {
+    for (const watcher of this.watchers) {
+      try {
+        void watcher(event);
+      } catch {
+        // Suppress watcher errors
+      }
+    }
+  }
+
   public async get<T = unknown>(key: string): Promise<T | null> {
+    let currentKey = key;
+    for (const interceptor of this.interceptors) {
+      if (interceptor.beforeGet) {
+        currentKey = await interceptor.beforeGet(currentKey);
+      }
+    }
+
     const start = performance.now();
-    this.log("debug", "get key", { key });
-    const raw = await this.withTimeout(
-      this.adapter.get<string>(this.resolveKey(key)),
-      undefined,
-      "get",
-    );
+    this.log("debug", "get key", { key: currentKey });
+    let raw: string | null = null;
+    try {
+      raw = await this.withTimeout(
+        this.adapter.get<string>(this.resolveKey(currentKey)),
+        undefined,
+        "get",
+      );
+    } catch (err) {
+      for (const interceptor of this.interceptors) {
+        if (interceptor.onError) {
+          await interceptor.onError("get", currentKey, err);
+        }
+      }
+      throw err;
+    }
+
     const durationMs = performance.now() - start;
     if (raw === null || raw === undefined) {
       this.metrics.misses++;
-      this.emit("miss", key, { durationMs });
-      return null;
+      this.emit("miss", currentKey, { durationMs });
+      let result: T | null = null;
+      for (const interceptor of this.interceptors) {
+        if (interceptor.afterGet) {
+          result = await interceptor.afterGet<T>(currentKey, result);
+        }
+      }
+      return result;
     }
     this.metrics.hits++;
-    this.emit("hit", key, { durationMs });
+    this.emit("hit", currentKey, { durationMs });
     const parsed = this.serializer.deserialize<unknown>(raw);
-    return (isSwrEnvelope<T>(parsed) ? parsed.v : parsed) as T;
+    let val = (isSwrEnvelope<T>(parsed) ? parsed.v : parsed) as T | null;
+
+    for (const interceptor of this.interceptors) {
+      if (interceptor.afterGet) {
+        val = await interceptor.afterGet<T>(currentKey, val);
+      }
+    }
+
+    return val;
   }
 
   public async set<T = unknown>(key: string, value: T, options?: SetOptions): Promise<void> {
+    let currentKey = key;
+    let currentValue = value;
+    let currentOptions = options;
+
+    for (const interceptor of this.interceptors) {
+      if (interceptor.beforeSet) {
+        const transformed = await interceptor.beforeSet(currentKey, currentValue, currentOptions);
+        if (transformed.key !== undefined) currentKey = transformed.key;
+        if (transformed.value !== undefined) currentValue = transformed.value as T;
+        if (transformed.options !== undefined) currentOptions = transformed.options;
+      }
+    }
+
     const start = performance.now();
-    const ttl = options?.ttl ?? this.defaultTTL;
+    const ttl = currentOptions?.ttl ?? this.defaultTTL;
     validateTTL(ttl);
 
-    const payload = this.serializer.serialize(value);
-    const resolved = this.resolveKey(key);
-    await this.withTimeout(
-      this.adapter.set(resolved, payload, { ...options, ttl }),
-      options?.timeoutMs,
-      "set",
-    );
+    const payload = this.serializer.serialize(currentValue);
+    const resolved = this.resolveKey(currentKey);
+    try {
+      await this.withTimeout(
+        this.adapter.set(resolved, payload, { ...currentOptions, ttl }),
+        currentOptions?.timeoutMs,
+        "set",
+      );
+    } catch (err) {
+      for (const interceptor of this.interceptors) {
+        if (interceptor.onError) {
+          await interceptor.onError("set", currentKey, err);
+        }
+      }
+      throw err;
+    }
+
     const durationMs = performance.now() - start;
     this.metrics.sets++;
-    this.emit("set", key, { ttl, durationMs });
-    this.log("debug", "set key", { key, ttl });
+    this.emit("set", currentKey, { ttl, durationMs });
+    this.log("debug", "set key", { key: currentKey, ttl });
 
-    if (options?.tags && options.tags.length > 0) {
-      for (const tag of options.tags) {
+    if (currentOptions?.tags && currentOptions.tags.length > 0) {
+      for (const tag of currentOptions.tags) {
         const tagKey = `__tag__:${tag}`;
         const existingRaw = await this.adapter.get<string>(this.resolveKey(tagKey));
         let keysList: string[] = [];
@@ -199,22 +290,65 @@ export class KVDock {
         }
       }
     }
+
+    for (const interceptor of this.interceptors) {
+      if (interceptor.afterSet) {
+        await interceptor.afterSet(currentKey, currentValue, currentOptions);
+      }
+    }
+
+    this.notifyWatchers({ type: "set", key: currentKey, value: currentValue });
   }
 
   public async delete(key: string): Promise<boolean> {
+    let currentKey = key;
+    for (const interceptor of this.interceptors) {
+      if (interceptor.beforeDelete) {
+        currentKey = await interceptor.beforeDelete(currentKey);
+      }
+    }
+
     const start = performance.now();
-    const ok = await this.withTimeout(
-      this.adapter.delete(this.resolveKey(key)),
-      undefined,
-      "delete",
-    );
+    let ok = false;
+    try {
+      ok = await this.withTimeout(
+        this.adapter.delete(this.resolveKey(currentKey)),
+        undefined,
+        "delete",
+      );
+    } catch (err) {
+      for (const interceptor of this.interceptors) {
+        if (interceptor.onError) {
+          await interceptor.onError("delete", currentKey, err);
+        }
+      }
+      throw err;
+    }
+
     const durationMs = performance.now() - start;
     if (ok) {
       this.metrics.deletes++;
-      this.emit("delete", key, { durationMs });
-      this.log("debug", "deleted key", { key });
+      this.emit("delete", currentKey, { durationMs });
+      this.log("debug", "deleted key", { key: currentKey });
+      this.notifyWatchers({ type: "delete", key: currentKey });
     }
     return ok;
+  }
+
+  public async deleteMany(keys: string[]): Promise<number> {
+    if (keys.length === 0) return 0;
+    if (this.adapter.capabilities.batch && this.adapter.deleteMany) {
+      const resolvedKeys = keys.map((k) => this.resolveKey(k));
+      const count = await this.withTimeout(
+        this.adapter.deleteMany(resolvedKeys),
+        undefined,
+        "deleteMany",
+      );
+      this.metrics.deletes += count;
+      return count;
+    }
+    const results = await Promise.all(keys.map((k) => this.delete(k)));
+    return results.filter(Boolean).length;
   }
 
   public async has(key: string): Promise<boolean> {
@@ -227,6 +361,7 @@ export class KVDock {
     const durationMs = performance.now() - start;
     this.emit("clear", undefined, { durationMs });
     this.log("info", "cache cleared");
+    this.notifyWatchers({ type: "clear" });
   }
 
   public async keys(pattern?: string): Promise<string[]> {
@@ -411,7 +546,13 @@ export class KVDock {
     const swrWindow = options?.staleWhileRevalidate;
     const isXFetch = options?.xfetch ?? false;
     const beta = options?.beta ?? 1.0;
-    const usesEnvelope = (swrWindow !== undefined && swrWindow > 0) || isXFetch;
+    const gracePeriodMs = options?.gracePeriodMs;
+    const fallbackOnFetcherError =
+      options?.fallbackOnFetcherError ?? (gracePeriodMs !== undefined && gracePeriodMs > 0);
+    const usesEnvelope =
+      (swrWindow !== undefined && swrWindow > 0) ||
+      isXFetch ||
+      (gracePeriodMs !== undefined && gracePeriodMs > 0);
 
     const running = this.inFlight.get(key);
     if (running) {
@@ -434,7 +575,7 @@ export class KVDock {
           const deltaMs = performance.now() - start;
 
           const baseTTL = options?.ttl ?? this.defaultTTL;
-          const totalTTL = baseTTL ? baseTTL + (swrWindow ?? 0) : undefined;
+          const totalTTL = baseTTL ? baseTTL + (swrWindow ?? 0) + (gracePeriodMs ?? 0) : undefined;
           const now = Date.now();
 
           const envelope: SwrEnvelope<T> = {
@@ -442,7 +583,8 @@ export class KVDock {
             v: fresh,
             savedAt: now,
             freshUntil: baseTTL ? now + baseTTL : Number.POSITIVE_INFINITY,
-            staleUntil: totalTTL ? now + totalTTL : Number.POSITIVE_INFINITY,
+            staleUntil: baseTTL ? now + baseTTL + (swrWindow ?? 0) : Number.POSITIVE_INFINITY,
+            graceUntil: totalTTL ? now + totalTTL : Number.POSITIVE_INFINITY,
             deltaMs,
           };
 
@@ -458,6 +600,8 @@ export class KVDock {
     };
 
     const run = (async () => {
+      let cachedFallback: SwrEnvelope<T> | undefined;
+
       try {
         const raw = await this.withTimeout(
           this.adapter.get<string>(this.resolveKey(key)),
@@ -469,6 +613,7 @@ export class KVDock {
           const parsed = this.serializer.deserialize<unknown>(raw);
 
           if (isSwrEnvelope<T>(parsed)) {
+            cachedFallback = parsed;
             const now = Date.now();
             const isFresh = now < parsed.freshUntil;
             const isStale = !isFresh && now < parsed.staleUntil;
@@ -505,30 +650,53 @@ export class KVDock {
           }
         }
 
-        const start = performance.now();
-        const fresh = await fetcher();
-        const deltaMs = performance.now() - start;
+        try {
+          const start = performance.now();
+          const fresh = await fetcher();
+          const deltaMs = performance.now() - start;
 
-        if (usesEnvelope) {
-          const baseTTL = options?.ttl ?? this.defaultTTL;
-          const totalTTL = baseTTL ? baseTTL + (swrWindow ?? 0) : undefined;
-          const now = Date.now();
+          if (usesEnvelope) {
+            const baseTTL = options?.ttl ?? this.defaultTTL;
+            const totalTTL = baseTTL
+              ? baseTTL + (swrWindow ?? 0) + (gracePeriodMs ?? 0)
+              : undefined;
+            const now = Date.now();
 
-          const envelope: SwrEnvelope<T> = {
-            __kvdock_swr__: true,
-            v: fresh,
-            savedAt: now,
-            freshUntil: baseTTL ? now + baseTTL : Number.POSITIVE_INFINITY,
-            staleUntil: totalTTL ? now + totalTTL : Number.POSITIVE_INFINITY,
-            deltaMs,
-          };
+            const envelope: SwrEnvelope<T> = {
+              __kvdock_swr__: true,
+              v: fresh,
+              savedAt: now,
+              freshUntil: baseTTL ? now + baseTTL : Number.POSITIVE_INFINITY,
+              staleUntil: baseTTL ? now + baseTTL + (swrWindow ?? 0) : Number.POSITIVE_INFINITY,
+              graceUntil: totalTTL ? now + totalTTL : Number.POSITIVE_INFINITY,
+              deltaMs,
+            };
 
-          await this.set(key, envelope, { ...options, ttl: totalTTL });
-        } else {
-          await this.set(key, fresh, options);
+            await this.set(key, envelope, { ...options, ttl: totalTTL });
+          } else {
+            await this.set(key, fresh, options);
+          }
+
+          return fresh;
+        } catch (fetchErr) {
+          if (fallbackOnFetcherError && cachedFallback) {
+            const now = Date.now();
+            const graceLimit =
+              cachedFallback.graceUntil ?? cachedFallback.staleUntil + (gracePeriodMs ?? 0);
+            if (now < graceLimit || gracePeriodMs === undefined) {
+              this.metrics.hits++;
+              this.metrics.graceHits++;
+              this.emit("hit", key);
+              this.emit("grace_hit", key, { error: String(fetchErr) });
+              this.log("warn", "Fetcher failed: serving cached content in Grace Mode", {
+                key,
+                error: String(fetchErr),
+              });
+              return cachedFallback.v;
+            }
+          }
+          throw fetchErr;
         }
-
-        return fresh;
       } finally {
         this.inFlight.delete(key);
       }

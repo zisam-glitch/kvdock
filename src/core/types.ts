@@ -30,11 +30,47 @@ export interface GetOrSetOptions extends SetOptions {
    * @default Math.random
    */
   readonly randomFn?: () => number;
+
+  /**
+   * Grace period duration in milliseconds. When upstream fetcher fails or times out,
+   * expired or stale cached data within this grace window will be returned instead of throwing.
+   */
+  readonly gracePeriodMs?: number;
+
+  /**
+   * When true or when gracePeriodMs is configured, catches fetcher errors and falls back to
+   * stale cache data if available.
+   * @default true when gracePeriodMs is provided
+   */
+  readonly fallbackOnFetcherError?: boolean;
 }
 
 export interface ScanOptions {
   readonly batchSize?: number;
 }
+
+export interface StoreInterceptor {
+  beforeGet?(key: string): Promise<string> | string;
+  afterGet?<T = unknown>(key: string, value: T | null): Promise<T | null> | T | null;
+  beforeSet?<T = unknown>(
+    key: string,
+    value: T,
+    options?: SetOptions,
+  ):
+    | Promise<{ key?: string; value?: T; options?: SetOptions }>
+    | { key?: string; value?: T; options?: SetOptions };
+  afterSet?<T = unknown>(key: string, value: T, options?: SetOptions): Promise<void> | void;
+  beforeDelete?(key: string): Promise<string> | string;
+  onError?(operation: string, key?: string, error?: unknown): Promise<void> | void;
+}
+
+export interface WatchEvent<T = unknown> {
+  readonly type: "set" | "delete" | "clear";
+  readonly key?: string;
+  readonly value?: T;
+}
+
+export type WatchHandler<T = unknown> = (event: WatchEvent<T>) => void | Promise<void>;
 
 export interface AdapterCapabilities {
   readonly ttl: boolean;
@@ -108,6 +144,7 @@ export type KVDockEventType =
   | "cas"
   | "stampede_coalesced"
   | "stale_hit"
+  | "grace_hit"
   | "background_refresh";
 
 export interface KVDockEvent {
@@ -137,5 +174,6 @@ export interface StoreMetrics {
   casFailure: number;
   stampedeCoalesced: number;
   staleHits: number;
+  graceHits: number;
   backgroundRefreshes: number;
 }
