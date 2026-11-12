@@ -352,9 +352,46 @@ import { WindowTinyLFUAdapter } from "kvdock/adapters/memory-wtinylfu";
 const dock = new KVDock({
   adapter: new WindowTinyLFUAdapter({
     maxSize: 100_000,
-    windowRatio: 0.01, // 1% window cache for burst recency protection
   }),
 });
+```
+
+### 13. Type-Safe Schema Validation: `withSchema`
+
+Ensure runtime data integrity and eliminate corrupted cache entries using Standard Schema (Zod, Valibot, ArkType):
+
+```typescript
+import { KVDock, withSchema } from "kvdock";
+import { z } from "zod";
+
+const UserSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  email: z.string().email(),
+});
+
+const userStore = withSchema(dock, UserSchema, { onInvalid: "delete" });
+
+// Fully typed and validated get/set
+await userStore.set("user:42", { id: 42, name: "Alice", email: "alice@example.com" });
+const user = await userStore.get("user:42"); // Typed as { id: number; name: string; email: string } | null
+```
+
+### 14. Portable Storage Snapshots: `createSnapshot` & `restoreSnapshot`
+
+Dump point-in-time state from any backend and restore it anywhere (seeding staging, local test fixtures, backups):
+
+```typescript
+import { createSnapshot, restoreSnapshot, exportSnapshotToJSON } from "kvdock/tooling/snapshot";
+
+// 1. Snapshot all keys matching a prefix from Redis
+const snapshot = await createSnapshot(redisDock, { prefix: "config:" });
+
+// 2. Export portable JSON backup
+const jsonBackup = exportSnapshotToJSON(snapshot, true);
+
+// 3. Restore into in-memory or SQLite store with custom prefix
+await restoreSnapshot(memoryDock, snapshot, { keyPrefix: "staging:" });
 ```
 
 > Benchmark performance: see [BENCHMARKS.md](docs/BENCHMARKS.md) for empirical payload compression and throughput evaluations.

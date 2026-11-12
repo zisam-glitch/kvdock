@@ -27,3 +27,5 @@
 - [x] Add hierarchical mount point routing and cross-mount batching in `RouterDock` (`kvdock/router`)
 - [x] Add Window-TinyLFU (W-TinyLFU) high hit-ratio memory adapter with 4-bit CountMinSketch frequency filter (`kvdock/adapters/memory-wtinylfu`)
 - [x] Add bidirectional middleware interceptor pipeline (`dock.use`) and reactive mutation watchers (`dock.watch`) in core `KVDock`
+- [x] Add portable snapshot, tree dump, and batch restore engine in `kvdock/tooling/snapshot`
+- [x] Add type-safe Standard Schema & Zod runtime validation plugin with auto-healing in `kvdock/plugins/schema`

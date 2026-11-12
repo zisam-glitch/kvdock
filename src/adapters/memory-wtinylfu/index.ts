@@ -422,3 +422,5 @@ export class MemoryWTinyLFUAdapter implements StorageAdapter {
     await this.clear();
   }
 }
+
+export { MemoryWTinyLFUAdapter as WindowTinyLFUAdapter };

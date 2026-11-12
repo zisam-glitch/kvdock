@@ -27,6 +27,11 @@ export interface RedisBusOptions {
   readonly busId?: string;
 }
 
+export interface RedisPubSubConfig extends RedisBusOptions {
+  pubClient: RedisPubSubClient;
+  subClient: RedisPubSubClient;
+}
+
 export class RedisPubSubBus implements KVDockBus {
   public readonly id: string;
   private readonly pubClient: RedisPubSubClient;
@@ -37,14 +42,24 @@ export class RedisPubSubBus implements KVDockBus {
   private isSubscribed = false;
 
   constructor(
-    pubClient: RedisPubSubClient,
-    subClient: RedisPubSubClient,
+    pubOrOptions: RedisPubSubClient | RedisPubSubConfig,
+    subClient?: RedisPubSubClient,
     options?: RedisBusOptions,
   ) {
-    this.pubClient = pubClient;
-    this.subClient = subClient;
-    this.channel = options?.channel ?? "kvdock_cache_sync";
-    this.id = options?.busId ?? generateUUID();
+    if ("pubClient" in pubOrOptions && "subClient" in pubOrOptions) {
+      this.pubClient = pubOrOptions.pubClient;
+      this.subClient = pubOrOptions.subClient;
+      this.channel = pubOrOptions.channel ?? "kvdock_cache_sync";
+      this.id = pubOrOptions.busId ?? generateUUID();
+    } else {
+      if (!subClient) {
+        throw new Error("RedisPubSubBus requires both pubClient and subClient.");
+      }
+      this.pubClient = pubOrOptions as RedisPubSubClient;
+      this.subClient = subClient;
+      this.channel = options?.channel ?? "kvdock_cache_sync";
+      this.id = options?.busId ?? generateUUID();
+    }
 
     this.onMessageBound = (ch: string, raw: string) => {
       if (ch !== this.channel) return;

@@ -155,6 +155,11 @@
       "import": "./dist/plugins/rate-limiter/index.js",
       "require": "./dist/plugins/rate-limiter/index.cjs"
     },
+    "./plugins/schema": {
+      "types": "./dist/plugins/schema/index.d.ts",
+      "import": "./dist/plugins/schema/index.js",
+      "require": "./dist/plugins/schema/index.cjs"
+    },
     "./plugins/opentelemetry": {
       "types": "./dist/plugins/opentelemetry/index.d.ts",
       "import": "./dist/plugins/opentelemetry/index.js",
@@ -214,6 +219,11 @@
       "types": "./dist/tooling/migrate.d.ts",
       "import": "./dist/tooling/migrate.js",
       "require": "./dist/tooling/migrate.cjs"
+    },
+    "./tooling/snapshot": {
+      "types": "./dist/tooling/snapshot.d.ts",
+      "import": "./dist/tooling/snapshot.js",
+      "require": "./dist/tooling/snapshot.cjs"
     },
     "./tooling": {
       "types": "./dist/tooling/index.d.ts",
