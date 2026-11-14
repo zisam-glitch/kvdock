@@ -52,6 +52,22 @@ describe.runIf(isNativeSqliteSupported)(
       expect(okFail).toBe(false);
       expect(await adapter.get("counter")).toBe("2");
 
+      // Test touch and ttl
+      await adapter.set("timed", "hello", { ttl: 200 });
+      const remaining = await adapter.ttl("timed");
+      expect(remaining).toBeGreaterThan(0);
+      expect(remaining).toBeLessThanOrEqual(200);
+
+      const touched = await adapter.touch("timed", 4000);
+      expect(touched).toBe(true);
+
+      const refreshed = await adapter.ttl("timed");
+      expect(refreshed).toBeGreaterThan(3000);
+      expect(refreshed).toBeLessThanOrEqual(4000);
+
+      expect(await adapter.touch("ghost", 1000)).toBe(false);
+      expect(await adapter.ttl("ghost")).toBeNull();
+
       await adapter.disconnect();
     });
   },

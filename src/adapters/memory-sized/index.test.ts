@@ -53,4 +53,23 @@ describe("SizedMemoryAdapter", () => {
     expect(adapter.getByteFootprint()).toBe(0);
     expect(await adapter.keys()).toEqual([]);
   });
+
+  it("supports touch and ttl inspection", async () => {
+    const adapter = new SizedMemoryAdapter({ maxBytes: 1000 });
+    await adapter.set("timed", "hello", { ttl: 50 });
+
+    const remaining = await adapter.ttl("timed");
+    expect(remaining).toBeGreaterThan(0);
+    expect(remaining).toBeLessThanOrEqual(50);
+
+    const touched = await adapter.touch("timed", 4000);
+    expect(touched).toBe(true);
+
+    const refreshed = await adapter.ttl("timed");
+    expect(refreshed).toBeGreaterThan(3000);
+    expect(refreshed).toBeLessThanOrEqual(4000);
+
+    expect(await adapter.touch("missing", 1000)).toBe(false);
+    expect(await adapter.ttl("missing")).toBeNull();
+  });
 });

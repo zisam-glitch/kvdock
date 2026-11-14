@@ -60,6 +60,7 @@ export class SQLiteAdapter implements StorageAdapter {
   private stmtUpsert!: SQLiteStatement;
   private stmtInsertNx!: SQLiteStatement;
   private stmtUpdateXx!: SQLiteStatement;
+  private stmtTouch!: SQLiteStatement;
   private stmtAllKeys!: SQLiteStatement;
 
   constructor(options: SQLiteAdapterOptions = {}) {
@@ -100,6 +101,9 @@ export class SQLiteAdapter implements StorageAdapter {
     );
     this.stmtUpdateXx = this.db.prepare(
       `UPDATE "${table}" SET value = ?, expires_at = ? WHERE key = ?`,
+    );
+    this.stmtTouch = this.db.prepare(
+      `UPDATE "${table}" SET expires_at = ? WHERE key = ? AND (expires_at IS NULL OR expires_at > ?)`,
     );
     this.stmtAllKeys = this.db.prepare(`SELECT key, expires_at FROM "${table}"`);
   }
@@ -166,6 +170,27 @@ export class SQLiteAdapter implements StorageAdapter {
 
   public async has(key: string): Promise<boolean> {
     return (await this.get(key)) !== null;
+  }
+
+  public async touch(key: string, ttl: number): Promise<boolean> {
+    const k = this.pkey(key);
+    const now = Date.now();
+    const expiresAt = now + ttl;
+    const res = this.stmtTouch.run(expiresAt, k, now);
+    return Number(res.changes) > 0;
+  }
+
+  public async ttl(key: string): Promise<number | null> {
+    const k = this.pkey(key);
+    const row = this.stmtGet.get(k) as { value: string; expires_at: number | null } | undefined;
+    if (!row) return null;
+    if (row.expires_at !== null && row.expires_at <= Date.now()) {
+      this.stmtDel.run(k);
+      return null;
+    }
+    if (row.expires_at === null) return null;
+    const remaining = row.expires_at - Date.now();
+    return remaining > 0 ? remaining : 0;
   }
 
   public async clear(): Promise<void> {

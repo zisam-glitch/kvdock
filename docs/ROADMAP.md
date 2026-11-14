@@ -30,5 +30,5 @@
 - [x] Add portable snapshot, tree dump, and batch restore engine in `kvdock/tooling/snapshot`
 - [x] Add type-safe Standard Schema & Zod runtime validation plugin with auto-healing in `kvdock/plugins/schema`
 - [x] Add atomic counter primitives (`dock.increment`, `dock.decrement`) with optimistic CAS concurrency in core `KVDock`
-- [ ] Add non-destructive TTL refresh (`dock.touch`) and remaining TTL inspection (`dock.ttl`) in core `KVDock`
+- [x] Add non-destructive TTL refresh (`dock.touch`) and remaining TTL inspection (`dock.ttl`) in core `KVDock`
 - [ ] Add snapshot dump and restore CLI subcommands (`kvdock dump`, `kvdock restore`) with JSON export

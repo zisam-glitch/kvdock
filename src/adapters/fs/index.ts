@@ -117,6 +117,44 @@ export class FsAdapter implements StorageAdapter {
     return (await this.get(key)) !== null;
   }
 
+  public async touch(key: string, ttl: number): Promise<boolean> {
+    await this.ensureInit();
+    const filepath = this.keyToPath(key);
+    try {
+      const raw = await readFile(filepath, "utf-8");
+      const parsed: StoredPayload = JSON.parse(raw);
+      if (parsed.expiresAt !== null && parsed.expiresAt <= Date.now()) {
+        await unlink(filepath).catch(() => {});
+        return false;
+      }
+      parsed.expiresAt = Date.now() + ttl;
+      const tmpPath = `${filepath}.${randomUUID()}.tmp`;
+      await writeFile(tmpPath, JSON.stringify(parsed), "utf-8");
+      await rename(tmpPath, filepath);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  public async ttl(key: string): Promise<number | null> {
+    await this.ensureInit();
+    const filepath = this.keyToPath(key);
+    try {
+      const raw = await readFile(filepath, "utf-8");
+      const parsed: StoredPayload = JSON.parse(raw);
+      if (parsed.expiresAt !== null && parsed.expiresAt <= Date.now()) {
+        await unlink(filepath).catch(() => {});
+        return null;
+      }
+      if (parsed.expiresAt === null) return null;
+      const diff = parsed.expiresAt - Date.now();
+      return diff > 0 ? diff : 0;
+    } catch {
+      return null;
+    }
+  }
+
   public async clear(): Promise<void> {
     await rm(this.baseDir, { recursive: true, force: true });
     this.initialized = false;

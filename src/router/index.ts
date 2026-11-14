@@ -123,6 +123,16 @@ export class RouterDock {
     return dock.delete(subKey);
   }
 
+  public async touch(key: string, ttl?: number): Promise<boolean> {
+    const { dock, subKey } = this.resolve(key);
+    return dock.touch(subKey, ttl);
+  }
+
+  public async ttl(key: string): Promise<number | null> {
+    const { dock, subKey } = this.resolve(key);
+    return dock.ttl(subKey);
+  }
+
   public async compareAndSwap<T = unknown>(
     key: string,
     expected: T | null,

@@ -72,4 +72,25 @@ describe("TieredDock (L1/L2 Caching Engine)", () => {
     }
     expect(tiered.stats.stampedeCoalesced).toBe(9);
   });
+
+  it("touches TTL across both tiers and inspects remaining TTL", async () => {
+    const l1 = new MemoryAdapter();
+    const l2 = new MemoryAdapter();
+    const tiered = new TieredDock({ l1, l2, defaultTTL: 1000 });
+
+    await tiered.set("timed_key", "timed_val", { ttl: 200 });
+    const initialTtl = await tiered.ttl("timed_key");
+    expect(initialTtl).toBeGreaterThan(0);
+    expect(initialTtl).toBeLessThanOrEqual(200);
+
+    const touched = await tiered.touch("timed_key", 8000);
+    expect(touched).toBe(true);
+
+    const refreshedTtl = await tiered.ttl("timed_key");
+    expect(refreshedTtl).toBeGreaterThan(7000);
+    expect(refreshedTtl).toBeLessThanOrEqual(8000);
+
+    expect(await tiered.touch("nonexistent_key", 5000)).toBe(false);
+    expect(await tiered.ttl("nonexistent_key")).toBeNull();
+  });
 });

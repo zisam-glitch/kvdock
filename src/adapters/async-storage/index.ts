@@ -155,6 +155,31 @@ export class AsyncStorageAdapter implements StorageAdapter {
     return (await this.get(key)) !== null;
   }
 
+  public async touch(key: string, ttl: number): Promise<boolean> {
+    try {
+      const raw = await this.storage.getItem(this.fullKey(key));
+      const envelope = this.parseEnvelope(raw, key);
+      if (!envelope) return false;
+      envelope.e = Date.now() + ttl;
+      await this.storage.setItem(this.fullKey(key), JSON.stringify(envelope));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  public async ttl(key: string): Promise<number | null> {
+    try {
+      const raw = await this.storage.getItem(this.fullKey(key));
+      const envelope = this.parseEnvelope(raw, key);
+      if (!envelope || envelope.e === null) return null;
+      const diff = envelope.e - Date.now();
+      return diff > 0 ? diff : 0;
+    } catch {
+      return null;
+    }
+  }
+
   public async clear(): Promise<void> {
     try {
       const allKeys = await this.storage.getAllKeys();

@@ -45,6 +45,15 @@ describe("MongoDBAdapter specifics", () => {
     const remaining = await adapter.ttl("timed_key");
     expect(remaining).toBeGreaterThan(0);
     expect(remaining).toBeLessThanOrEqual(5000);
+
+    const touched = await adapter.touch("timed_key", 10_000);
+    expect(touched).toBe(true);
+
+    const newRemaining = await adapter.ttl("timed_key");
+    expect(newRemaining).toBeGreaterThan(5000);
+    expect(newRemaining).toBeLessThanOrEqual(10_000);
+
+    expect(await adapter.touch("not_exist", 5000)).toBe(false);
   });
 
   it("returns null TTL for persistent keys", async () => {

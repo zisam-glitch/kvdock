@@ -170,6 +170,19 @@ export class TieredDock {
     }
   }
 
+  public async touch(key: string, ttl?: number): Promise<boolean> {
+    const l2Touched = await this.l2Dock.touch(key, ttl);
+    const l1Has = await this.l1Dock.has(key);
+    if (l1Has) {
+      await this.l1Dock.touch(key, this.l1TTL ?? ttl);
+    }
+    return l2Touched;
+  }
+
+  public async ttl(key: string): Promise<number | null> {
+    return this.l2Dock.ttl(key);
+  }
+
   public async invalidateTag(tag: string): Promise<void> {
     const tagKey = `__tag__:${tag}`;
     const raw = await this.l2Dock.get<string | string[]>(tagKey);

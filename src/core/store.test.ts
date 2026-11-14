@@ -684,4 +684,142 @@ describe("KVDock core", () => {
       expect(watchEvents.some((e) => e.type === "set" && e.key === "counter")).toBe(true);
     });
   });
+
+  describe("dock.touch and dock.ttl", () => {
+    it("refreshes TTL non-destructively on existing keys", async () => {
+      const adapter = new MemoryAdapter();
+      const dock = new KVDock({ adapter });
+
+      await dock.set("session", { user: "alice" }, { ttl: 50 });
+      const initialTtl = await dock.ttl("session");
+      expect(initialTtl).toBeGreaterThan(0);
+      expect(initialTtl).toBeLessThanOrEqual(50);
+
+      // Refresh TTL non-destructively to 5000ms
+      const touched = await dock.touch("session", 5000);
+      expect(touched).toBe(true);
+
+      const refreshedTtl = await dock.ttl("session");
+      expect(refreshedTtl).toBeGreaterThan(4000);
+      expect(refreshedTtl).toBeLessThanOrEqual(5000);
+
+      // Stored value remains identical
+      const value = await dock.get<{ user: string }>("session");
+      expect(value).toEqual({ user: "alice" });
+    });
+
+    it("returns false from touch for missing or expired keys", async () => {
+      const adapter = new MemoryAdapter();
+      const dock = new KVDock({ adapter });
+
+      expect(await dock.touch("nonexistent", 1000)).toBe(false);
+      expect(await dock.ttl("nonexistent")).toBeNull();
+
+      await dock.set("expired", "bye", { ttl: 10 });
+      await new Promise((r) => setTimeout(r, 25));
+      expect(await dock.touch("expired", 1000)).toBe(false);
+      expect(await dock.ttl("expired")).toBeNull();
+    });
+
+    it("uses defaultTTL when ttl argument is omitted in touch", async () => {
+      const adapter = new MemoryAdapter();
+      const dock = new KVDock({ adapter, defaultTTL: 3000 });
+
+      await dock.set("pref", "dark");
+      expect(await dock.ttl("pref")).toBeGreaterThan(0);
+
+      const touched = await dock.touch("pref");
+      expect(touched).toBe(true);
+
+      const remaining = await dock.ttl("pref");
+      expect(remaining).toBeGreaterThan(2000);
+      expect(remaining).toBeLessThanOrEqual(3000);
+    });
+
+    it("throws TTLValidationError on invalid ttl for touch", async () => {
+      const adapter = new MemoryAdapter();
+      const dock = new KVDock({ adapter });
+
+      await dock.set("item", "test");
+      await expect(dock.touch("item")).rejects.toThrow(TTLValidationError);
+      await expect(dock.touch("item", 0)).rejects.toThrow(TTLValidationError);
+      await expect(dock.touch("item", -50)).rejects.toThrow(TTLValidationError);
+      await expect(dock.touch("item", 1.5)).rejects.toThrow(TTLValidationError);
+    });
+
+    it("returns null for ttl on persistent keys with no expiration", async () => {
+      const adapter = new MemoryAdapter();
+      const dock = new KVDock({ adapter });
+
+      await dock.set("forever", "immortal");
+      expect(await dock.ttl("forever")).toBeNull();
+    });
+
+    it("works with adapters lacking native touch/ttl via fallback", async () => {
+      const fallbackAdapter = new MockAdapter();
+      const dock = new KVDock({ adapter: fallbackAdapter });
+
+      await dock.set("cached", { foo: "bar" });
+      const touched = await dock.touch("cached", 2000);
+      expect(touched).toBe(true);
+
+      const value = await dock.get<{ foo: string }>("cached");
+      expect(value).toEqual({ foo: "bar" });
+
+      // Touching nonexistent key returns false
+      expect(await dock.touch("missing", 2000)).toBe(false);
+    });
+
+    it("refreshes TTL for SWR cached entries in getOrSet", async () => {
+      const adapter = new MemoryAdapter();
+      const dock = new KVDock({ adapter });
+
+      let fetches = 0;
+      await dock.getOrSet(
+        "swr_key",
+        async () => {
+          fetches++;
+          return { data: "fresh" };
+        },
+        { ttl: 100, staleWhileRevalidate: 200 },
+      );
+
+      expect(fetches).toBe(1);
+      const initialTtl = await dock.ttl("swr_key");
+      expect(initialTtl).toBeGreaterThan(0);
+      expect(initialTtl).toBeLessThanOrEqual(100);
+
+      // Touch with 5000ms TTL
+      const touched = await dock.touch("swr_key", 5000);
+      expect(touched).toBe(true);
+
+      const refreshedTtl = await dock.ttl("swr_key");
+      expect(refreshedTtl).toBeGreaterThan(4500);
+
+      const cached = await dock.get<{ data: string }>("swr_key");
+      expect(cached).toEqual({ data: "fresh" });
+      expect(fetches).toBe(1);
+    });
+
+    it("emits touch event and notifies watchers", async () => {
+      const adapter = new MemoryAdapter();
+      const emitted: Array<{ type: string; key?: string; meta?: Record<string, unknown> }> = [];
+      const watched: WatchEvent[] = [];
+
+      const dock = new KVDock({
+        adapter,
+        onEvent: (e) => emitted.push({ type: e.type, key: e.key, meta: e.meta }),
+      });
+
+      dock.watch((e) => watched.push(e));
+
+      await dock.set("watched_key", "val", { ttl: 1000 });
+      await dock.touch("watched_key", 6000);
+
+      expect(emitted.some((e) => e.type === "touch" && e.key === "watched_key")).toBe(true);
+      expect(
+        watched.some((e) => e.type === "touch" && e.key === "watched_key" && e.ttl === 6000),
+      ).toBe(true);
+    });
+  });
 });

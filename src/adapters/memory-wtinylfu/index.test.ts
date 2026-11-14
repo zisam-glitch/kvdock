@@ -48,5 +48,24 @@ describe("MemoryWTinyLFUAdapter", () => {
       // Accessing again promotes from probation to protected
       expect(await adapter.get("promo_key")).toBe("promo_val");
     });
+
+    it("supports non-destructive touch and ttl inspection", async () => {
+      const adapter = new MemoryWTinyLFUAdapter({ maxSize: 10 });
+      await adapter.set("timed", "value", { ttl: 50 });
+
+      const remaining = await adapter.ttl("timed");
+      expect(remaining).toBeGreaterThan(0);
+      expect(remaining).toBeLessThanOrEqual(50);
+
+      const touched = await adapter.touch("timed", 6000);
+      expect(touched).toBe(true);
+
+      const refreshed = await adapter.ttl("timed");
+      expect(refreshed).toBeGreaterThan(5000);
+      expect(refreshed).toBeLessThanOrEqual(6000);
+
+      expect(await adapter.touch("missing", 1000)).toBe(false);
+      expect(await adapter.ttl("missing")).toBeNull();
+    });
   });
 });

@@ -81,4 +81,23 @@ describe("MemoryAdapter (LRU & In-Memory specifics)", () => {
     await Promise.all(operations);
     expect(await adapter.has("stress:0")).toBe(true);
   });
+
+  it("touches TTL and inspects remaining TTL", async () => {
+    const adapter = new MemoryAdapter();
+    await adapter.set("timed", "value", { ttl: 50 });
+
+    const remaining = await adapter.ttl("timed");
+    expect(remaining).toBeGreaterThan(0);
+    expect(remaining).toBeLessThanOrEqual(50);
+
+    const touched = await adapter.touch("timed", 5000);
+    expect(touched).toBe(true);
+
+    const newTtl = await adapter.ttl("timed");
+    expect(newTtl).toBeGreaterThan(4000);
+    expect(newTtl).toBeLessThanOrEqual(5000);
+
+    expect(await adapter.touch("missing", 1000)).toBe(false);
+    expect(await adapter.ttl("missing")).toBeNull();
+  });
 });

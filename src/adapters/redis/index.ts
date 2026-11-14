@@ -13,6 +13,10 @@ export interface RedisClientInterface {
   flushdb?(): Promise<unknown>;
   keys(pattern: string): Promise<string[]>;
   mget?(...keys: string[]): Promise<Array<string | null>>;
+  pexpire?(key: string, milliseconds: number): Promise<number>;
+  expire?(key: string, seconds: number): Promise<number>;
+  pttl?(key: string): Promise<number>;
+  ttl?(key: string): Promise<number>;
   disconnect?(): Promise<void>;
 }
 
@@ -94,6 +98,38 @@ export class RedisAdapter implements StorageAdapter {
   public async has(key: string): Promise<boolean> {
     const count = await this.client.exists(this.pkey(key));
     return count > 0;
+  }
+
+  public async touch(key: string, ttl: number): Promise<boolean> {
+    const k = this.pkey(key);
+    if (typeof this.client.pexpire === "function") {
+      const res = await this.client.pexpire(k, ttl);
+      return res === 1;
+    }
+    if (typeof this.client.expire === "function") {
+      const seconds = Math.max(1, Math.ceil(ttl / 1000));
+      const res = await this.client.expire(k, seconds);
+      return res === 1;
+    }
+    const val = await this.client.get(k);
+    if (val === null || val === undefined) return false;
+    await this.client.set(k, val, "PX", ttl, "XX");
+    return true;
+  }
+
+  public async ttl(key: string): Promise<number | null> {
+    const k = this.pkey(key);
+    if (typeof this.client.pttl === "function") {
+      const res = await this.client.pttl(k);
+      if (res >= 0) return res;
+      return null;
+    }
+    if (typeof this.client.ttl === "function") {
+      const res = await this.client.ttl(k);
+      if (res >= 0) return res * 1000;
+      return null;
+    }
+    return null;
   }
 
   public async clear(): Promise<void> {
