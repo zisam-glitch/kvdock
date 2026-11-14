@@ -414,6 +414,7 @@ export class KVDock {
       const durationMs = performance.now() - start;
       if (success) {
         this.metrics.casSuccess++;
+        this.notifyWatchers({ type: "set", key, value: update });
         this.emit("cas", key, { success: true, durationMs });
       } else {
         this.metrics.casFailure++;
@@ -441,6 +442,97 @@ export class KVDock {
     this.metrics.casSuccess++;
     this.emit("cas", key, { success: true, durationMs });
     return true;
+  }
+
+  /**
+   * Atomically increments the numeric value stored at key by delta (default 1).
+   * If key does not exist, it is initialized to delta.
+   * If the adapter provides native increment, it is used; otherwise an optimistic
+   * Compare-And-Swap (CAS) retry loop ensures concurrency safety without lost updates.
+   *
+   * @param key Storage key
+   * @param delta Amount to increment (positive or negative finite number, default 1)
+   * @param options Set options including TTL
+   * @returns The updated numeric value
+   */
+  public async increment(key: string, delta = 1, options?: SetOptions): Promise<number> {
+    if (typeof delta !== "number" || !Number.isFinite(delta)) {
+      throw new TypeError(`Increment delta must be a finite number, received ${String(delta)}`);
+    }
+
+    const ttl = options?.ttl ?? this.defaultTTL;
+    validateTTL(ttl);
+    const resolved = this.resolveKey(key);
+
+    if (this.adapter.increment && typeof this.adapter.increment === "function") {
+      const result = await this.adapter.increment(resolved, delta, { ...options, ttl });
+      this.metrics.sets++;
+      this.notifyWatchers({ type: "set", key, value: result });
+      this.emit("increment", key, { delta, result });
+      return result;
+    }
+
+    const maxRetries = 50;
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      const current = await this.get<unknown>(key);
+      let targetValue: number;
+      let expected: unknown;
+
+      if (current === null || current === undefined) {
+        targetValue = delta;
+        expected = null;
+      } else if (typeof current === "number") {
+        if (!Number.isFinite(current)) {
+          throw new TypeError(`Cannot increment non-finite number for key "${key}"`);
+        }
+        targetValue = current + delta;
+        expected = current;
+      } else if (
+        typeof current === "string" &&
+        !Number.isNaN(Number(current)) &&
+        current.trim() !== ""
+      ) {
+        targetValue = Number(current) + delta;
+        expected = current;
+      } else {
+        throw new TypeError(
+          `Cannot increment non-numeric value of type ${typeof current} for key "${key}"`,
+        );
+      }
+
+      const success = await this.compareAndSwap(key, expected, targetValue, { ...options, ttl });
+      if (success) {
+        this.emit("increment", key, { delta, result: targetValue });
+        return targetValue;
+      }
+
+      if (attempt < maxRetries - 1) {
+        await new Promise((r) =>
+          setTimeout(r, Math.min(2 ** Math.min(attempt, 6) + Math.floor(Math.random() * 5), 50)),
+        );
+      }
+    }
+
+    throw new Error(`Failed to increment key "${key}" after ${maxRetries} concurrent CAS attempts`);
+  }
+
+  /**
+   * Atomically decrements the numeric value stored at key by delta (default 1).
+   * Convenience wrapper around increment(key, -delta, options).
+   *
+   * @param key Storage key
+   * @param delta Amount to decrement (positive or negative finite number, default 1)
+   * @param options Set options including TTL
+   * @returns The updated numeric value
+   */
+  public async decrement(key: string, delta = 1, options?: SetOptions): Promise<number> {
+    if (typeof delta !== "number" || !Number.isFinite(delta)) {
+      throw new TypeError(`Decrement delta must be a finite number, received ${String(delta)}`);
+    }
+
+    const result = await this.increment(key, -delta, options);
+    this.emit("decrement", key, { delta, result });
+    return result;
   }
 
   public async invalidateTag(tag: string): Promise<number> {
