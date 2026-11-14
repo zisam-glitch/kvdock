@@ -27,7 +27,9 @@ Most teams start caching with simple in-memory Maps or raw Redis clients. Soon, 
 - **Single-Flight Promise Coalescing**: `dock.getOrSet(key, fetcher)` ensures that if 1,000 requests arrive for a missing or expired key, the expensive fetcher is invoked exactly once. All other callers await that single in-flight promise.
 - **Native Multi-Tier Engine (`TieredDock`)**: Declaratively combine L1 RAM (< 0.05ms) with L2 Redis/Upstash/Postgres. Reads hit L1 first; on miss, it pulls from L2 and promotes back to L1 automatically.
 - **Streaming Scans (`dock.scan()`)**: Memory-safe `AsyncIterable` stream scanning to traverse keys without buffer exhaustion.
-- **Executable Recipes & Honest Maturity**: Complete runnable examples in `examples/` (distributed locks with fencing tokens, multi-tier stampede mitigation, Hono edge caching) and an explicit maturity matrix (Stable vs Experimental) in README.
+- **AI / LLM Response Caching**: Built-in deterministic prompt hashing and single-flight coalescing to eliminate duplicate LLM token costs under burst traffic (`createLLMCachePlugin`).
+- **Next.js 15 App Router Cache Handler**: Drop-in `cacheHandler` allowing self-hosters (Docker, Coolify, Railway) to pair RAM + Redis/SQLite and bypass proprietary Vercel KV fees.
+- **Executable Recipes & Honest Maturity**: Complete runnable examples in `examples/` (LLM token savings, distributed locks with fencing tokens, multi-tier stampede mitigation, Hono edge caching) and an explicit maturity matrix in README.
 
 ### Code Example:
 ```typescript
