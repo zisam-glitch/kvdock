@@ -122,6 +122,8 @@ export interface StorageAdapter {
     update: T,
     options?: SetOptions,
   ): Promise<boolean>;
+  increment?(key: string, delta?: number, options?: SetOptions): Promise<number>;
+  decrement?(key: string, delta?: number, options?: SetOptions): Promise<number>;
   scan?(pattern?: string, options?: ScanOptions): AsyncIterable<string>;
 
   disconnect?(): Promise<void>;
@@ -142,6 +144,8 @@ export type KVDockEventType =
   | "delete"
   | "clear"
   | "cas"
+  | "increment"
+  | "decrement"
   | "stampede_coalesced"
   | "stale_hit"
   | "grace_hit"

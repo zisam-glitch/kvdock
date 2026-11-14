@@ -394,6 +394,27 @@ const jsonBackup = exportSnapshotToJSON(snapshot, true);
 await restoreSnapshot(memoryDock, snapshot, { keyPrefix: "staging:" });
 ```
 
+### 15. Atomic Counters: Concurrency-Safe `increment` & `decrement`
+
+Safely increment and decrement numeric counters (page hits, inventory, sequence numbers, rate limits) without lost updates using optimistic Compare-And-Swap (CAS) concurrency control:
+
+```typescript
+import { KVDock } from "kvdock";
+import { MemoryAdapter } from "kvdock/adapters/memory";
+
+const dock = new KVDock({ adapter: new MemoryAdapter() });
+
+// Atomically increment (initializes missing keys to delta)
+const views = await dock.increment("page:views:home"); // 1
+await dock.increment("page:views:home", 5);            // 6
+
+// Decrement counter
+const stock = await dock.decrement("inventory:item_9", 2);
+
+// Passes through TTL and fires reactive mutation watchers
+await dock.increment("rate:ip:127.0.0.1", 1, { ttl: 60_000 });
+```
+
 > Benchmark performance: see [BENCHMARKS.md](docs/BENCHMARKS.md) for empirical payload compression and throughput evaluations.
 
 ---

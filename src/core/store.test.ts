@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { MemoryAdapter } from "../adapters/memory/index.js";
 import { TTLValidationError } from "./errors.js";
 import { KVDock } from "./store.js";
 import type { StorageAdapter, WatchEvent } from "./types.js";
@@ -531,6 +532,156 @@ describe("KVDock core", () => {
       unsubscribe();
       await dock.set("ignored", 123);
       expect(events).toHaveLength(3);
+    });
+  });
+
+  describe("Atomic Counters (increment / decrement)", () => {
+    it("increments a non-existent key initializing it to delta", async () => {
+      const adapter = new MockAdapter();
+      const dock = new KVDock({ adapter });
+
+      const res1 = await dock.increment("counter");
+      expect(res1).toBe(1);
+      expect(await dock.get<number>("counter")).toBe(1);
+
+      const res2 = await dock.increment("custom_init", 42);
+      expect(res2).toBe(42);
+      expect(await dock.get<number>("custom_init")).toBe(42);
+    });
+
+    it("increments an existing numeric key by positive and negative deltas", async () => {
+      const adapter = new MockAdapter();
+      const dock = new KVDock({ adapter });
+
+      await dock.set("views", 100);
+      const val1 = await dock.increment("views", 5);
+      expect(val1).toBe(105);
+      expect(await dock.get<number>("views")).toBe(105);
+
+      const val2 = await dock.increment("views", -15);
+      expect(val2).toBe(90);
+      expect(await dock.get<number>("views")).toBe(90);
+    });
+
+    it("supports decrement wrapper", async () => {
+      const adapter = new MockAdapter();
+      const dock = new KVDock({ adapter });
+
+      await dock.set("stock", 50);
+      const val1 = await dock.decrement("stock");
+      expect(val1).toBe(49);
+
+      const val2 = await dock.decrement("stock", 9);
+      expect(val2).toBe(40);
+      expect(await dock.get<number>("stock")).toBe(40);
+
+      const val3 = await dock.decrement("new_stock", 5);
+      expect(val3).toBe(-5);
+      expect(await dock.get<number>("new_stock")).toBe(-5);
+    });
+
+    it("handles floating point decimal increments", async () => {
+      const adapter = new MockAdapter();
+      const dock = new KVDock({ adapter });
+
+      await dock.set("balance", 10.5);
+      const val = await dock.increment("balance", 2.25);
+      expect(val).toBeCloseTo(12.75);
+    });
+
+    it("handles numeric strings stored in adapter", async () => {
+      const adapter = new MockAdapter();
+      const dock = new KVDock({ adapter });
+
+      await dock.set("str_num", "99");
+      const val = await dock.increment("str_num", 1);
+      expect(val).toBe(100);
+    });
+
+    it("throws TypeError on non-finite delta", async () => {
+      const adapter = new MockAdapter();
+      const dock = new KVDock({ adapter });
+
+      // @ts-expect-error invalid delta type testing
+      await expect(dock.increment("k", "invalid")).rejects.toThrow(TypeError);
+      await expect(dock.increment("k", Number.NaN)).rejects.toThrow(TypeError);
+      await expect(dock.increment("k", Number.POSITIVE_INFINITY)).rejects.toThrow(TypeError);
+      // @ts-expect-error invalid delta type testing
+      await expect(dock.decrement("k", "invalid")).rejects.toThrow(TypeError);
+    });
+
+    it("throws TypeError when incrementing non-numeric existing value", async () => {
+      const adapter = new MockAdapter();
+      const dock = new KVDock({ adapter });
+
+      await dock.set("obj_key", { count: 1 });
+      await expect(dock.increment("obj_key", 1)).rejects.toThrow(TypeError);
+
+      await dock.set("bool_key", true);
+      await expect(dock.increment("bool_key", 1)).rejects.toThrow(TypeError);
+
+      await dock.set("str_key", "hello");
+      await expect(dock.increment("str_key", 1)).rejects.toThrow(TypeError);
+    });
+
+    it("delegates to adapter.increment if natively provided", async () => {
+      let adapterCalled = false;
+      const nativeAdapter: StorageAdapter = {
+        name: "native-inc",
+        capabilities: { ttl: true, batch: false, scan: false, cas: false, binary: false },
+        get: async () => null,
+        set: async () => {},
+        delete: async () => true,
+        has: async () => false,
+        clear: async () => {},
+        keys: async () => [],
+        increment: async (_key, delta) => {
+          adapterCalled = true;
+          return 100 + (delta ?? 1);
+        },
+      };
+
+      const dock = new KVDock({ adapter: nativeAdapter });
+      const result = await dock.increment("page:hits", 5);
+      expect(adapterCalled).toBe(true);
+      expect(result).toBe(105);
+    });
+
+    it("handles concurrent increments without race conditions (CAS retry loop)", async () => {
+      const adapter = new MemoryAdapter();
+      const dock = new KVDock({ adapter });
+
+      const concurrency = 25;
+      const promises = Array.from({ length: concurrency }, () => dock.increment("shared_counter"));
+      const results = await Promise.all(promises);
+
+      expect(results).toHaveLength(concurrency);
+      const finalVal = await dock.get<number>("shared_counter");
+      expect(finalVal).toBe(concurrency);
+    });
+
+    it("emits increment and decrement events and notifies watchers", async () => {
+      const adapter = new MockAdapter();
+      const emittedEvents: Array<{ type: string; key?: string }> = [];
+      const watchEvents: WatchEvent[] = [];
+
+      const dock = new KVDock({
+        adapter,
+        onEvent: (e) => {
+          emittedEvents.push({ type: e.type, key: e.key });
+        },
+      });
+
+      dock.watch((e) => {
+        watchEvents.push(e);
+      });
+
+      await dock.increment("counter", 10);
+      await dock.decrement("counter", 3);
+
+      expect(emittedEvents.some((e) => e.type === "increment" && e.key === "counter")).toBe(true);
+      expect(emittedEvents.some((e) => e.type === "decrement" && e.key === "counter")).toBe(true);
+      expect(watchEvents.some((e) => e.type === "set" && e.key === "counter")).toBe(true);
     });
   });
 });
