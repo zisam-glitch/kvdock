@@ -40,20 +40,14 @@ After auditing `zisam-glitch/kvdock` and researching top fast-growing TypeScript
   - Added `up-for-grabs` and `first-timers-only` labels to issues `#122`, `#124`, `#126`, `#128`, `#129` so global aggregators (`goodfirstissue.dev`, `up-for-grabs.net`, `firsttimersonly.com`) index `kvdock`.
   - Added a friendly `⭐ Starred zisam-glitch/kvdock` checklist prompt to `.github/PULL_REQUEST_TEMPLATE.md` and `CONTRIBUTING.md`.
 
-### 4. Curated "Awesome List" Pull Requests *(AUTOMATED SCRIPT READY)*
+### 4. Curated "Awesome List" Pull Requests *(3 LIVE PRs SUBMITTED)*
 * **Problem**: `docs/launch/awesome-lists.md` was drafted on Nov 3, but **0 PRs** were ever submitted to external Awesome lists.
-* **High-Probability Awesome Targets**:
-  1. `elysiajs/awesome-elysia` (`## Plugins` — currently has 0 caching plugins!)
-  2. `oven-sh/awesome-bun` (`### Libraries` — 3,681 stars, no minimum star gate)
-  3. `officialrajdeepsingh/awesome-nextjs` (`## Cache Handler` — 718 stars, currently only lists 1 library!)
-* **One-Command Execution**:
-  ```bash
-  # Preview the exact diffs:
-  npm run awesome:prs
-
-  # Automatically fork, branch, commit, and open the PRs via gh CLI:
-  node scripts/submit-awesome-prs.mjs --submit
-  ```
+* **Live Submitted Awesome PRs**:
+  1. **ElysiaJS Official Awesome List**: [elysiajs/awesome-elysia #33](https://github.com/elysiajs/awesome-elysia/pull/33) (`## Plugins`)
+  2. **Bun Official Awesome List (3,681+ stars)**: [oven-sh/awesome-bun #188](https://github.com/oven-sh/awesome-bun/pull/188) (`### Libraries`)
+  3. **Awesome Next.js (718+ stars)**: [officialrajdeepsingh/awesome-nextjs #106](https://github.com/officialrajdeepsingh/awesome-nextjs/pull/106) (`## Cache Handler`)
+* **Community Hub Discussion Live**:
+  - [👋 Welcome to the KVDock Community Hub (Discussion #130)](https://github.com/zisam-glitch/kvdock/discussions/130)
 
 ### 5. The "Goal-Gradient" Psychological Hook on Reddit & Show HN
 * **Why It Works**: Developers on Reddit (`r/typescript`, `r/javascript`, `r/nextjs`, `r/node`) and Hacker News (`Show HN`) are **3x–5x more likely to click Star** when they can test an interactive browser demo in 5 seconds AND see that the project is only a few stars away from its first milestone.

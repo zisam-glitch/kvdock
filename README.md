@@ -6,6 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Bundle Size](https://img.shields.io/bundlephobia/minzip/kvdock)](https://bundlephobia.com/package/kvdock)
 [![Interactive Playground](https://img.shields.io/badge/Playground-Live_Stampede_Simulator-38BDF8?style=flat-square&logo=googlechrome&logoColor=white)](https://zisam-glitch.github.io/kvdock/playground/index.html)
+[![Community Hub](https://img.shields.io/badge/Community_Hub-Join_Discussions-8B5CF6?style=flat-square&logo=github)](https://github.com/zisam-glitch/kvdock/discussions/130)
 [![Follow @zisam-glitch](https://img.shields.io/github/followers/zisam-glitch?label=Follow%20%40zisam-glitch&style=social)](https://github.com/zisam-glitch)
 
 Universal key-value and caching engine with zero-dependency core, pluggable storage adapters, multi-tier caching, and built-in cache stampede protection.

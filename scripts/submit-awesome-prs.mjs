@@ -12,7 +12,7 @@
  *   node scripts/submit-awesome-prs.mjs --submit   # Forks, branches, commits & opens PRs via gh CLI
  */
 
-import { execSync } from "node:child_process";
+import { execFileSync, execSync } from "node:child_process";
 
 const TARGETS = [
   {
@@ -133,8 +133,22 @@ async function main() {
       if (existingPrs.length > 0) {
         console.log(`  ✓ PR already exists: ${existingPrs[0].url} (${existingPrs[0].state})\n`);
       } else {
-        const prUrl = execSync(
-          `gh pr create --repo ${t.repo} --head zisam-glitch:${t.branch} --base ${defaultBranch} --title "${t.prTitle}" --body "${t.prBody.replace(/"/g, '\\"')}"`,
+        const prUrl = execFileSync(
+          "gh",
+          [
+            "pr",
+            "create",
+            "--repo",
+            t.repo,
+            "--head",
+            `zisam-glitch:${t.branch}`,
+            "--base",
+            defaultBranch,
+            "--title",
+            t.prTitle,
+            "--body",
+            t.prBody,
+          ],
           { encoding: "utf-8" }
         ).trim();
         console.log(`  🎉 Opened PR: ${prUrl}\n`);
