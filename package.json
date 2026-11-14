@@ -160,6 +160,11 @@
       "import": "./dist/plugins/schema/index.js",
       "require": "./dist/plugins/schema/index.cjs"
     },
+    "./plugins/llm-cache": {
+      "types": "./dist/plugins/llm-cache/index.d.ts",
+      "import": "./dist/plugins/llm-cache/index.js",
+      "require": "./dist/plugins/llm-cache/index.cjs"
+    },
     "./plugins/opentelemetry": {
       "types": "./dist/plugins/opentelemetry/index.d.ts",
       "import": "./dist/plugins/opentelemetry/index.js",

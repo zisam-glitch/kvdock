@@ -11,6 +11,7 @@ This directory contains executable, end-to-end examples demonstrating KVDock's f
 | **[hono-caching](./hono-caching/index.ts)** | Edge HTTP route caching, automatic ETag generation, conditional `304 Not Modified` revalidation, encrypted sessions | `npx tsx examples/hono-caching/index.ts` |
 | **[elysia-caching](./elysia-caching/index.ts)** | ElysiaJS & Bun.serve route caching, `BunSQLiteAdapter`, conditional 304, stampede coalescing | `npx tsx examples/elysia-caching/index.ts` |
 | **[nextjs-isr](./nextjs-isr/index.ts)** | Next.js 14/15 App Router IncrementalCache handler (`cacheHandler`), tag-based invalidation (`revalidateTag`) | `npx tsx examples/nextjs-isr/index.ts` |
+| **[llm-response-caching](./llm-response-caching/index.ts)** | AI / LLM response caching (OpenAI/Anthropic/Gemini), prompt hashing, stampede coalescing, cost reduction | `npx tsx examples/llm-response-caching/index.ts` |
 
 ## Running the Examples
 
@@ -31,4 +32,7 @@ npx tsx examples/elysia-caching/index.ts
 
 # Next.js 14/15 App Router ISR cache handler demo
 npx tsx examples/nextjs-isr/index.ts
+
+# AI / LLM response caching demo
+npx tsx examples/llm-response-caching/index.ts
 ```

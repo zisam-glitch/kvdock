@@ -30,6 +30,7 @@ export default defineConfig({
     "src/codecs/encryption.ts",
     "src/plugins/rate-limiter/index.ts",
     "src/plugins/schema/index.ts",
+    "src/plugins/llm-cache/index.ts",
     "src/plugins/opentelemetry/index.ts",
     "src/plugins/prometheus/index.ts",
     "src/middleware/lock.ts",

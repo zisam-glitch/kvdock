@@ -430,6 +430,31 @@ const stock = await dock.decrement("inventory:item_9", 2);
 await dock.increment("rate:ip:127.0.0.1", 1, { ttl: 60_000 });
 ```
 
+### 16. AI & LLM Response Caching (`createLLMCachePlugin`)
+
+Prevent duplicate LLM API bills (OpenAI, Anthropic, Gemini, DeepSeek) with deterministic prompt hashing, single-flight stampede protection, and model-level purging:
+
+```typescript
+import { KVDock, createLLMCachePlugin } from "kvdock";
+import { MemoryAdapter } from "kvdock/adapters/memory";
+
+const dock = new KVDock({ adapter: new MemoryAdapter() });
+const llmCache = createLLMCachePlugin({
+  dock,
+  defaultTTL: 86_400_000, // 24 hours
+  autoTagModel: true,     // Tags entries as "model:gpt-4o"
+});
+
+// 100 simultaneous users asking the same prompt -> API called exactly ONCE
+const response = await llmCache.wrap(
+  { model: "gpt-4o", prompt: "Explain quantum computing", temperature: 0.2 },
+  async () => openai.chat.completions.create(...)
+);
+
+// Invalidate all cached responses for a specific model
+await llmCache.invalidateModel("gpt-4o");
+```
+
 > Benchmark performance: see [BENCHMARKS.md](docs/BENCHMARKS.md) for empirical payload compression and throughput evaluations.
 
 ---
@@ -445,6 +470,7 @@ Check out the standalone, runnable applications in the **[`examples/`](examples/
 | **[`examples/distributed-lock`](examples/distributed-lock/index.ts)** | Distributed Mutex with monotonic fencing tokens, lease renewal, and Distributed Semaphore concurrency pooling | `npx tsx examples/distributed-lock/index.ts` |
 | **[`examples/hono-caching`](examples/hono-caching/index.ts)** | Edge HTTP route caching, automatic ETag generation, conditional `304 Not Modified` revalidation, encrypted sessions | `npx tsx examples/hono-caching/index.ts` |
 | **[`examples/nextjs-isr`](examples/nextjs-isr/index.ts)** | Next.js 14/15 App Router IncrementalCache handler (`cacheHandler`), tag-based invalidation (`revalidateTag`) | `npx tsx examples/nextjs-isr/index.ts` |
+| **[`examples/llm-response-caching`](examples/llm-response-caching/index.ts)** | AI / LLM response caching (OpenAI/Anthropic/Gemini), prompt hashing, stampede coalescing, cost reduction | `npx tsx examples/llm-response-caching/index.ts` |
 
 ---
 
