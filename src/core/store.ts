@@ -535,6 +535,112 @@ export class KVDock {
     return result;
   }
 
+  /**
+   * Refreshes or sets a new Time-To-Live (TTL) expiration on an existing key
+   * without altering its stored value.
+   *
+   * If key does not exist or has already expired, returns false.
+   * If key exists, updates its expiration to ttl milliseconds from now and returns true.
+   *
+   * @param key Storage key
+   * @param ttl Duration in milliseconds. If omitted, uses store defaultTTL.
+   * @returns True if key was found and TTL refreshed, false otherwise.
+   */
+  public async touch(key: string, ttl?: number): Promise<boolean> {
+    const effectiveTTL = ttl ?? this.defaultTTL;
+    if (effectiveTTL === undefined) {
+      throw new TTLValidationError(undefined);
+    }
+    validateTTL(effectiveTTL);
+
+    const start = performance.now();
+    const resolved = this.resolveKey(key);
+
+    const raw = await this.withTimeout(this.adapter.get<string>(resolved), undefined, "get");
+    if (raw === null || raw === undefined) {
+      return false;
+    }
+
+    let isSwr = false;
+    try {
+      const parsed = this.serializer.deserialize<unknown>(raw);
+      if (isSwrEnvelope(parsed)) {
+        isSwr = true;
+        const now = Date.now();
+        const swrWindow = parsed.staleUntil - parsed.freshUntil;
+        const graceWindow = parsed.graceUntil ? parsed.graceUntil - parsed.staleUntil : 0;
+        const freshUntil = now + effectiveTTL;
+        const staleUntil = freshUntil + swrWindow;
+        const graceUntil = staleUntil + graceWindow;
+        const updatedEnvelope: SwrEnvelope = {
+          ...parsed,
+          savedAt: now,
+          freshUntil,
+          staleUntil,
+          graceUntil,
+        };
+        const totalTTL = effectiveTTL + swrWindow + graceWindow;
+        await this.adapter.set(resolved, this.serializer.serialize(updatedEnvelope), {
+          ttl: totalTTL,
+        });
+      }
+    } catch {
+      // Non-deserializable or raw value
+    }
+
+    if (!isSwr) {
+      if (this.adapter.touch && typeof this.adapter.touch === "function") {
+        await this.withTimeout(this.adapter.touch(resolved, effectiveTTL), undefined, "touch");
+      } else {
+        await this.adapter.set(resolved, raw, { ttl: effectiveTTL });
+      }
+    }
+
+    const durationMs = performance.now() - start;
+    this.emit("touch", key, { ttl: effectiveTTL, durationMs });
+    this.notifyWatchers({ type: "touch", key, ttl: effectiveTTL });
+    this.log("debug", "touched key", { key, ttl: effectiveTTL });
+    return true;
+  }
+
+  /**
+   * Inspects the remaining Time-To-Live (TTL) in milliseconds for the given key.
+   *
+   * Returns:
+   * - remaining milliseconds (>= 0) if the key exists and has an active expiration.
+   * - null if the key does not exist, has expired, or is persistent with no expiration.
+   *
+   * @param key Storage key
+   * @returns Remaining TTL in milliseconds, or null.
+   */
+  public async ttl(key: string): Promise<number | null> {
+    const resolved = this.resolveKey(key);
+
+    const raw = await this.withTimeout(this.adapter.get<string>(resolved), undefined, "get");
+    if (raw === null || raw === undefined) {
+      return null;
+    }
+
+    try {
+      const parsed = this.serializer.deserialize<unknown>(raw);
+      if (isSwrEnvelope(parsed)) {
+        if (parsed.freshUntil === Number.POSITIVE_INFINITY) {
+          return null;
+        }
+        const remaining = parsed.freshUntil - Date.now();
+        return remaining > 0 ? remaining : 0;
+      }
+    } catch {
+      // Non-deserializable or raw string
+    }
+
+    if (this.adapter.ttl && typeof this.adapter.ttl === "function") {
+      return await this.withTimeout(this.adapter.ttl(resolved), undefined, "ttl");
+    }
+
+    return null;
+  }
+
   public async invalidateTag(tag: string): Promise<number> {
     const tagKey = `__tag__:${tag}`;
     const raw = await this.adapter.get<string>(this.resolveKey(tagKey));

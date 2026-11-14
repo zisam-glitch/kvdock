@@ -65,9 +65,10 @@ export interface StoreInterceptor {
 }
 
 export interface WatchEvent<T = unknown> {
-  readonly type: "set" | "delete" | "clear";
+  readonly type: "set" | "delete" | "clear" | "touch";
   readonly key?: string;
   readonly value?: T;
+  readonly ttl?: number;
 }
 
 export type WatchHandler<T = unknown> = (event: WatchEvent<T>) => void | Promise<void>;
@@ -124,6 +125,8 @@ export interface StorageAdapter {
   ): Promise<boolean>;
   increment?(key: string, delta?: number, options?: SetOptions): Promise<number>;
   decrement?(key: string, delta?: number, options?: SetOptions): Promise<number>;
+  touch?(key: string, ttl: number): Promise<boolean>;
+  ttl?(key: string): Promise<number | null>;
   scan?(pattern?: string, options?: ScanOptions): AsyncIterable<string>;
 
   disconnect?(): Promise<void>;
@@ -146,6 +149,7 @@ export type KVDockEventType =
   | "cas"
   | "increment"
   | "decrement"
+  | "touch"
   | "stampede_coalesced"
   | "stale_hit"
   | "grace_hit"

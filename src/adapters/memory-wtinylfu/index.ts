@@ -318,6 +318,29 @@ export class MemoryWTinyLFUAdapter implements StorageAdapter {
     return true;
   }
 
+  public async touch(key: string, ttl: number): Promise<boolean> {
+    const located = this.findEntry(key);
+    if (!located) return false;
+    if (this.isExpired(located.entry)) {
+      await this.delete(key);
+      return false;
+    }
+    located.entry.expiresAt = Date.now() + ttl;
+    return true;
+  }
+
+  public async ttl(key: string): Promise<number | null> {
+    const located = this.findEntry(key);
+    if (!located) return null;
+    if (this.isExpired(located.entry)) {
+      await this.delete(key);
+      return null;
+    }
+    if (located.entry.expiresAt === null) return null;
+    const remaining = located.entry.expiresAt - Date.now();
+    return remaining > 0 ? remaining : 0;
+  }
+
   public async clear(): Promise<void> {
     this.window.clear();
     this.probation.clear();

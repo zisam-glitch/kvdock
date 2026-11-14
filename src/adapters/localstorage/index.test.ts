@@ -156,4 +156,21 @@ describe("LocalStorageAdapter", () => {
     const keys = await adapter.keys();
     expect(keys).toEqual(["valid"]);
   });
+
+  it("supports touch and ttl inspection", async () => {
+    await adapter.set("timed", "val", { ttl: 2000 });
+    const remaining = await adapter.ttl("timed");
+    expect(remaining).toBeGreaterThan(0);
+    expect(remaining).toBeLessThanOrEqual(2000);
+
+    const touched = await adapter.touch("timed", 8000);
+    expect(touched).toBe(true);
+
+    const refreshed = await adapter.ttl("timed");
+    expect(refreshed).toBeGreaterThan(6000);
+    expect(refreshed).toBeLessThanOrEqual(8000);
+
+    expect(await adapter.touch("ghost", 1000)).toBe(false);
+    expect(await adapter.ttl("ghost")).toBeNull();
+  });
 });

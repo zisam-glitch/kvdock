@@ -127,4 +127,22 @@ describe("RouterDock (Hierarchical Storage Mounts)", () => {
     expect(router.unmount("m1")).toBe(true);
     expect(router.unmount("m1")).toBe(false);
   });
+
+  it("routes touch and ttl across mounted adapters", async () => {
+    const mem = new MemoryAdapter();
+    const router = new RouterDock();
+    router.mount("session", mem);
+
+    await router.set("session:user123", { auth: true }, { ttl: 200 });
+    const initialTtl = await router.ttl("session:user123");
+    expect(initialTtl).toBeGreaterThan(0);
+    expect(initialTtl).toBeLessThanOrEqual(200);
+
+    const touched = await router.touch("session:user123", 5000);
+    expect(touched).toBe(true);
+
+    const refreshedTtl = await router.ttl("session:user123");
+    expect(refreshedTtl).toBeGreaterThan(4000);
+    expect(refreshedTtl).toBeLessThanOrEqual(5000);
+  });
 });

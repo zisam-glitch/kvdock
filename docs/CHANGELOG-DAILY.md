@@ -22,3 +22,4 @@ One honest line per shipped item.
 - **2026-11-12**: Added `WindowTinyLFUAdapter` (`kvdock/adapters/memory-wtinylfu`) featuring 4-bit Count-Min frequency sketch admission and segmented window cache for optimal hit-ratio memory storage.
 - **2026-11-12**: Added client-side payload decompression & compression benchmarks across Gzip and Brotli (1KB to 1MB) with empirical results published in `docs/BENCHMARKS.md`.
 - **2026-11-15**: Added atomic counter primitives (`dock.increment`, `dock.decrement`) to core `KVDock` with optimistic CAS concurrency retry loop and event emission.
+- **2026-11-15**: Added non-destructive TTL refresh (`dock.touch`) and remaining TTL inspection (`dock.ttl`) to core `KVDock`, `TieredDock`, and `RouterDock` with native adapter implementations and SWR envelope support.

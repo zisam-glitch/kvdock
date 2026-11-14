@@ -92,6 +92,32 @@ export class MemoryAdapter implements StorageAdapter {
     return this.store.delete(key);
   }
 
+  public async touch(key: string, ttl: number): Promise<boolean> {
+    const entry = this.store.get(key);
+    if (!entry) return false;
+    if (this.isExpired(entry)) {
+      this.store.delete(key);
+      return false;
+    }
+    entry.expiresAt = Date.now() + ttl;
+    // refresh LRU order
+    this.store.delete(key);
+    this.store.set(key, entry);
+    return true;
+  }
+
+  public async ttl(key: string): Promise<number | null> {
+    const entry = this.store.get(key);
+    if (!entry) return null;
+    if (this.isExpired(entry)) {
+      this.store.delete(key);
+      return null;
+    }
+    if (entry.expiresAt === null) return null;
+    const remaining = entry.expiresAt - Date.now();
+    return remaining > 0 ? remaining : 0;
+  }
+
   public async has(key: string): Promise<boolean> {
     const entry = this.store.get(key);
     if (!entry) return false;

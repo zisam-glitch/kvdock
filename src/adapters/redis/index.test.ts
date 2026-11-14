@@ -65,6 +65,21 @@ class MockRedisClient implements RedisClientInterface {
     this.data.clear();
     return "OK";
   }
+
+  public async pexpire(key: string, ms: number): Promise<number> {
+    const entry = this.data.get(key);
+    if (!entry) return 0;
+    entry.expiresAt = Date.now() + ms;
+    return 1;
+  }
+
+  public async pttl(key: string): Promise<number> {
+    const entry = this.data.get(key);
+    if (!entry) return -2;
+    if (!entry.expiresAt) return -1;
+    const diff = entry.expiresAt - Date.now();
+    return diff > 0 ? diff : 0;
+  }
 }
 
 defineAdapterTestSuite({
@@ -136,5 +151,25 @@ describe("RedisAdapter", () => {
 
     await new Promise((r) => setTimeout(r, 30));
     expect(await adapter.get("temp")).toBeNull();
+  });
+
+  it("supports touch and ttl inspection", async () => {
+    const mock = new MockRedisClient();
+    const adapter = new RedisAdapter({ client: mock });
+
+    await adapter.set("timed", "val", { ttl: 50 });
+    const remaining = await adapter.ttl("timed");
+    expect(remaining).toBeGreaterThan(0);
+    expect(remaining).toBeLessThanOrEqual(50);
+
+    const touched = await adapter.touch("timed", 5000);
+    expect(touched).toBe(true);
+
+    const newTtl = await adapter.ttl("timed");
+    expect(newTtl).toBeGreaterThan(4000);
+    expect(newTtl).toBeLessThanOrEqual(5000);
+
+    expect(await adapter.touch("missing", 1000)).toBe(false);
+    expect(await adapter.ttl("missing")).toBeNull();
   });
 });

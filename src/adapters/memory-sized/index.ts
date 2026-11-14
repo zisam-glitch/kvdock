@@ -155,6 +155,32 @@ export class SizedMemoryAdapter implements StorageAdapter {
     return true;
   }
 
+  public async touch(key: string, ttl: number): Promise<boolean> {
+    const entry = this.store.get(key);
+    if (!entry) return false;
+    if (this.isExpired(entry)) {
+      this.currentBytes -= entry.bytes;
+      this.store.delete(key);
+      return false;
+    }
+    entry.expiresAt = Date.now() + ttl;
+    entry.lastAccessed = ++this.accessCounter;
+    return true;
+  }
+
+  public async ttl(key: string): Promise<number | null> {
+    const entry = this.store.get(key);
+    if (!entry) return null;
+    if (this.isExpired(entry)) {
+      this.currentBytes -= entry.bytes;
+      this.store.delete(key);
+      return null;
+    }
+    if (entry.expiresAt === null) return null;
+    const remaining = entry.expiresAt - Date.now();
+    return remaining > 0 ? remaining : 0;
+  }
+
   public async clear(): Promise<void> {
     this.store.clear();
     this.currentBytes = 0;

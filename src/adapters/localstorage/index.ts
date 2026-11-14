@@ -141,6 +141,27 @@ export class LocalStorageAdapter implements StorageAdapter {
     return (await this.get(key)) !== null;
   }
 
+  public async touch(key: string, ttl: number): Promise<boolean> {
+    const raw = this.storage.getItem(this.fullKey(key));
+    const envelope = this.parseEnvelope(raw, key);
+    if (!envelope) return false;
+    envelope.e = Date.now() + ttl;
+    try {
+      this.storage.setItem(this.fullKey(key), JSON.stringify(envelope));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  public async ttl(key: string): Promise<number | null> {
+    const raw = this.storage.getItem(this.fullKey(key));
+    const envelope = this.parseEnvelope(raw, key);
+    if (!envelope || envelope.e === null) return null;
+    const diff = envelope.e - Date.now();
+    return diff > 0 ? diff : 0;
+  }
+
   public async clear(): Promise<void> {
     const keysToRemove: string[] = [];
     for (let i = 0; i < this.storage.length; i++) {

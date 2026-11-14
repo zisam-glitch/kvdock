@@ -346,6 +346,16 @@ export class MongoDBAdapter implements StorageAdapter {
     return res !== null;
   }
 
+  public async touch(key: string, ttl: number): Promise<boolean> {
+    const expiresAt = new Date(Date.now() + ttl);
+    const res = await this.collection.findOneAndUpdate(
+      { _id: key },
+      { $set: { expiresAt } },
+      { returnDocument: "after" },
+    );
+    return res !== null;
+  }
+
   public async ttl(key: string): Promise<number | null> {
     const doc = await this.collection.findOne({ _id: key });
     if (!doc || !doc.expiresAt) return null;

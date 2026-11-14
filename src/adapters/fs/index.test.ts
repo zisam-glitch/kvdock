@@ -70,4 +70,21 @@ describe("FsAdapter", () => {
     const finalVal = await adapter.get<string>("hot_concurrent_key");
     expect(finalVal).toMatch(/^writer_\d+$/);
   });
+
+  it("supports touch and ttl inspection", async () => {
+    await adapter.set("timed_fs", "fs_val", { ttl: 2000 });
+    const remaining = await adapter.ttl("timed_fs");
+    expect(remaining).toBeGreaterThan(0);
+    expect(remaining).toBeLessThanOrEqual(2000);
+
+    const touched = await adapter.touch("timed_fs", 8000);
+    expect(touched).toBe(true);
+
+    const refreshed = await adapter.ttl("timed_fs");
+    expect(refreshed).toBeGreaterThan(6000);
+    expect(refreshed).toBeLessThanOrEqual(8000);
+
+    expect(await adapter.touch("ghost_fs", 1000)).toBe(false);
+    expect(await adapter.ttl("ghost_fs")).toBeNull();
+  });
 });
