@@ -12,7 +12,8 @@
 | **Total Ecosystem Stars (5 Language Repos)** | 7 Stars (diluted) | **8 Stars** (Now funneled to `kvdock`) | Unified into `zisam-glitch/kvdock` |
 | **NPM Search Keywords (`package.json`)** | 7 generic tags | **35 High-Intent Tags** (`nextjs`, `bun`, `hono`, `elysia`, `cache-stampede`, `single-flight`, `llm-cache`, etc.) | Indexed on npm & `bun-modules.pages.dev` |
 | **Global Contributor Aggregator Labels** | `good first issue` only | **`good first issue` + `up-for-grabs` + `first-timers-only`** on 5 open issues | Indexed on `goodfirstissue.dev` & `up-for-grabs.net` |
-| **Dev.to Technical Articles (`@zisamglitch`)** | 4 burst-posted on Nov 3 | **5 Live Articles** (+2 queued in 48h spaced autopilot) | Continuous organic developer traffic |
+| **Dev.to Technical Articles (`@zisamglitch`)** | 4 burst-posted on Nov 3 | **5 Live Articles** (+4 queued in 48h spaced autopilot) | Continuous organic developer traffic |
+| **GitHub Profile Followers (`@zisam-glitch`)** | 4 Followers | **4 / 10,000 Followers** (Auto-updating Profile README + Follow CTAs live) | **10,000 Followers (Inbound Organic)** |
 | **24/7 Cloud & Local Monitoring** | Manual check | **Automated (`watch` event + 6h Cron + Issue Alert)** | Zero daily manual checking required |
 
 ---
@@ -90,6 +91,23 @@ You **do not need to check your star count every day**. Three independent automa
 
 3. **Local Antigravity Scheduled Automation (`KVDock Starstruck Autopilot`)**:
    - Runs `npm run stars:autopilot` on schedule to check star velocity, publish spaced Dev.to articles from [docs/growth/articles-queue/](file:///Users/hhello/Documents/GIT/kvdock/docs/growth/articles-queue), and monitor community engagement.
+
+---
+
+## 👤 Inbound Follower Autopilot (Target: 10,000 Followers)
+
+> [!IMPORTANT]
+> **Why Inbound Attraction Beats Bulk-Follow Scripts:** Automated bulk-following of other accounts (`PUT /user/following/{username}`) violates GitHub's Acceptable Use Policies and triggers anti-spam filters that shadowban your repositories from search and Achievements. Instead, top open-source developers reach **10,000+ followers** via an **Inbound Content & Profile Flywheel**.
+
+### What Is Now Running Automatically for Follower Growth:
+1. **Self-Updating GitHub Profile README (`zisam-glitch/zisam-glitch`)**:
+   - Deployed `.github/workflows/profile-autopilot.yml` on `zisam-glitch/zisam-glitch` (runs every 6 hours).
+   - Automatically syncs your latest published **Dev.to Engineering Articles** (`@zisamglitch`) into your GitHub Profile README under `📝 Latest Engineering Articles & Deep-Dives`.
+   - Displays a prominent **`Follow @zisam-glitch`** badge at the very top of your GitHub profile so developers discovering your upstream PRs (`DefinitelyTyped`, `BurntSushi/aho-corasick`, `BurntSushi/memchr`, `square/okhttp`) and 16 Accepted GitHub Discussion Answers convert into followers.
+2. **Author Follow Footer Injection in `starstruck-autopilot.mjs`**:
+   - Every article auto-published every 48 hours from `docs/growth/articles-queue/` automatically includes an **About the Author (`@zisam-glitch`)** box with a direct `Follow @zisam-glitch on GitHub` link.
+3. **Live Follower Milestone Tracking (`4 -> 50 -> 250 -> 1,000 -> 10,000`)**:
+   - Tracked automatically on every run of `npm run stars:autopilot` and in the GitHub Actions summary.
 
 ---
 

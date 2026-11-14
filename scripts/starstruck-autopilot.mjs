@@ -24,7 +24,9 @@ const QUEUE_DIR = path.join(ROOT_DIR, "docs/growth/articles-queue");
 
 const TARGET_BASE = 16;
 const TARGET_BRONZE = 128;
+const TARGET_FOLLOWERS = 10000;
 const REPO = "zisam-glitch/kvdock";
+const USER = "zisam-glitch";
 const ECOSYSTEM_REPOS = [
   "zisam-glitch/kvdock",
   "zisam-glitch/kvdock-rs",
@@ -125,7 +127,9 @@ async function checkDevToAndMaybePublish(state, currentStars) {
         }
 
         console.log(`[Autopilot] 48h+ cooldown satisfied (${hoursSinceLastPost.toFixed(1)}h). Publishing queued article: "${title}"...`);
-        const pub = await publishToDevTo({ title, bodyMarkdown: body, tags });
+        const followFooter = `\n\n---\n\n### 👤 About the Author\nI'm **Zisam Shaikh** ([@zisam-glitch](https://github.com/zisam-glitch)), a systems & infrastructure engineer building zero-dependency caching and storage engines across TypeScript, Rust, Go, Swift, and Kotlin.\n- 👤 **[Follow @zisam-glitch on GitHub](https://github.com/zisam-glitch)** for weekly systems engineering deep dives\n- ⭐ **[Star zisam-glitch/kvdock on GitHub](https://github.com/zisam-glitch/kvdock)**\n`;
+        const finalBody = body.includes("Follow @zisam-glitch on GitHub") ? body : body + followFooter;
+        const pub = await publishToDevTo({ title, bodyMarkdown: finalBody, tags });
         if (pub && pub.url) {
           newlyPublished = { title, url: pub.url, file };
           state.publishedQueueFiles.push(file);
@@ -156,6 +160,7 @@ async function checkDevToAndMaybePublish(state, currentStars) {
 export async function runAutopilot() {
   const state = loadState();
   const repoInfo = ghJson(`repos/${REPO}`);
+  const userInfo = ghJson(`users/${USER}`);
   if (!repoInfo) {
     console.error("Failed to fetch repository info from GitHub API.");
     process.exit(1);
@@ -163,6 +168,9 @@ export async function runAutopilot() {
 
   const stars = repoInfo.stargazers_count || 0;
   const forks = repoInfo.forks_count || 0;
+  const followers = userInfo?.followers || 0;
+  const followerList = ghJson(`users/${USER}/followers?per_page=100`) || [];
+  const followerLogins = followerList.map((f) => f.login);
   const stargazerList = ghJson(`repos/${REPO}/stargazers`) || [];
   const stargazerLogins = stargazerList.map((s) => s.login);
 
@@ -191,7 +199,7 @@ export async function runAutopilot() {
   state.lastCheckedAt = nowIso;
 
   const summaryMd = [
-    `## 🏆 Starstruck Achievement Autopilot Status`,
+    `## 🏆 Starstruck & 10k Follower Autopilot Status`,
     ``,
     `| Metric | Value |`,
     `| :--- | :--- |`,
@@ -199,6 +207,7 @@ export async function runAutopilot() {
     `| **Stars Needed for Base Unlock** | **${remainingBase === 0 ? "🎉 UNLOCKED!" : `${remainingBase} more star(s)`}** |`,
     `| **Stars Needed for Bronze Tier (128)** | **${remainingBronze} star(s)** |`,
     `| **Total KVDock Ecosystem Stars** | **${ecosystemStars} stars** (across 5 language repos) |`,
+    `| **GitHub Followers (\`@${USER}\`)** | **${followers} / ${TARGET_FOLLOWERS.toLocaleString()}** (Recent: ${followerLogins.slice(0, 8).map((u) => `\`@${u}\``).join(", ") || "None"}) |`,
     `| **Repository Forks** | **${forks}** |`,
     `| **Current Stargazers** | ${stargazerLogins.map((u) => `\`@${u}\``).join(", ") || "None"} |`,
     `| **Dev.to Technical Reach** | **${devto.totalViews} views**, **${devto.totalReactions} reactions**, **${devto.totalComments} comments** |`,
