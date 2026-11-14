@@ -46,6 +46,21 @@ npm run build && node scripts/benchmark-stampede.mjs
 
 ---
 
+## 🥊 Architectural Comparison: KVDock vs. Alternatives
+
+| Feature | `kvdock` | `unstorage` | `keyv` |
+| :--- | :---: | :---: | :---: |
+| **Stampede Protection (Single-Flight)** | 🟢 **Built-in (`dock.getOrSet`)** | ❌ Manual | ❌ No |
+| **Native Multi-Tier Storage (`TieredDock`)** | 🟢 **Built-in (L1 RAM + L2 DB)** | 🟡 Driver overlay | ❌ No |
+| **Zero Runtime Dependencies Core** | 🟢 **Yes** | 🟢 Yes | ❌ No |
+| **Streaming Scans (`dock.scan()`)** | 🟢 **AsyncIterable** | 🟡 Batched Array | 🟡 Iterator |
+| **Next.js 15 App Router Incremental Cache** | 🟢 **Official Handler** | 🟡 Community | ❌ No |
+| **Cross-Process Invalidation Bus** | 🟢 **Built-in (`KVDockBus`)** | ❌ No | ❌ No |
+
+> 📖 *Read the complete deep dive: [Architectural Comparison: KVDock vs. Unstorage vs. Keyv](docs/guides/comparison-unstorage-keyv.md)*
+
+---
+
 ## Installation
 
 ```bash
@@ -92,7 +107,7 @@ npm install kvdock
 
 | Framework | Integration | Scope | Import |
 | :--- | :--- | :--- | :--- |
-| **Next.js 15** | `KVDockNextCacheHandler` | App Router Incremental Cache & ISR | `kvdock/integrations/nextjs` |
+| **Next.js 15** | [`KVDockNextCacheHandler`](docs/guides/nextjs-15-cache.md) | App Router Incremental Cache & ISR | `kvdock/integrations/nextjs` |
 | **Hono** | `kvdockHonoCache`, `kvdockHonoSession` | HTTP 304 ETag Caching & Edge Sessions | `kvdock/integrations/hono` |
 | **Nuxt 3 / Nitro** | `defineKVDockDriver` | Unstorage backend driver | `kvdock/integrations/nuxt` |
 | **SvelteKit** | `createSvelteKitSession` | Hook session & cache middleware | `kvdock/integrations/sveltekit` |
