@@ -14,6 +14,7 @@
 
 ### Verification & Testing
 
+- [ ] ⭐ Starred [zisam-glitch/kvdock](https://github.com/zisam-glitch/kvdock) to support the project!
 - [ ] `npm run check` passes with 0 errors (typecheck, Biome lint, tests)
 - [ ] If adding an adapter, `defineAdapterTestSuite` passes in `index.test.ts`
 - [ ] No regression on existing core test suites

@@ -1,0 +1,40 @@
+name: starstruck-autopilot
+
+on:
+  watch:
+    types: [started]
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  monitor-and-autopilot:
+    runs-on: ubuntu-latest
+    if: github.repository == 'zisam-glitch/kvdock'
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: 22
+      - name: Run Starstruck Autopilot & Progress Monitor
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEVTO_API_KEY: ${{ secrets.DEVTO_API_KEY }}
+        run: |
+          node scripts/starstruck-autopilot.mjs
+          STARS=$(gh api repos/zisam-glitch/kvdock --jq '.stargazers_count')
+          echo "Current stars: $STARS / 16"
+          if [ "$STARS" -ge 16 ]; then
+            EXISTING=$(gh issue list --repo zisam-glitch/kvdock --state all --search "Starstruck Achievement Unlocked in:title" --json number --jq 'length')
+            if [ "$EXISTING" -eq 0 ]; then
+              gh issue create --repo zisam-glitch/kvdock \
+                --title "🎉 Starstruck Achievement Unlocked ($STARS/16 Stars Reached)!" \
+                --body "Congratulations @zisam-glitch! **kvdock** has officially crossed the **16-star** threshold ($STARS stars) required to unlock the **Starstruck** achievement badge on GitHub!"
+            fi
+          fi

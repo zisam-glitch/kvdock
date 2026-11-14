@@ -1,5 +1,7 @@
 # Contributing to kvdock
 
+> ⭐ **Welcome!** Before diving in, please consider giving [**zisam-glitch/kvdock a ★ Star on GitHub**](https://github.com/zisam-glitch/kvdock) to help other developers discover the project!
+
 ## Quick Start
 
 ```bash
