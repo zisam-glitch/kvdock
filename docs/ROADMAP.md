@@ -31,4 +31,6 @@
 - [x] Add type-safe Standard Schema & Zod runtime validation plugin with auto-healing in `kvdock/plugins/schema`
 - [x] Add atomic counter primitives (`dock.increment`, `dock.decrement`) with optimistic CAS concurrency in core `KVDock`
 - [x] Add non-destructive TTL refresh (`dock.touch`) and remaining TTL inspection (`dock.ttl`) in core `KVDock`
+- [x] Add `kvdock doctor` CLI diagnostic command to probe storage adapter latency and roundtrip health (#124)
+- [x] Add Fastify session store & failover authentication cookbook recipe in `examples/fastify-session-auth` (#129)
 - [ ] Add snapshot dump and restore CLI subcommands (`kvdock dump`, `kvdock restore`) with JSON export
