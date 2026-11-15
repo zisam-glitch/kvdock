@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-import { createRequire } from "node:module";
 import { performance } from "node:perf_hooks";
 import { FsAdapter } from "../adapters/fs/index.js";
 import { MemoryAdapter } from "../adapters/memory/index.js";
@@ -8,16 +7,7 @@ import { SQLiteAdapter } from "../adapters/sqlite/index.js";
 import { KVDock } from "../core/store.js";
 import type { StorageAdapter } from "../core/types.js";
 import { migrate } from "../tooling/migrate.js";
-
-function isNodeSqliteAvailable(): boolean {
-  try {
-    const req = createRequire(import.meta.url);
-    const sqlite = req("node:sqlite") as { DatabaseSync?: unknown };
-    return typeof sqlite?.DatabaseSync === "function";
-  } catch {
-    return false;
-  }
-}
+import { runDoctor } from "./doctor.js";
 
 function printHelp(): void {
   console.log(`
@@ -187,24 +177,41 @@ async function main(): Promise<void> {
       }
 
       case "doctor": {
+        const probes = Math.max(1, Number(flags.ops) || 100);
         const adapter = resolveAdapter(flags);
         const dock = new KVDock({ adapter });
-        const info = {
-          runtime: typeof process !== "undefined" ? `Node.js ${process.version}` : "Unknown",
-          adapter: dock.adapterName,
-          capabilities: dock.capabilities,
-          nodeSqliteNative: isNodeSqliteAvailable(),
-        };
+        const { ok, checks } = await runDoctor(dock, { probes });
 
         if (isJson) {
-          console.log(JSON.stringify(info, null, 2));
+          console.log(
+            JSON.stringify(
+              {
+                adapter: dock.adapterName,
+                runtime: `Node.js ${process.version}`,
+                ok,
+                checks,
+              },
+              null,
+              2,
+            ),
+          );
         } else {
           console.log("kvdock Doctor Report:");
-          console.log(`  Runtime:      ${info.runtime}`);
-          console.log(`  Adapter:      ${info.adapter}`);
-          console.log(`  Capabilities: ${JSON.stringify(info.capabilities)}`);
-          console.log(`  Node SQLite:  ${info.nodeSqliteNative ? "Available" : "Not present"}`);
+          console.log(`  Adapter: ${dock.adapterName}`);
+          console.log(`  Runtime: Node.js ${process.version}`);
+          for (const check of checks) {
+            const latency = check.ms !== undefined ? ` (${check.ms.toFixed(1)}ms)` : "";
+            const detail = check.ok ? "" : ` - ${check.detail ?? "failed"}`;
+            console.log(
+              `  ${check.ok ? "✔" : "✖"} ${check.name}: ${check.ok ? "Passed" : "Failed"}${latency}${detail}`,
+            );
+          }
+          console.log(
+            ok ? "All checks green! 🚀" : `${checks.filter((c) => !c.ok).length} check(s) failed`,
+          );
         }
+
+        if (!ok) process.exit(1);
         break;
       }
 
