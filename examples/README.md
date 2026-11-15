@@ -10,6 +10,7 @@ This directory contains executable, end-to-end examples demonstrating KVDock's f
 | **[distributed-lock](./distributed-lock/index.ts)** | `DistributedMutex` with monotonic fencing tokens, lease renewal, and `DistributedSemaphore` concurrency pooling | `npx tsx examples/distributed-lock/index.ts` |
 | **[hono-caching](./hono-caching/index.ts)** | Edge HTTP route caching, automatic ETag generation, conditional `304 Not Modified` revalidation, encrypted sessions | `npx tsx examples/hono-caching/index.ts` |
 | **[elysia-caching](./elysia-caching/index.ts)** | ElysiaJS & Bun.serve route caching, `BunSQLiteAdapter`, conditional 304, stampede coalescing | `npx tsx examples/elysia-caching/index.ts` |
+| **[fastify-session-auth](./fastify-session-auth/index.ts)** | Fastify signed cookie sessions (`req.session.set`), verification, logout invalidation, and Redis/standby failover | `npx tsx examples/fastify-session-auth/index.ts` |
 | **[nextjs-isr](./nextjs-isr/index.ts)** | Next.js 14/15 App Router IncrementalCache handler (`cacheHandler`), tag-based invalidation (`revalidateTag`) | `npx tsx examples/nextjs-isr/index.ts` |
 | **[llm-response-caching](./llm-response-caching/index.ts)** | AI / LLM response caching (OpenAI/Anthropic/Gemini), prompt hashing, stampede coalescing, cost reduction | `npx tsx examples/llm-response-caching/index.ts` |
 
