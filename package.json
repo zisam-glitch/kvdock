@@ -1,6 +1,6 @@
 {
   "name": "kvdock",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "Universal key-value adapter engine with zero-dependency core",
   "type": "module",
   "main": "./dist/index.cjs",

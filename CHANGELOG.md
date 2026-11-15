@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.4.0
+
+### Minor Changes
+
+- 56c397b: feat(middleware): add resilient Circuit Breaker, Active-Passive Failover, and zero-downtime Stale-While-Revalidate (SWR) with XFetch
+
+  - Added production sliding-window Circuit Breaker middleware (`withCircuitBreaker`, `CircuitBreaker`) with automatic fallback adapter routing, slow call detection, and graceful degradation.
+  - Added active-passive Multi-Adapter Failover adapter (`withFailover`) with write replication to pre-warm standby caches and automatic health recovery failback.
+  - Added RFC 5861 Stale-While-Revalidate (`staleWhileRevalidate`) and ACM 2015 XFetch optimal probabilistic cache stampede prevention (`xfetch`, `beta`) in `KVDock.getOrSet`.
+  - Added standalone runnable demonstration in `examples/circuit-breaker-failover/index.ts`.
+
+- f90489e: Add RouterDock prefix mounter, KVDockBus multi-node L1 invalidation, WindowTinyLFU adapter, and payload decompression benchmarks:
+  - `RouterDock` (`kvdock/router`): Hierarchical prefix mounter for heterogeneous backends with transparent single-flight stampede protection, cross-mount batching, and pattern scanning.
+  - `KVDockBus` (`kvdock/bus`): Distributed cluster invalidation with `EventEmitterBus`, `BroadcastChannelBus`, and `RedisPubSubBus`, seamlessly auto-evicting `TieredDock` L1 caches across horizontal nodes.
+  - `WindowTinyLFUAdapter` (`kvdock/adapters/memory-wtinylfu`): Memory adapter with admission policy combining a window cache and a 4-bit Count-Min frequency sketch for superior hit ratios over pure LRU.
+  - Grace Mode / Stale-If-Error in `KVDock.getOrSet`: Transparently serve stale cache on factory failure when within `staleWhileRevalidate` window.
+  - Empirical payload compression/decompression benchmark and report in `docs/BENCHMARKS.md` covering Gzip and Brotli from 1KB to 1MB.
+
 All notable changes to `kvdock` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -7,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.1] - 2026-11-03
 
 ### Added
+
 - **Official SvelteKit Integration (`kvdock/integrations/sveltekit`)**:
   - `createKVDockHandle`: SvelteKit server `Handle` hook providing route response caching with automatic weak SHA-1 ETag computation and conditional `If-None-Match` revalidation returning `304 Not Modified` (#96).
   - Supports configurable TTLs, vary header tracking, dynamic skip predicates (`shouldCache`), and custom `Cache-Control` propagation.
@@ -15,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.0] - 2026-11-03
 
 ### Added
+
 - **Official Framework Integrations**:
   - **Next.js 14/15 CacheHandler (`kvdock/integrations/nextjs`)**: Drop-in App Router ISR and fetch cache handler with tag invalidation (#68).
   - **Hono Edge Middlewares (`kvdock/integrations/hono`)**: Route caching with automatic ETag generation, conditional 304 revalidation, and encrypted session management for Cloudflare Workers, Bun, Node, and Deno (#67).
@@ -48,6 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.0] - 2026-11-03
 
 ### Added
+
 - **Multi-Tiered Dock (`TieredDock`)**: Transparent L1 (in-memory) + L2 (remote/durable) cache hierarchy with automated backfills and hit/miss telemetry.
 - **Single-Flight Stampede Protection**: Deterministic in-flight promise deduplication on `getOrSet()` eliminating thundering herds.
 - **Tag-Based Invalidation**: Invalidate clusters of keys by cache tag (`invalidateTag`, `invalidateTags`) with internal reverse lookup index.
@@ -68,6 +89,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2026-10-28
 
 ### Added
+
 - Core `KVDock` storage engine with zero-dependency TypeScript implementation.
 - Built-in `MemoryAdapter` with sub-millisecond $O(1)$ LRU eviction and deterministic TTL management.
 - Built-in `FsAdapter` with atomic JSON serialization and directory management.
@@ -77,4 +99,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Architecture Decision Records (`001-core-architecture.md`, `002-error-handling-strategy.md`, `003-zero-dependency-policy.md`).
 
 ### Fixed
+
 - Enforce strict TTL boundary validation rejecting non-positive and non-finite values (#31).
