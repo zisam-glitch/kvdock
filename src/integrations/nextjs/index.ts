@@ -1,5 +1,11 @@
 import { KVDock } from "../../core/store.js";
+import type { TieredDock } from "../../core/tiered.js";
 import type { StorageAdapter } from "../../core/types.js";
+
+export type NextCacheStore = Pick<
+  KVDock | TieredDock,
+  "get" | "set" | "invalidateTag" | "invalidateTags"
+>;
 
 export interface NextIncrementalCacheEntry {
   value: unknown;
@@ -14,10 +20,12 @@ export interface NextIncrementalCacheContext {
 }
 
 export interface NextCacheHandlerOptions {
-  dock?: KVDock;
+  dock?: NextCacheStore;
   adapter?: StorageAdapter;
   keyPrefix?: string;
   defaultTTL?: number;
+  /** Optional Next.js runtime context passed automatically by Next.js `new CacheHandler(ctx)` */
+  [key: string]: unknown;
 }
 
 interface StoredCacheEnvelope {
@@ -33,7 +41,7 @@ let globalDefaultOptions: NextCacheHandlerOptions | undefined;
  * Compatible with Next.js 14 and Next.js 15 App Router ISR and fetch caching.
  */
 export class KVDockNextCacheHandler {
-  private readonly dock: KVDock;
+  private readonly dock: NextCacheStore;
   private readonly keyPrefix: string;
   private readonly defaultTTL?: number;
 
@@ -42,7 +50,14 @@ export class KVDockNextCacheHandler {
   }
 
   public constructor(options?: NextCacheHandlerOptions) {
-    const resolvedOptions = options ?? globalDefaultOptions;
+    // Next.js calls `new CacheHandler(ctx)` passing its own runtime context object
+    // (e.g. `{ serverDistDir, revalidatedTags, maxMemoryCacheSize }`).
+    // Merge `globalDefaultOptions` when `options` does not directly supply `dock` or `adapter`.
+    const resolvedOptions: NextCacheHandlerOptions | undefined =
+      options?.dock || options?.adapter
+        ? { ...globalDefaultOptions, ...options }
+        : (globalDefaultOptions ?? options);
+
     if (!resolvedOptions) {
       throw new Error(
         "KVDockNextCacheHandler requires options with 'dock' or 'adapter', or call KVDockNextCacheHandler.configure(options) first.",
@@ -131,5 +146,11 @@ export function createNextCacheHandler(
   options: NextCacheHandlerOptions,
 ): typeof KVDockNextCacheHandler {
   KVDockNextCacheHandler.configure(options);
-  return KVDockNextCacheHandler;
+  return class ConfiguredKVDockNextCacheHandler extends KVDockNextCacheHandler {
+    public constructor(nextContext?: NextCacheHandlerOptions) {
+      super({ ...options, ...nextContext, dock: options.dock, adapter: options.adapter });
+    }
+  };
 }
+
+export default KVDockNextCacheHandler;

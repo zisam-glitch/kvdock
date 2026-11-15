@@ -15,7 +15,10 @@ export interface TieredDockOptions {
   l2: StorageAdapter;
   prefix?: string;
   defaultTTL?: number;
+  l2TTL?: number;
+  l2Ttl?: number;
   l1TTL?: number;
+  l1Ttl?: number;
   serializer?: Serializer;
   logger?: KVDockLogger;
   onEvent?: (event: KVDockEvent) => void;
@@ -55,13 +58,15 @@ export class TieredDock {
   };
 
   constructor(options: TieredDockOptions) {
-    this.l1TTL = options.l1TTL;
+    const resolvedL1TTL = options.l1TTL ?? options.l1Ttl;
+    const resolvedL2TTL = options.defaultTTL ?? options.l2TTL ?? options.l2Ttl;
+    this.l1TTL = resolvedL1TTL;
     this.bus = options.bus;
 
     this.l1Dock = new KVDock({
       adapter: options.l1,
       prefix: options.prefix,
-      defaultTTL: options.l1TTL ?? options.defaultTTL,
+      defaultTTL: resolvedL1TTL ?? resolvedL2TTL,
       serializer: options.serializer,
       logger: options.logger,
       onEvent: options.onEvent,
@@ -70,7 +75,7 @@ export class TieredDock {
     this.l2Dock = new KVDock({
       adapter: options.l2,
       prefix: options.prefix,
-      defaultTTL: options.defaultTTL,
+      defaultTTL: resolvedL2TTL,
       serializer: options.serializer,
       logger: options.logger,
       onEvent: options.onEvent,
@@ -200,6 +205,10 @@ export class TieredDock {
     if (this.bus) {
       await this.bus.publish({ type: "tag_invalidation", tag, keys });
     }
+  }
+
+  public async invalidateTags(tags: string[]): Promise<void> {
+    await Promise.all(tags.map((tag) => this.invalidateTag(tag)));
   }
 
   public async keys(pattern?: string): Promise<string[]> {
