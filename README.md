@@ -109,6 +109,7 @@ npm install kvdock
 | Framework | Integration | Scope | Import |
 | :--- | :--- | :--- | :--- |
 | **Next.js 15** | [`KVDockNextCacheHandler`](docs/guides/nextjs-15-cache.md) | App Router Incremental Cache & ISR | `kvdock/integrations/nextjs` |
+| **Elysia.js (Bun)** | [`kvdockElysiaPlugin`](docs/guides/elysia.md) | Zero-overhead Route, Context & Eden Treaty Caching | `kvdock` ([Guide](docs/guides/elysia.md)) |
 | **Hono** | `kvdockHonoCache`, `kvdockHonoSession` | HTTP 304 ETag Caching & Edge Sessions | `kvdock/integrations/hono` |
 | **Nuxt 3 / Nitro** | `defineKVDockDriver` | Unstorage backend driver | `kvdock/integrations/nuxt` |
 | **SvelteKit** | `createSvelteKitSession` | Hook session & cache middleware | `kvdock/integrations/sveltekit` |
