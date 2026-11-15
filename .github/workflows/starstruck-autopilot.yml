@@ -3,6 +3,10 @@ name: starstruck-autopilot
 on:
   watch:
     types: [started]
+  pull_request_target:
+    types: [opened]
+  issues:
+    types: [opened]
   schedule:
     - cron: '0 */6 * * *'
   workflow_dispatch:
@@ -11,9 +15,36 @@ permissions:
   contents: read
 
 jobs:
+  welcome-contributor:
+    runs-on: ubuntu-latest
+    if: >-
+      github.repository == 'zisam-glitch/kvdock' &&
+      (github.event_name == 'pull_request_target' || github.event_name == 'issues') &&
+      github.actor != 'zisam-glitch' &&
+      github.actor != 'github-actions[bot]'
+    permissions:
+      contents: read
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Welcome New Contributor & Star Reminder
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACTOR: ${{ github.actor }}
+          NUMBER: ${{ github.event.pull_request.number || github.event.issue.number }}
+        run: |
+          STARRED=$(gh api "repos/zisam-glitch/kvdock/stargazers" --jq "map(select(.login == \"$ACTOR\")) | length")
+          if [ "$STARRED" -eq 0 ]; then
+            gh issue comment "$NUMBER" --repo zisam-glitch/kvdock --body "👋 Welcome @$ACTOR, and thank you for contributing to **kvdock**!
+
+          If you find this project interesting or helpful, please consider clicking **★ Star** at the top right of [**zisam-glitch/kvdock**](https://github.com/zisam-glitch/kvdock) and following [**@zisam-glitch**](https://github.com/zisam-glitch) to help us reach our next community milestone while we review your submission! 🚀"
+          fi
+
   monitor-and-autopilot:
     runs-on: ubuntu-latest
-    if: github.repository == 'zisam-glitch/kvdock'
+    if: >-
+      github.repository == 'zisam-glitch/kvdock' &&
+      (github.event_name == 'watch' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
     permissions:
       contents: read
       issues: write
