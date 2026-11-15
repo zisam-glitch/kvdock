@@ -49,6 +49,28 @@ const TARGETS = [
     lineToAdd:
       "- [KVDock](https://github.com/zisam-glitch/kvdock) - Zero-dependency Next.js App Router incremental cache handler with multi-tier L1/L2 storage and single-flight stampede protection.",
   },
+  {
+    repo: "denolib/awesome-deno",
+    file: "README.md",
+    branch: "add-kvdock-deno-kv",
+    prTitle: "Add kvdock to Database",
+    prBody:
+      "Adds [kvdock](https://github.com/zisam-glitch/kvdock) in alphabetical order under `### Database`.\n\n- Zero-dependency key-value and multi-tier caching engine with a native Deno KV driver (`kvdock/adapters/deno-kv`), transactional tuples, versionstamps, and single-flight stampede protection.",
+    anchor: "- [dongoose](https://github.com/roonie007/dongoose)",
+    lineToAdd:
+      "- [kvdock](https://github.com/zisam-glitch/kvdock) - Zero-dependency key-value and multi-tier caching engine with native Deno KV support and single-flight stampede protection.",
+  },
+  {
+    repo: "israeleriston/awesome-fastify",
+    file: "README.md",
+    branch: "add-kvdock-fastify",
+    prTitle: "Add kvdock Fastify cache and session plugin",
+    prBody:
+      "Adds [kvdock](https://github.com/zisam-glitch/kvdock) under `#### [Community](#community)`.\n\n- Provides `kvdockFastifyPlugin` (`kvdock/integrations/fastify`) for multi-tier route caching and session storage with single-flight stampede protection.",
+    anchor: "- [`fastify-register-routes`](https://github.com/israeleriston/fastify-register-routes)",
+    lineToAdd:
+      "- [`kvdock`](https://github.com/zisam-glitch/kvdock) Multi-tier route caching and session plugin with single-flight stampede protection and 20+ storage drivers.",
+  },
 ];
 
 const shouldSubmit = process.argv.includes("--submit");
